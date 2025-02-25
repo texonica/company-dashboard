@@ -1,0 +1,3 @@
+- [ ] make aitable.ai api documentation locally so we have something to referr to. make it such so it's always included for lookup for you
+- [ ] Establish connection with aitable.ai through api and read all the tables from it so we can create an easy way of referring everything
+- [ ] Make it possible to search, create, update, delete things in aitable.ai we also want to be able to manage links between tables
