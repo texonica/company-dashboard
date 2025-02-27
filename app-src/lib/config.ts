@@ -7,16 +7,10 @@ const config = {
    */
   aitable: {
     /**
-     * AITable API token
-     * This should be set as an environment variable in production
-     */
-    apiToken: process.env.NEXT_PUBLIC_AITABLE_API_TOKEN || '',
-    
-    /**
      * Default space ID
      * This can be set as an environment variable or configured here
      */
-    defaultSpaceId: 'spc12q5HY4ay5',
+    defaultSpaceId: process.env.NEXT_PUBLIC_AITABLE_DEFAULT_SPACE_ID || 'spc12q5HY4ay5',
   },
   
   /**

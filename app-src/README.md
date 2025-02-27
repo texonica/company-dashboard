@@ -42,7 +42,7 @@ yarn install
 3. Create a `.env.local` file in the root directory with your AITable API token:
 
 ```
-NEXT_PUBLIC_AITABLE_API_TOKEN=your_api_token_here
+AITABLE_API_TOKEN=your_api_token_here
 NEXT_PUBLIC_AITABLE_DEFAULT_SPACE_ID=your_default_space_id_here
 ```
 
@@ -61,6 +61,9 @@ yarn dev
 ## Project Structure
 
 - `/app`: Next.js app router pages and layouts
+  - `/api`: Server-side API routes
+  - `/components`: React components
+  - `/lib`: Utility functions and services
 - `/lib`: Utility functions, API clients, and services
   - `/api`: API clients for external services
   - `/contexts`: React contexts for state management
@@ -72,10 +75,10 @@ yarn dev
 
 The application uses the following environment variables:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_AITABLE_API_TOKEN` | Your AITable API token | Yes |
-| `NEXT_PUBLIC_AITABLE_DEFAULT_SPACE_ID` | Default space ID to use | No |
+| Variable | Description | Required | Access |
+|----------|-------------|----------|---------|
+| `AITABLE_API_TOKEN` | Your AITable API token | Yes | Server-side only |
+| `NEXT_PUBLIC_AITABLE_DEFAULT_SPACE_ID` | Default space ID to use | No | Client & Server |
 
 For development, you can set these in a `.env.local` file. For production, set them according to your hosting provider's instructions.
 

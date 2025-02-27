@@ -48,6 +48,9 @@ GET /fusion/v1/spaces/{spaceId}/nodes
 
 **Parameters:**
 - `spaceId` (path): The ID of the space
+- `type` (query, optional): Filter by node type (Folder, Datasheet, Form, Dashboard)
+- `parentId` (query, optional): Filter by parent folder ID
+- `permissions` (query, optional): Filter by permission levels (0 = readonly, 1 = edit, 2 = manage)
 
 **Response Example:**
 ```json
@@ -58,10 +61,11 @@ GET /fusion/v1/spaces/{spaceId}/nodes
     "nodes": [
       {
         "id": "dstxxxxxxx",
-        "name": "Datasheet Name",
+        "name": "Node Name",
         "type": "Datasheet",
         "parentId": "fodxxxxxxx",
-        "icon": "icon_name"
+        "icon": "icon_name",
+        "permissions": [0, 1, 2]
       }
     ]
   },
@@ -69,18 +73,17 @@ GET /fusion/v1/spaces/{spaceId}/nodes
 }
 ```
 
-### Search Nodes
+### Get Node Details
 
-Searches for specific nodes in a space.
+Retrieves details of a specific node.
 
 ```
-GET /fusion/v1/spaces/{spaceId}/nodes/search
+GET /fusion/v1/spaces/{spaceId}/nodes/{nodeId}
 ```
 
 **Parameters:**
 - `spaceId` (path): The ID of the space
-- `keyword` (query): Search keyword
-- `type` (query, optional): Node type filter (Datasheet, Form, Dashboard, etc.)
+- `nodeId` (path): The ID of the node
 
 **Response Example:**
 ```json
@@ -88,21 +91,107 @@ GET /fusion/v1/spaces/{spaceId}/nodes/search
   "code": 200,
   "success": true,
   "data": {
-    "nodes": [
-      {
-        "id": "dstxxxxxxx",
-        "name": "Datasheet Name",
-        "type": "Datasheet",
-        "parentId": "fodxxxxxxx",
-        "icon": "icon_name"
-      }
-    ]
+    "node": {
+      "id": "dstxxxxxxx",
+      "name": "Node Name",
+      "type": "Datasheet",
+      "parentId": "fodxxxxxxx",
+      "icon": "icon_name",
+      "permissions": [0, 1, 2]
+    }
   },
   "message": "SUCCESS"
 }
 ```
 
-## Datasheet API
+### Update Node
+
+Updates a node's properties.
+
+```
+PATCH /fusion/v1/spaces/{spaceId}/nodes/{nodeId}
+```
+
+**Parameters:**
+- `spaceId` (path): The ID of the space
+- `nodeId` (path): The ID of the node
+- Request Body:
+  ```json
+  {
+    "name": "New Name",
+    "icon": "new_icon",
+    "description": "New description",
+    "parentId": "new_parent_id"
+  }
+  ```
+
+### Delete Node
+
+Deletes a node.
+
+```
+DELETE /fusion/v1/spaces/{spaceId}/nodes/{nodeId}
+```
+
+**Parameters:**
+- `spaceId` (path): The ID of the space
+- `nodeId` (path): The ID of the node
+
+## Folders API
+
+### Create Folder
+
+Creates a new folder.
+
+```
+POST /fusion/v1/spaces/{spaceId}/folders
+```
+
+**Parameters:**
+- `spaceId` (path): The ID of the space
+- Request Body:
+  ```json
+  {
+    "name": "Folder Name",
+    "parentId": "parent_folder_id",
+    "icon": "folder_icon"
+  }
+  ```
+
+### Get Folder Children
+
+Retrieves all nodes within a folder.
+
+```
+GET /fusion/v1/spaces/{spaceId}/nodes?parentId={folderId}
+```
+
+**Parameters:**
+- `spaceId` (path): The ID of the space
+- `parentId` (query): The ID of the parent folder
+- `type` (query, optional): Filter by node type
+
+## Datasheets API
+
+### Create Datasheet
+
+Creates a new datasheet.
+
+```
+POST /fusion/v1/spaces/{spaceId}/datasheets
+```
+
+**Parameters:**
+- `spaceId` (path): The ID of the space
+- Request Body:
+  ```json
+  {
+    "name": "Datasheet Name",
+    "parentId": "parent_folder_id",
+    "description": "Datasheet description",
+    "icon": "datasheet_icon"
+  }
+  ```
 
 ### Get Records
 
@@ -119,31 +208,9 @@ GET /fusion/v1/datasheets/{datasheetId}/records
 - `pageSize` (query, optional): Number of records per page (default: 100)
 - `pageToken` (query, optional): Token for pagination
 
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
-    "records": [
-      {
-        "recordId": "recxxxxxxx",
-        "fields": {
-          "Field1": "Value1",
-          "Field2": "Value2"
-        }
-      }
-    ],
-    "pageToken": "next_page_token",
-    "total": 150
-  },
-  "message": "SUCCESS"
-}
-```
-
 ### Create Records
 
-Adds new records to a datasheet.
+Creates new records in a datasheet.
 
 ```
 POST /fusion/v1/datasheets/{datasheetId}/records
@@ -151,41 +218,20 @@ POST /fusion/v1/datasheets/{datasheetId}/records
 
 **Parameters:**
 - `datasheetId` (path): The ID of the datasheet
-- `fieldKey` (query, optional): Field key type, either "name" or "id" (default: "name")
-
-**Request Body:**
-```json
-{
-  "records": [
-    {
-      "fields": {
-        "Field1": "Value1",
-        "Field2": "Value2"
-      }
-    }
-  ]
-}
-```
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
+- `fieldKey` (query, optional): Field key type, either "name" or "id"
+- Request Body:
+  ```json
+  {
     "records": [
       {
-        "recordId": "recxxxxxxx",
         "fields": {
-          "Field1": "Value1",
-          "Field2": "Value2"
+          "field1": "value1",
+          "field2": "value2"
         }
       }
     ]
-  },
-  "message": "SUCCESS"
-}
-```
+  }
+  ```
 
 ### Update Records
 
@@ -197,42 +243,21 @@ PATCH /fusion/v1/datasheets/{datasheetId}/records
 
 **Parameters:**
 - `datasheetId` (path): The ID of the datasheet
-- `fieldKey` (query, optional): Field key type, either "name" or "id" (default: "name")
-
-**Request Body:**
-```json
-{
-  "records": [
-    {
-      "recordId": "recxxxxxxx",
-      "fields": {
-        "Field1": "Updated Value1",
-        "Field2": "Updated Value2"
-      }
-    }
-  ]
-}
-```
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
+- `fieldKey` (query, optional): Field key type, either "name" or "id"
+- Request Body:
+  ```json
+  {
     "records": [
       {
         "recordId": "recxxxxxxx",
         "fields": {
-          "Field1": "Updated Value1",
-          "Field2": "Updated Value2"
+          "field1": "new_value1",
+          "field2": "new_value2"
         }
       }
     ]
-  },
-  "message": "SUCCESS"
-}
-```
+  }
+  ```
 
 ### Delete Records
 
@@ -244,29 +269,18 @@ DELETE /fusion/v1/datasheets/{datasheetId}/records
 
 **Parameters:**
 - `datasheetId` (path): The ID of the datasheet
-
-**Request Body:**
-```json
-{
-  "recordIds": ["recxxxxxxx", "recyyyyyyy"]
-}
-```
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {},
-  "message": "SUCCESS"
-}
-```
+- Request Body:
+  ```json
+  {
+    "recordIds": ["recxxxxxxx", "recyyyyyyy"]
+  }
+  ```
 
 ## Fields API
 
 ### Get Fields
 
-Retrieves field definitions from a datasheet.
+Retrieves fields from a datasheet.
 
 ```
 GET /fusion/v1/datasheets/{datasheetId}/fields
@@ -275,25 +289,6 @@ GET /fusion/v1/datasheets/{datasheetId}/fields
 **Parameters:**
 - `datasheetId` (path): The ID of the datasheet
 - `viewId` (query, optional): The ID of the view
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
-    "fields": [
-      {
-        "id": "fldxxxxxxx",
-        "name": "Field Name",
-        "type": "Text",
-        "property": {}
-      }
-    ]
-  },
-  "message": "SUCCESS"
-}
-```
 
 ## Views API
 
@@ -308,29 +303,11 @@ GET /fusion/v1/datasheets/{datasheetId}/views
 **Parameters:**
 - `datasheetId` (path): The ID of the datasheet
 
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
-    "views": [
-      {
-        "id": "viwxxxxxxx",
-        "name": "View Name",
-        "type": "Grid"
-      }
-    ]
-  },
-  "message": "SUCCESS"
-}
-```
-
 ## Embedded Links API
 
 ### Create Embedded Links
 
-Creates links between nodes.
+Creates embedded links for a node.
 
 ```
 POST /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
@@ -339,40 +316,21 @@ POST /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
 **Parameters:**
 - `spaceId` (path): The ID of the space
 - `nodeId` (path): The ID of the node
-
-**Request Body:**
-```json
-{
-  "embedLinks": [
-    {
-      "datasheetId": "dstxxxxxxx",
-      "recordId": "recxxxxxxx"
-    }
-  ]
-}
-```
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
+- Request Body:
+  ```json
+  {
     "embedLinks": [
       {
-        "id": "emlxxxxxxx",
         "datasheetId": "dstxxxxxxx",
         "recordId": "recxxxxxxx"
       }
     ]
-  },
-  "message": "SUCCESS"
-}
-```
+  }
+  ```
 
 ### Get Embedded Links
 
-Retrieves links between nodes.
+Retrieves embedded links for a node.
 
 ```
 GET /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
@@ -382,27 +340,9 @@ GET /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
 - `spaceId` (path): The ID of the space
 - `nodeId` (path): The ID of the node
 
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {
-    "embedLinks": [
-      {
-        "id": "emlxxxxxxx",
-        "datasheetId": "dstxxxxxxx",
-        "recordId": "recxxxxxxx"
-      }
-    ]
-  },
-  "message": "SUCCESS"
-}
-```
-
 ### Delete Embedded Links
 
-Removes links between nodes.
+Deletes embedded links from a node.
 
 ```
 DELETE /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
@@ -411,20 +351,9 @@ DELETE /fusion/v1/spaces/{spaceId}/nodes/{nodeId}/embedlinks
 **Parameters:**
 - `spaceId` (path): The ID of the space
 - `nodeId` (path): The ID of the node
-
-**Request Body:**
-```json
-{
-  "embedLinkIds": ["emlxxxxxxx", "emlyyyyyyy"]
-}
-```
-
-**Response Example:**
-```json
-{
-  "code": 200,
-  "success": true,
-  "data": {},
-  "message": "SUCCESS"
-}
-``` 
+- Request Body:
+  ```json
+  {
+    "embedLinkIds": ["emlxxxxxxx", "emlyyyyyyy"]
+  }
+  ``` 

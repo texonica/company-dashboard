@@ -1,20 +1,21 @@
-import { AITableClient } from '../api/aitable-client';
+import axios, { AxiosInstance } from 'axios';
 import config from '../config';
 
 /**
  * AITable Service
- * A service layer for interacting with AITable API
+ * A service layer for interacting with AITable API through our server-side endpoints
  */
 export class AITableService {
-  private client: AITableClient;
   private static instance: AITableService;
+  private client: AxiosInstance;
   
   /**
    * Constructor
-   * @param apiToken - AITable API token
    */
-  private constructor(apiToken: string) {
-    this.client = new AITableClient(apiToken);
+  private constructor() {
+    this.client = axios.create({
+      baseURL: '/api/aitable',
+    });
   }
   
   /**
@@ -22,203 +23,160 @@ export class AITableService {
    */
   public static getInstance(): AITableService {
     if (!AITableService.instance) {
-      AITableService.instance = new AITableService(config.aitable.apiToken);
+      AITableService.instance = new AITableService();
     }
     return AITableService.instance;
   }
-  
+
+  /**
+   * Make a request to our server-side AITable API endpoint
+   */
+  private async makeRequest(method: 'GET' | 'POST' | 'PATCH' | 'DELETE', path: string, options: { params?: any; data?: any } = {}) {
+    const response = await this.client.request({
+      method,
+      url: path,
+      params: options.params,
+      data: options.data
+    });
+    return response.data.data;
+  }
+
   /**
    * Get all spaces
    */
   async getAllSpaces() {
-    return this.client.getSpaces();
+    try {
+      const response = await this.client.get('/spaces');
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching spaces:', error);
+      return [];
+    }
   }
-  
+
   /**
    * Get all nodes in a space
-   * @param spaceId - Space ID (optional, uses default if not provided)
    */
-  async getAllNodes(spaceId?: string) {
-    const targetSpaceId = spaceId || config.aitable.defaultSpaceId;
-    if (!targetSpaceId) {
-      throw new Error('Space ID is required');
+  async getAllNodes(spaceId: string) {
+    try {
+      const response = await this.client.get(`/spaces/${spaceId}/nodes`);
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching nodes:', error);
+      return [];
     }
-    return this.client.getNodes(targetSpaceId);
   }
-  
+
   /**
    * Get all datasheets in a space
-   * @param spaceId - Space ID (optional, uses default if not provided)
    */
-  async getAllDatasheets(spaceId?: string) {
-    const nodes = await this.getAllNodes(spaceId);
-    return nodes.filter(node => node.type === 'Datasheet');
-  }
-  
-  /**
-   * Search for nodes in a space
-   * @param keyword - Search keyword
-   * @param type - Node type filter (optional)
-   * @param spaceId - Space ID (optional, uses default if not provided)
-   */
-  async searchNodes(keyword: string, type?: string, spaceId?: string) {
-    const targetSpaceId = spaceId || config.aitable.defaultSpaceId;
-    if (!targetSpaceId) {
-      throw new Error('Space ID is required');
+  async getAllDatasheets(spaceId: string) {
+    try {
+      const response = await this.client.get(`/spaces/${spaceId}/datasheets`);
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching datasheets:', error);
+      return [];
     }
-    return this.client.searchNodes(targetSpaceId, keyword, type);
   }
-  
+
   /**
-   * Get records from a datasheet
-   * @param datasheetId - Datasheet ID
-   * @param options - Additional options
-   */
-  async getRecords(
-    datasheetId: string, 
-    options?: { 
-      viewId?: string; 
-      fieldKey?: 'name' | 'id'; 
-      pageSize?: number; 
-      pageToken?: string;
-    }
-  ) {
-    return this.client.getRecords(datasheetId, options);
-  }
-  
-  /**
-   * Get all records from a datasheet (handles pagination)
-   * @param datasheetId - Datasheet ID
-   * @param options - Additional options
-   */
-  async getAllRecords(
-    datasheetId: string, 
-    options?: { 
-      viewId?: string; 
-      fieldKey?: 'name' | 'id'; 
-    }
-  ) {
-    const allRecords = [];
-    let pageToken: string | undefined;
-    
-    do {
-      const response = await this.client.getRecords(datasheetId, {
-        ...options,
-        pageSize: 100,
-        pageToken,
-      });
-      
-      allRecords.push(...response.records);
-      pageToken = response.pageToken;
-    } while (pageToken);
-    
-    return allRecords;
-  }
-  
-  /**
-   * Create records in a datasheet
-   * @param datasheetId - Datasheet ID
-   * @param records - Records to create
-   * @param fieldKey - Field key type (optional)
-   */
-  async createRecords(
-    datasheetId: string, 
-    records: { fields: { [key: string]: any } }[],
-    fieldKey?: 'name' | 'id'
-  ) {
-    return this.client.createRecords(datasheetId, records, fieldKey);
-  }
-  
-  /**
-   * Update records in a datasheet
-   * @param datasheetId - Datasheet ID
-   * @param records - Records to update
-   * @param fieldKey - Field key type (optional)
-   */
-  async updateRecords(
-    datasheetId: string, 
-    records: { recordId: string; fields: { [key: string]: any } }[],
-    fieldKey?: 'name' | 'id'
-  ) {
-    return this.client.updateRecords(datasheetId, records, fieldKey);
-  }
-  
-  /**
-   * Delete records from a datasheet
-   * @param datasheetId - Datasheet ID
-   * @param recordIds - Record IDs to delete
-   */
-  async deleteRecords(datasheetId: string, recordIds: string[]) {
-    return this.client.deleteRecords(datasheetId, recordIds);
-  }
-  
-  /**
-   * Get fields from a datasheet
-   * @param datasheetId - Datasheet ID
-   * @param viewId - View ID (optional)
+   * Get fields for a datasheet
    */
   async getFields(datasheetId: string, viewId?: string) {
-    return this.client.getFields(datasheetId, viewId);
+    try {
+      const params: any = {};
+      if (viewId) params.viewId = viewId;
+      
+      const response = await this.client.get(`/datasheets/${datasheetId}/fields`, { params });
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching fields:', error);
+      return [];
+    }
   }
-  
+
   /**
    * Get views from a datasheet
-   * @param datasheetId - Datasheet ID
    */
   async getViews(datasheetId: string) {
-    return this.client.getViews(datasheetId);
+    try {
+      const response = await this.client.get(`/datasheets/${datasheetId}/views`);
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching views:', error);
+      return [];
+    }
   }
-  
+
   /**
-   * Create embedded links
-   * @param nodeId - Node ID
-   * @param embedLinks - Embedded links to create
-   * @param spaceId - Space ID (optional, uses default if not provided)
+   * Get all records from a datasheet
    */
-  async createEmbeddedLinks(
-    nodeId: string, 
-    embedLinks: { datasheetId: string; recordId: string }[],
+  async getAllRecords(datasheetId: string, options?: { 
+    viewId?: string; 
+    fieldKey?: 'name' | 'id'; 
+    pageSize?: number;
+  }) {
+    try {
+      const response = await this.client.get(`/datasheets/${datasheetId}/records`, { 
+        params: options 
+      });
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching records:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get records from a datasheet
+   */
+  async getRecords(datasheetId: string, options?: { 
+    viewId?: string; 
+    fieldKey?: 'name' | 'id'; 
+    pageSize?: number; 
+    pageToken?: string;
+  }) {
+    return this.makeRequest('GET', `/datasheets/${datasheetId}/records`, { params: options });
+  }
+
+  /**
+   * Create a new datasheet
+   */
+  async createDatasheet(
+    name: string,
+    parentId?: string,
+    options?: { description?: string; icon?: string },
     spaceId?: string
   ) {
     const targetSpaceId = spaceId || config.aitable.defaultSpaceId;
     if (!targetSpaceId) {
       throw new Error('Space ID is required');
     }
-    return this.client.createEmbeddedLinks(targetSpaceId, nodeId, embedLinks);
+    return this.makeRequest('POST', `/spaces/${targetSpaceId}/datasheets`, {
+      data: {
+        name,
+        parentId,
+        ...options
+      }
+    });
   }
-  
+
   /**
-   * Get embedded links
-   * @param nodeId - Node ID
-   * @param spaceId - Space ID (optional, uses default if not provided)
+   * Get nodes with specific permissions
    */
-  async getEmbeddedLinks(nodeId: string, spaceId?: string) {
+  async getNodesWithPermissions(permissions: number[] = [0, 1, 2], type?: string, spaceId?: string) {
     const targetSpaceId = spaceId || config.aitable.defaultSpaceId;
     if (!targetSpaceId) {
       throw new Error('Space ID is required');
     }
-    return this.client.getEmbeddedLinks(targetSpaceId, nodeId);
+    return this.makeRequest('GET', `/spaces/${targetSpaceId}/nodes`, {
+      params: {
+        permissions,
+        type
+      }
+    });
   }
-  
-  /**
-   * Delete embedded links
-   * @param nodeId - Node ID
-   * @param embedLinkIds - Embedded link IDs to delete
-   * @param spaceId - Space ID (optional, uses default if not provided)
-   */
-  async deleteEmbeddedLinks(nodeId: string, embedLinkIds: string[], spaceId?: string) {
-    const targetSpaceId = spaceId || config.aitable.defaultSpaceId;
-    if (!targetSpaceId) {
-      throw new Error('Space ID is required');
-    }
-    return this.client.deleteEmbeddedLinks(targetSpaceId, nodeId, embedLinkIds);
-  }
-  
-  /**
-   * Get fields for a datasheet
-   * @param datasheetId - Datasheet ID
-   */
-  async getDatasheetFields(datasheetId: string) {
-    return this.client.getFields(datasheetId);
-  }
+
+  // Add other methods as needed...
 } 

@@ -11,7 +11,7 @@ if (!API_TOKEN) {
 }
 
 const client = axios.create({
-  baseURL: 'https://api.aitable.ai/fusion/v1',
+  baseURL: 'https://aitable.ai/fusion/v1',
   headers: {
     Authorization: `Bearer ${API_TOKEN}`,
   },
