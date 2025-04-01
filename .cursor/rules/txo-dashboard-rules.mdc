@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Texonica Business Dashboard - AI Rules
 
 ## General Code Style & Naming
@@ -11,9 +16,19 @@ alwaysApply: true
 - Ensure proper TypeScript typing for all files
 - Keep components focused and reusable
 - Follow Next.js 13+ App Router conventions
-- We use aitable.ai as a database. We want to have api access. We have MCP connection to this database to speed up creation
-- We want to have high security. Api is contacted only through backend.
+- We use aitable.ai as a database with our own API implementation in `src/lib/api/aitable.ts`
+- The MCP integration for AITable is ONLY for debugging and development, never for production code
+- All AITable API calls must go through our backend API endpoints to protect credentials
+- We want to have high security. API is contacted only through backend.
 - We want to make tests for every functionality we add.
+
+## AITable Integration
+- Use the fusion API endpoints (`/fusion/v1/...`) for all AITable interactions
+- Always proxy API calls through our backend routes in `src/app/api/`
+- Store API keys in environment variables only, never in client-side code
+- The AITable API client is implemented in `src/lib/api/aitable.ts`
+- All AITable data fetching should use the functions exported from this module
+- The MCP integration is for development assistance only and should not be used in actual implementation
 
 ## Data Type Handling
 - Parse numeric fields with `Number()` or `parseFloat()`
@@ -32,21 +47,26 @@ alwaysApply: true
 - Keep business logic in `src/lib/`
 - Place type definitions in `src/lib/types.ts`
 - Store constants in `src/lib/config.ts`
-- Handle data fetching in `src/lib/sheetsData.ts`
+- Handle data fetching in `src/lib/api/` directory
 - Process metrics in `src/lib/metrics.ts`
 
 ## File References
 @file:src/lib/types.ts
 @file:src/lib/metrics.ts
 @file:src/lib/config.ts
+@file:src/lib/api/aitable.ts
 
 ## Project Structure
 Follow the established directory structure:
 ```
 src/
 ├── app/                    # Next.js 13+ app directory
-├── components/            # Reusable UI components
-└── lib/                   # Core logic and utilities
+│   ├── api/                # API routes for backend operations
+│   │   └── projects/       # AITable projects API endpoint
+├── components/             # Reusable UI components
+└── lib/                    # Core logic and utilities
+    ├── api/                # API client implementations
+    │   └── aitable.ts      # AITable API client
 ```
 
 ## Error Handling
@@ -59,4 +79,4 @@ src/
 - Optimize component re-renders
 - Implement proper data caching
 - Use appropriate loading states
-- Follow React best practices for memoization 
+- Follow React best practices for memoization

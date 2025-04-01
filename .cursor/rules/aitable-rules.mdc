@@ -3,9 +3,14 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # AITable API
 
-The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, attachments, spaces, work directories, and contacts.
+The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, datasheets, attachments, spaces, and contacts.
 
 ## Base URL
 
@@ -46,7 +51,7 @@ const activeProjects = await fetchTableRecords(
 
 HTTP Request:
 ```
-GET https://aitable.ai/api/v1/space/{baseId}/table/{tableId}/records?filterByFormula={filter}
+GET https://aitable.ai/fusion/v1/datasheets/{tableId}/records?filterByFormula={filter}
 ```
 
 ### 2. fetchRecord(tableId, recordId)
@@ -60,7 +65,7 @@ const project = await fetchRecord(AITABLE_CONFIG.PROJECTS_TABLE_ID, 'rec12345');
 
 HTTP Request:
 ```
-GET https://aitable.ai/api/v1/space/{baseId}/table/{tableId}/record/{recordId}
+GET https://aitable.ai/fusion/v1/datasheets/{tableId}/records/{recordId}
 ```
 
 ### 3. fetchSpaceDetails()
@@ -74,7 +79,7 @@ const spaceInfo = await fetchSpaceDetails();
 
 HTTP Request:
 ```
-GET https://aitable.ai/api/v1/space/{baseId}
+GET https://aitable.ai/fusion/v1/spaces/{baseId}
 ```
 
 ### 4. fetchTables()
@@ -88,7 +93,40 @@ const tables = await fetchTables();
 
 HTTP Request:
 ```
-GET https://aitable.ai/api/v1/space/{baseId}/table
+GET https://aitable.ai/fusion/v1/spaces/{baseId}/datasheets
+```
+
+## Advanced Query Parameters
+
+When fetching records, you can use several query parameters:
+
+### Filtering Records
+
+Use `filterByFormula` to filter records using formulas:
+
+```
+// Records where "Stage" equals "Launched"
+filterByFormula=Stage="Launched"
+
+// Records where "main selling points" contains "Vacuum" or "Thermal insulation"
+filterByFormula=OR(find("Vacuum", {main selling point}) > 0, find("Thermal insulation", {main selling point}) > 0)
+```
+
+### Limiting Results
+
+Use `maxRecords` to limit the number of records returned:
+
+```
+maxRecords=100
+```
+
+### Sorting Records
+
+Use `sort` to specify sorting order:
+
+```
+// Sort by "promotion price" in descending order
+sort={"field": "promotion price", "order": "desc"}
 ```
 
 ## Response Format
@@ -99,9 +137,24 @@ All API responses follow this general structure:
 {
   "success": true,
   "code": 200,
-  "message": "Success",
+  "message": "SUCCESS",
   "data": {
-    // Response data here
+    "total": 3,
+    "pageNum": 1,
+    "pageSize": 100,
+    "records": [
+      {
+        "recordId": "rec12345",
+        "createdAt": 1728390028000,
+        "updatedAt": 1729684480000,
+        "fields": {
+          "Name": "Project Name",
+          "Stage": "Launched",
+          // Other fields...
+        }
+      },
+      // More records...
+    ]
   }
 }
 ```
@@ -134,5 +187,5 @@ The AITable API provides access to the following resource types:
 - Views: Access and manipulate views of tables
 - Attachments: Handle file attachments
 - Spaces: Manage workspaces
-- Work Directories: Organize spaces hierarchically
+- Datasheets: Interact with tables
 - Contacts: Manage user permissions
