@@ -1,10 +1,14 @@
 // src/app/layout.tsx
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { SettingsProvider } from '@/lib/contexts/SettingsContext'
-import { Navigation } from '@/components/Navigation'
+import AuthWrapper from '@/components/AuthWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'Texonica Dashboard',
+  description: 'Company dashboard for Texonica',
+}
 
 export default function RootLayout({
   children,
@@ -12,14 +16,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <SettingsProvider>
-          <Navigation />
-          <main className="min-h-screen bg-gray-50">
-            {children}
-          </main>
-        </SettingsProvider>
+        <AuthWrapper>
+          {children}
+        </AuthWrapper>
       </body>
     </html>
   )

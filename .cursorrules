@@ -1,0 +1,35 @@
+# Project Intelligence
+
+## Project Patterns
+- Private data security is a top priority in all implementation decisions
+- Backend must proxy all AITable.ai API requests to protect API keys and credentials
+- Financial data requires special handling and validation
+- Component-based architecture should be followed for maintainability
+- Responsive design is required for all UI elements
+
+## User Preferences
+- Clear, intuitive data visualization is preferred over complex displays
+- Quick access to financial metrics is a primary user goal
+- Security with minimal friction in the user experience
+- Export functionality for reports is important
+- Filter and date range selection for all data views
+
+## Known Challenges
+- AITable.ai API may have rate limits that need to be managed
+- Private financial data requires secure handling throughout the application
+- Different user roles need different levels of data access
+- Performance optimization for potentially large datasets
+- Balancing real-time data with system performance
+
+## Implementation Notes
+- Authentication must be implemented at both frontend and backend
+- API requests to AITable.ai should be cached when appropriate
+- Error handling should be robust and user-friendly
+- Testing should cover security scenarios extensively
+- Code organization should follow clear separation of concerns
+
+## Evolution of Decisions
+- Starting with focus on financial reporting panels
+- Will expand to additional dashboard panels in future phases
+- May need to refine data refresh strategies based on usage patterns
+- UI/UX decisions will evolve based on user feedback 

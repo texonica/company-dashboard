@@ -1,0 +1,95 @@
+---
+description: always-use-rules
+globs: 
+alwaysApply: false
+---
+# Texonica Business Dashboard - AI Rules
+
+## General Code Style & Naming
+- Use relatively short but legible names for functions & variables
+- Don't change existing variable names unless necessary
+- Ensure proper TypeScript typing for all files
+- Keep components focused and reusable
+- Follow Next.js 13+ App Router conventions
+- We use aitable.ai as a database. We want to have api access. We have MCP connection to this database to speed up creation
+- We want to have high security. Api is contacted only through backend.
+- We want to make tests for every functionality we add.
+
+## Frontend/Backend Separation
+- Keep all AITable API communication in server-side code only
+- Use server components (no "use client" directive) for data fetching logic
+- Place API route handlers in `src/app/api/` directories
+- Implement server actions with "use server" directive for secure RPC
+- Never expose API keys or credentials to client-side code
+- Only use NEXT_PUBLIC_ environment variables for browser-accessible data
+
+## Testing Structure
+- Store API and database test functions in `src/lib/__tests__/` or `__tests__/api/`
+- Create test files with `.test.ts` or `.spec.ts` suffix
+- Mock external dependencies in tests
+- Test both success and error handling cases
+- Keep test data separate from production data
+
+## Data Type Handling
+- Parse numeric fields with `Number()` or `parseFloat()`
+- Handle all string fields appropriately
+- Format dates from YYYY-MM-DD strings as needed
+- Format percentages with 0 decimal places
+- Format currency values according to account settings
+
+## Component Guidelines
+- Keep UI components in `src/components/`
+- Place reusable UI elements in `src/components/ui/`
+- Put providers in `src/components/providers/`
+- Maintain clear separation of concerns between components
+- Mark client components with "use client" directive
+
+## Core Logic
+- Keep business logic in `src/lib/`
+- Place type definitions in `src/lib/types.ts`
+- Store constants in `src/lib/config.ts`
+- Handle data fetching in `src/lib/api/` directory
+- Process metrics in `src/lib/metrics.ts`
+- Store AITable API client code in `src/lib/api/aitable.ts`
+
+## File References
+@file:src/lib/types.ts
+@file:src/lib/metrics.ts
+@file:src/lib/config.ts
+
+## Project Structure
+Follow the established directory structure:
+```
+src/
+├── app/                   # Next.js 13+ app directory
+│   ├── api/               # API route handlers (server-only)
+│   └── [routes]/          # Page routes with server components
+├── components/            # Reusable UI components
+│   ├── ui/                # UI elements
+│   └── providers/         # Context providers
+├── lib/                   # Core logic and utilities
+│   ├── api/               # API client code
+│   └── __tests__/         # Tests for business logic
+└── __tests__/             # Global test directory
+    └── api/               # API tests
+```
+
+## Error Handling
+- Implement checks for missing/null values
+- Handle API errors gracefully
+- Provide user feedback for data loading states
+- Validate data types before processing
+
+## Performance Guidelines
+- Optimize component re-renders
+- Implement proper data caching
+- Use appropriate loading states
+- Follow React best practices for memoization
+
+## Security Best Practices
+- Store all secrets in environment variables
+- Never expose API keys in client-side code
+- Validate and sanitize all user inputs
+- Implement proper authentication for API routes
+- Use HTTPS for all external communication
+- Consider rate limiting for API endpoints 
