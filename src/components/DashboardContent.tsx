@@ -12,6 +12,7 @@ import { formatCurrency, formatPercent, formatConversions } from '@/lib/utils';
 import { COLORS } from '@/lib/config';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { UserRole } from '@/lib/firebase';
+import { ActiveProjects } from '@/components/ActiveProjects';
 
 type DisplayMetric = 'impr' | 'clicks' | 'CTR' | 'CPC' | 'cost' |
     'conv' | 'CvR' | 'CPA' | 'value' | 'ROAS';
@@ -149,6 +150,8 @@ function DashboardData() {
     return (
         <DashboardLayout error={error}>
             <div className="space-y-6">
+                <ActiveProjects />
+                
                 <CampaignSelect
                     campaigns={settings.campaigns || []}
                     selectedId={selectedCampaignId}

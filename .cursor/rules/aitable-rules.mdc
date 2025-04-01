@@ -1,0 +1,138 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# AITable API
+
+The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, attachments, spaces, work directories, and contacts.
+
+## Base URL
+
+The base URL for all AITable API requests is:
+```
+https://aitable.ai
+```
+
+All requests must use HTTPS. The API follows RESTful conventions, using standard HTTP methods (`GET`, `POST`, `PATCH`, `DELETE`) to interact with resources.
+
+## Authentication
+
+All API requests require authentication using an API Token:
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+The API Token can be generated from the AITable user interface by going to User Center > Developer Configuration.
+
+## Main Functions
+
+Our API client implementation provides the following core functions:
+
+### 1. fetchTableRecords(tableId, filter?)
+
+Fetches all records from a specified table with optional filtering.
+
+```typescript
+// Example: Get all records from the projects table
+const projects = await fetchTableRecords(AITABLE_CONFIG.PROJECTS_TABLE_ID);
+
+// Example: Get filtered records
+const activeProjects = await fetchTableRecords(
+  AITABLE_CONFIG.PROJECTS_TABLE_ID,
+  "Stage='Active'"
+);
+```
+
+HTTP Request:
+```
+GET https://aitable.ai/api/v1/space/{baseId}/table/{tableId}/records?filterByFormula={filter}
+```
+
+### 2. fetchRecord(tableId, recordId)
+
+Retrieves a single record by its ID.
+
+```typescript
+// Example: Get a specific project by ID
+const project = await fetchRecord(AITABLE_CONFIG.PROJECTS_TABLE_ID, 'rec12345');
+```
+
+HTTP Request:
+```
+GET https://aitable.ai/api/v1/space/{baseId}/table/{tableId}/record/{recordId}
+```
+
+### 3. fetchSpaceDetails()
+
+Retrieves information about the AITable space (base).
+
+```typescript
+// Example: Get information about the current space
+const spaceInfo = await fetchSpaceDetails();
+```
+
+HTTP Request:
+```
+GET https://aitable.ai/api/v1/space/{baseId}
+```
+
+### 4. fetchTables()
+
+Retrieves all tables available in the space.
+
+```typescript
+// Example: Get all tables in the current space
+const tables = await fetchTables();
+```
+
+HTTP Request:
+```
+GET https://aitable.ai/api/v1/space/{baseId}/table
+```
+
+## Response Format
+
+All API responses follow this general structure:
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Success",
+  "data": {
+    // Response data here
+  }
+}
+```
+
+## Error Handling
+
+When an API request fails, the response will include an error code and message:
+
+```json
+{
+  "success": false,
+  "code": 401,
+  "message": "Authentication failed",
+  "data": null
+}
+```
+
+## Security Considerations
+
+- Always keep your API Token secure
+- All AITable API requests should be proxied through your backend to avoid exposing credentials
+- Store API keys in environment variables (.env files)
+- Consider implementing rate limiting for API requests
+
+## Available Resources
+
+The AITable API provides access to the following resource types:
+- Records: Create, read, update, and delete records in tables
+- Fields: Manage field definitions in tables
+- Views: Access and manipulate views of tables
+- Attachments: Handle file attachments
+- Spaces: Manage workspaces
+- Work Directories: Organize spaces hierarchically
+- Contacts: Manage user permissions

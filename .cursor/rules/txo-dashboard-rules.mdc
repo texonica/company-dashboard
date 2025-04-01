@@ -1,7 +1,7 @@
 ---
-description: always-use-rules
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # Texonica Business Dashboard - AI Rules
 
@@ -15,21 +15,6 @@ alwaysApply: false
 - We want to have high security. Api is contacted only through backend.
 - We want to make tests for every functionality we add.
 
-## Frontend/Backend Separation
-- Keep all AITable API communication in server-side code only
-- Use server components (no "use client" directive) for data fetching logic
-- Place API route handlers in `src/app/api/` directories
-- Implement server actions with "use server" directive for secure RPC
-- Never expose API keys or credentials to client-side code
-- Only use NEXT_PUBLIC_ environment variables for browser-accessible data
-
-## Testing Structure
-- Store API and database test functions in `src/lib/__tests__/` or `__tests__/api/`
-- Create test files with `.test.ts` or `.spec.ts` suffix
-- Mock external dependencies in tests
-- Test both success and error handling cases
-- Keep test data separate from production data
-
 ## Data Type Handling
 - Parse numeric fields with `Number()` or `parseFloat()`
 - Handle all string fields appropriately
@@ -42,15 +27,13 @@ alwaysApply: false
 - Place reusable UI elements in `src/components/ui/`
 - Put providers in `src/components/providers/`
 - Maintain clear separation of concerns between components
-- Mark client components with "use client" directive
 
 ## Core Logic
 - Keep business logic in `src/lib/`
 - Place type definitions in `src/lib/types.ts`
 - Store constants in `src/lib/config.ts`
-- Handle data fetching in `src/lib/api/` directory
+- Handle data fetching in `src/lib/sheetsData.ts`
 - Process metrics in `src/lib/metrics.ts`
-- Store AITable API client code in `src/lib/api/aitable.ts`
 
 ## File References
 @file:src/lib/types.ts
@@ -61,17 +44,9 @@ alwaysApply: false
 Follow the established directory structure:
 ```
 src/
-├── app/                   # Next.js 13+ app directory
-│   ├── api/               # API route handlers (server-only)
-│   └── [routes]/          # Page routes with server components
+├── app/                    # Next.js 13+ app directory
 ├── components/            # Reusable UI components
-│   ├── ui/                # UI elements
-│   └── providers/         # Context providers
-├── lib/                   # Core logic and utilities
-│   ├── api/               # API client code
-│   └── __tests__/         # Tests for business logic
-└── __tests__/             # Global test directory
-    └── api/               # API tests
+└── lib/                   # Core logic and utilities
 ```
 
 ## Error Handling
@@ -84,12 +59,4 @@ src/
 - Optimize component re-renders
 - Implement proper data caching
 - Use appropriate loading states
-- Follow React best practices for memoization
-
-## Security Best Practices
-- Store all secrets in environment variables
-- Never expose API keys in client-side code
-- Validate and sanitize all user inputs
-- Implement proper authentication for API routes
-- Use HTTPS for all external communication
-- Consider rate limiting for API endpoints 
+- Follow React best practices for memoization 
