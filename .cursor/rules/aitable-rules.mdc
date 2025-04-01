@@ -3,11 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
----
-description: 
-globs: 
-alwaysApply: true
----
 # AITable API
 
 The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, datasheets, attachments, spaces, and contacts.

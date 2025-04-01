@@ -3,11 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
----
-description: 
-globs: 
-alwaysApply: true
----
 # Texonica Business Dashboard - AI Rules
 
 ## General Code Style & Naming
@@ -79,4 +74,4 @@ src/
 - Optimize component re-renders
 - Implement proper data caching
 - Use appropriate loading states
-- Follow React best practices for memoization
+- Follow React best practices for memoization 
