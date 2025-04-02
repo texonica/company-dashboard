@@ -69,3 +69,11 @@
 - Moving from individual component state to more centralized data management
 - Added ClickUp integration for task management capabilities
 - Created shared patterns between leadgen metrics components for consistency 
+- Planned API rate limiting strategy (to be implemented) with the following components:
+  - Request throttling/queuing system
+  - Retry logic with exponential backoff
+  - Batch requests where possible
+  - Configurable caching with datasheet-specific TTLs
+  - Backend proxy with rate monitoring
+  - Request prioritization system
+  - Future monitoring with Grafana (planned for post-development phase) 
