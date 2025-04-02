@@ -1,0 +1,418 @@
+# ClickUp API Integration Guidelines
+@load-when path="**/clickup/**" or path="**/api/clickup/**" or path="**/clickup-*.{ts,js}" or path="**/clickup*.{ts,js}"
+
+## Overview
+The ClickUp API allows you to programmatically interact with your ClickUp workspace data. We use the npx-generated SDK for API interactions, which provides a typed interface to the ClickUp REST API endpoints.
+
+## Authentication
+All API requests require authentication with a ClickUp API token:
+
+```javascript
+// JavaScript example
+const clickup = require('@api/clickup');
+clickup.auth('your_api_token');
+
+// TypeScript example with our wrapper
+import clickUpApi from '@/lib/clickup-api';
+clickUpApi.initialize('your_api_token');
+```
+
+## Basic SDK Setup
+The ClickUp API client is installed and configured using:
+
+```bash
+npx api install "@clickup/v2.0#9e6k1l10m7urn8oq"
+npm install api json-schema-to-ts@beta oas
+```
+
+## Security Requirements
+- Never expose your ClickUp API token in client-side code
+- Always proxy API requests through secure backend routes
+- Store API tokens in environment variables (.env.local)
+- Use proper error handling for all API calls
+
+## Core API Functions
+
+### User & Authentication
+
+```javascript
+// Get the authenticated user
+const { data } = await clickup.getAuthorizedUser();
+console.log(data.user);
+
+// Get available workspaces/teams
+const { data } = await clickup.getAuthorizedTeams();
+console.log(data.teams);
+```
+
+### Workspace Management
+
+```javascript
+// Get spaces in a workspace
+const { data } = await clickup.getSpaces({
+  team_id: 'workspace_id'
+});
+console.log(data.spaces);
+
+// Create workspace audit log (Enterprise only)
+const { data } = await clickup.createWorkspaceAuditLog(
+  {
+    event_name: 'custom_event',
+    event_description: 'Description of the event'
+  }, 
+  {
+    workspace_id: 'workspace_id'
+  }
+);
+```
+
+### Space Management
+
+```javascript
+// Create a new space
+const { data } = await clickup.createSpace(
+  {
+    name: 'New Space',
+    multiple_assignees: true,
+    features: {
+      due_dates: {
+        enabled: true,
+        start_date: true,
+        remap_due_dates: true,
+        remap_closed_due_date: false
+      }
+    }
+  },
+  {
+    team_id: 'workspace_id'
+  }
+);
+
+// Update a space
+const { data } = await clickup.updateSpace(
+  {
+    name: 'Updated Space Name',
+  },
+  {
+    space_id: 'space_id'
+  }
+);
+
+// Delete a space
+const { data } = await clickup.deleteSpace({
+  space_id: 'space_id'
+});
+```
+
+### Folder Management
+
+```javascript
+// Get folders in a space
+const { data } = await clickup.getFolders({
+  space_id: 'space_id'
+});
+console.log(data.folders);
+
+// Create a folder
+const { data } = await clickup.createFolder(
+  {
+    name: 'New Folder'
+  },
+  {
+    space_id: 'space_id'
+  }
+);
+
+// Update a folder
+const { data } = await clickup.updateFolder(
+  {
+    name: 'Updated Folder Name'
+  },
+  {
+    folder_id: 'folder_id'
+  }
+);
+
+// Delete a folder
+const { data } = await clickup.deleteFolder({
+  folder_id: 'folder_id'
+});
+```
+
+### List Management
+
+```javascript
+// Get lists in a folder
+const { data } = await clickup.getLists({
+  folder_id: 'folder_id'
+});
+console.log(data.lists);
+
+// Get folderless lists in a space
+const { data } = await clickup.getFolderlessLists({
+  space_id: 'space_id'
+});
+
+// Create a list
+const { data } = await clickup.createList(
+  {
+    name: 'New List',
+    content: 'List description'
+  },
+  {
+    folder_id: 'folder_id'
+  }
+);
+
+// Create a folderless list
+const { data } = await clickup.createFolderlessList(
+  {
+    name: 'New Folderless List',
+    content: 'List description'
+  },
+  {
+    space_id: 'space_id'
+  }
+);
+
+// Update a list
+const { data } = await clickup.updateList(
+  {
+    name: 'Updated List Name'
+  },
+  {
+    list_id: 'list_id'
+  }
+);
+
+// Delete a list
+const { data } = await clickup.deleteList({
+  list_id: 'list_id'
+});
+```
+
+### Task Management
+
+```javascript
+// Get tasks in a list
+const { data } = await clickup.getTasks({
+  list_id: 'list_id'
+});
+console.log(data.tasks);
+
+// Get a specific task
+const { data } = await clickup.getTask({
+  task_id: 'task_id'
+});
+
+// Create a task
+const { data } = await clickup.createTask({
+  list_id: 'list_id',
+  name: 'New Task',
+  description: 'Task description',
+  assignees: [12345], // User IDs
+  status: 'Open',
+  priority: 3, // 1=Urgent, 2=High, 3=Normal, 4=Low
+  due_date: 1567780450202, // Milliseconds timestamp
+  start_date: 1567780450202, // Milliseconds timestamp
+  time_estimate: 8640000, // Milliseconds (1 day)
+  tags: ['tag1', 'tag2']
+});
+
+// Update a task
+const { data } = await clickup.updateTask(
+  {
+    name: 'Updated Task Name',
+    description: 'Updated description',
+    status: 'In Progress',
+    priority: 2
+  },
+  {
+    task_id: 'task_id'
+  }
+);
+
+// Delete a task
+const { data } = await clickup.deleteTask({
+  task_id: 'task_id'
+});
+```
+
+### Task Comments
+
+```javascript
+// Get task comments
+const { data } = await clickup.getTaskComments({
+  task_id: 'task_id'
+});
+
+// Create a task comment
+const { data } = await clickup.createTaskComment(
+  {
+    comment_text: 'This is a comment',
+    assignee: 12345, // Optional user ID
+    notify_all: true // Whether to notify all assignees
+  },
+  {
+    task_id: 'task_id'
+  }
+);
+```
+
+### Task Checklists
+
+```javascript
+// Create a checklist
+const { data } = await clickup.createChecklist(
+  {
+    name: 'Checklist Name'
+  },
+  {
+    task_id: 'task_id'
+  }
+);
+
+// Create a checklist item
+const { data } = await clickup.createChecklistItem(
+  {
+    name: 'Checklist Item',
+    assignee: 12345 // Optional user ID
+  },
+  {
+    checklist_id: 'checklist_id'
+  }
+);
+```
+
+### Time Tracking
+
+```javascript
+// Get tracked time for a task
+const { data } = await clickup.getTrackedTime({
+  task_id: 'task_id'
+});
+
+// Add time tracking entry
+const { data } = await clickup.trackTime(
+  {
+    description: 'Time entry description',
+    start: 1567780450202, // Start timestamp
+    billable: true,
+    duration: 3600000 // Duration in milliseconds (1 hour)
+  },
+  {
+    task_id: 'task_id'
+  }
+);
+```
+
+### Custom Fields
+
+```javascript
+// Get custom fields for a list
+const { data } = await clickup.getListCustomFields({
+  list_id: 'list_id'
+});
+
+// Set custom field value for a task
+const { data } = await clickup.setCustomFieldValue(
+  {
+    value: 'Custom field value'
+  },
+  {
+    task_id: 'task_id',
+    custom_field_id: 'custom_field_id'
+  }
+);
+```
+
+## TypeScript Integration
+
+Our project includes a TypeScript wrapper around the ClickUp API client:
+
+```typescript
+import clickUpApi from '@/lib/clickup-api';
+
+// Initialize with API token
+clickUpApi.initialize(process.env.CLICKUP_API_TOKEN);
+
+// Get user and workspaces
+const user = await clickUpApi.getAuthenticatedUser();
+const workspaces = await clickUpApi.getWorkspaces();
+
+// Get spaces in a workspace
+const spaces = await clickUpApi.getSpaces(workspaceId);
+
+// Get lists in a space
+const lists = await clickUpApi.getLists(spaceId);
+
+// Get tasks in a list
+const tasks = await clickUpApi.getTasks(listId);
+
+// Create a task
+const task = await clickUpApi.createTask(
+  listId,
+  'Task Name',
+  'Task Description',
+  [12345] // Assignee user IDs
+);
+```
+
+## Error Handling
+Always implement proper error handling for API calls:
+
+```typescript
+try {
+  const workspaces = await clickUpApi.getWorkspaces();
+  // Process the data
+} catch (error) {
+  console.error('Error getting workspaces:', error);
+  // Handle the error appropriately
+}
+```
+
+## Rate Limiting
+The ClickUp API has rate limits:
+- 100 requests per minute per API token
+- Enterprise workspaces have higher limits
+
+Implement proper backoff and retry logic for production applications.
+
+## Backend API Routes
+
+Always proxy API requests through backend routes:
+
+```typescript
+// src/app/api/clickup/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import clickUpApi from '@/lib/clickup-api';
+
+export async function GET(request: NextRequest) {
+  try {
+    const apiToken = process.env.CLICKUP_API_TOKEN;
+    if (!apiToken) {
+      return NextResponse.json(
+        { error: 'ClickUp API token not configured' },
+        { status: 500 }
+      );
+    }
+    
+    clickUpApi.initialize(apiToken);
+    const user = await clickUpApi.getAuthenticatedUser();
+    const workspaces = await clickUpApi.getWorkspaces();
+    
+    return NextResponse.json({ user, workspaces });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'An error occurred' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## File References
+@file:src/lib/clickup-api.ts
+@file:src/types/api-clickup.d.ts
+@file:src/lib/clickup-test.js
+@file:src/app/api/clickup/route.ts 

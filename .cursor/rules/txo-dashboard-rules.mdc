@@ -1,5 +1,5 @@
 ---
-description: 
+description: Main rules for the Texonica Business Dashboard
 globs: 
 alwaysApply: true
 ---
@@ -12,18 +12,19 @@ alwaysApply: true
 - Keep components focused and reusable
 - Follow Next.js 13+ App Router conventions
 - We use aitable.ai as a database with our own API implementation in `src/lib/api/aitable.ts`
-- The MCP integration for AITable is ONLY for debugging and development, never for production code
-- All AITable API calls must go through our backend API endpoints to protect credentials
-- We want to have high security. API is contacted only through backend.
+- We use ClickUp API for task management with our own implementation in `src/lib/clickup/`
+- API-specific rules are conditionally loaded when working on relevant files
+- All API calls must go through our backend API endpoints to protect credentials
+- We want to have high security. APIs are contacted only through backend.
 - We want to make tests for every functionality we add.
 
-## AITable Integration
-- Use the fusion API endpoints (`/fusion/v1/...`) for all AITable interactions
-- Always proxy API calls through our backend routes in `src/app/api/`
+## External API Integration
 - Store API keys in environment variables only, never in client-side code
-- The AITable API client is implemented in `src/lib/api/aitable.ts`
-- All AITable data fetching should use the functions exported from this module
-- The MCP integration is for development assistance only and should not be used in actual implementation
+- Always proxy API calls through our backend routes in `src/app/api/`
+- Conditional rules are available for specific APIs:
+  - AITable API: See `.cursor/rules/aitable-rules.mdc` (loads when working with AITable files)
+  - ClickUp API: See `.cursor/rules/clickup-rules.mdc` (loads when working with ClickUp files)
+- The MCP integration for APIs is ONLY for debugging and development, never for production code
 
 ## Data Type Handling
 - Parse numeric fields with `Number()` or `parseFloat()`
@@ -42,7 +43,9 @@ alwaysApply: true
 - Keep business logic in `src/lib/`
 - Place type definitions in `src/lib/types.ts`
 - Store constants in `src/lib/config.ts`
-- Handle data fetching in `src/lib/api/` directory
+- Handle data fetching in dedicated API directories:
+  - AITable: `src/lib/api/aitable.ts`
+  - ClickUp: `src/lib/clickup/`
 - Process metrics in `src/lib/metrics.ts`
 
 ## File References
@@ -50,6 +53,7 @@ alwaysApply: true
 @file:src/lib/metrics.ts
 @file:src/lib/config.ts
 @file:src/lib/api/aitable.ts
+@file:src/lib/clickup/index.ts
 
 ## Project Structure
 Follow the established directory structure:
@@ -57,11 +61,13 @@ Follow the established directory structure:
 src/
 ├── app/                    # Next.js 13+ app directory
 │   ├── api/                # API routes for backend operations
-│   │   └── projects/       # AITable projects API endpoint
+│   │   ├── projects/       # AITable projects API endpoint
+│   │   └── clickup/        # ClickUp API endpoint
 ├── components/             # Reusable UI components
 └── lib/                    # Core logic and utilities
     ├── api/                # API client implementations
     │   └── aitable.ts      # AITable API client
+    └── clickup/            # ClickUp API client
 ```
 
 ## Error Handling

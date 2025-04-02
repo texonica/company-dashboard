@@ -12,9 +12,11 @@
 - **Backend**:
   - Next.js API routes for backend functionality
   - Custom AITable API client
+  - Custom ClickUp API client
   - Firebase for authentication (planned implementation)
 - **Data Storage**:
   - AITable.ai for primary data (accessed via secure API)
+  - ClickUp for task management data
   - Environment variables for configuration (.env.local)
 - **DevOps**:
   - To be determined for CI/CD pipeline
@@ -25,6 +27,7 @@ The development environment includes:
 - Local development server with hot reloading (`npm run dev`)
 - Environment variables in .env.local for configuration
 - Integration with AITable.ai API using server-side API token
+- Integration with ClickUp API using server-side API token
 - Development authentication bypass option for testing (to be implemented)
 - Responsive design testing for multiple screen sizes
 
@@ -32,6 +35,7 @@ The development environment includes:
 Key dependencies include:
 - **API Integration**:
   - Custom AITable.ai API client in src/lib/api/aitable.ts
+  - Custom ClickUp API client in src/lib/clickup/api.ts
   - HTTP fetch for API requests with proper error handling
 - **Authentication**:
   - Firebase for authentication (to be implemented)
@@ -49,6 +53,7 @@ Key dependencies include:
 ## Technical Constraints
 - Must securely store and transmit sensitive financial and client data
 - AITable.ai API rate limits must be managed with proper caching
+- ClickUp API rate limits (100 requests per minute per token) must be respected
 - Cross-browser compatibility is required
 - Performance optimization for data fetching to minimize API calls
 - Authentication and authorization must be properly implemented
@@ -72,6 +77,7 @@ The AITable.ai integration has been implemented with:
    - AITABLE_CLIENTS_TABLE_ID for clients data
    - AITABLE_MEMBERS_TABLE_ID for team members data
    - AITABLE_UW_LEADGEN_TABLE_ID for UW lead generation data
+   - AITABLE_FVR_LEADGEN_TABLE_ID for FVR lead generation data
 
 2. **Backend API implementation**:
    - Custom API client in src/lib/api/aitable.ts with comprehensive error handling
@@ -100,6 +106,33 @@ The AITable.ai integration has been implemented with:
    - Client and member ID extraction and resolution
    - Robust error handling with specific status codes and messages
 
+## ClickUp Integration
+The ClickUp integration has been implemented with:
+
+1. **Environment variables for secure access**:
+   - CLICKUP_API_TOKEN for authentication
+   - Additional configuration for workspaces and lists
+
+2. **Backend API implementation**:
+   - Custom API client in src/lib/clickup/api.ts with comprehensive error handling
+   - Type definitions in src/lib/clickup/types.ts
+   - API routes in src/app/api/clickup
+   - Secure proxy to protect API credentials
+   - Handling of ClickUp's rate limits (100 requests per minute)
+   - Error handling with specific status codes and messages
+
+3. **Data fetching functions**:
+   - getTasksByList() for retrieving tasks from a specific list
+   - getTask() for retrieving a single task by ID
+   - createTask() for creating new tasks
+   - updateTask() for updating existing tasks
+   - Additional utilities for managing task status and assignments
+
+4. **Examples and References**:
+   - Example implementations in src/lib/clickup/examples.js
+   - Documentation of common patterns for ClickUp API usage
+   - Reference code for integration with project management
+
 ## Data Visualization Components
 The dashboard includes several data visualization components:
 
@@ -114,14 +147,19 @@ The dashboard includes several data visualization components:
    - Color-coded metrics with consistent styling
    - Aggregates data using sum or average based on metric type
 
-2. **MetricsChart**:
+2. **FVRLeadgenMetricsChart**:
+   - Similar to UWLeadgenMetricsChart but for FVR-specific metrics
+   - Shares core functionality with customizations for FVR data
+   - Includes FVR-specific metric calculations and visualization
+
+3. **MetricsChart**:
    - Reusable chart component for visualizing metric data
    - Supports line charts with configurable properties
    - Handles both weekly and monthly data visualization
    - Accepts data points with multiple metrics
    - Provides custom formatting options for different metric types
 
-3. **DateRangeSelector**:
+4. **DateRangeSelector**:
    - Reusable component for selecting date ranges
-   - Integrated with UWLeadgenMetricsChart for filtering data
+   - Integrated with metrics charts for filtering data
    - Emits range change events for parent components to react 

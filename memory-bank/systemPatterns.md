@@ -3,34 +3,39 @@
 ## Architecture Overview
 The system follows a modern web application architecture with:
 - Next.js 15 frontend application with App Router for routing and UI
-- Next.js API routes for backend functionality and secure AITable.ai proxying
+- Next.js API routes for backend functionality and secure API proxying
 - Custom AITable.ai API client for data access with error handling
+- Custom ClickUp API client for task management
 - Firebase for authentication (not yet implemented)
 - Environment variables for secure configuration of API keys and credentials
 
 This separation ensures private data is never directly accessed from the client, maintaining security while providing a responsive user experience.
 
 ## Design Patterns
-- **Repository Pattern**: Abstracted data access through custom AITable API client in src/lib/api/aitable.ts
-- **API Route Pattern**: Secure backend endpoints that proxy AITable requests with error handling
+- **Repository Pattern**: Abstracted data access through custom API clients in src/lib/api/aitable.ts and src/lib/clickup/api.ts
+- **API Route Pattern**: Secure backend endpoints that proxy API requests with error handling
 - **Component-Based Architecture**: Frontend organization with shadcn/ui, Radix, and Tailwind CSS
 - **Server Components**: Next.js server components for data fetching
-- **Client Components**: Interactive UI components like ActiveProjects for dynamic data display
+- **Client Components**: Interactive UI components like ActiveProjects and leadgen metric charts for dynamic data display
 - **SWR Pattern**: To be implemented for efficient data fetching, caching, and revalidation
 - **Environment Variables**: Secure configuration management for all API keys and credentials
 - **Error Boundary Pattern**: Comprehensive error handling with specific error messages and status codes
-- **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart with flexible rendering options
+- **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart and FVRLeadgenMetricsChart with flexible rendering options
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
-- **Backend API Routes**: Implemented in src/app/api/projects and src/app/api/clients
-- **AITable API Client**: Custom implementation in src/lib/api/aitable.ts with comprehensive error handling
+- **Backend API Routes**: Implemented in src/app/api/projects, src/app/api/clients, and src/app/api/clickup
+- **API Clients**: 
+  - AITable API client in src/lib/api/aitable.ts with comprehensive error handling
+  - ClickUp API client in src/lib/clickup/api.ts for task management
 - **Dashboard Layout**: DashboardContent component maintains the overall dashboard structure
 - **Active Projects Display**: ActiveProjects component for viewing current projects grouped by team
-- **UW Leadgen Metrics**: UWLeadgenMetricsChart component for displaying and visualizing lead generation metrics
+- **Lead Generation Metrics**: 
+  - UWLeadgenMetricsChart component for UW leadgen metrics
+  - FVRLeadgenMetricsChart component for FVR leadgen metrics
 - **Authentication**: Firebase authentication with optional development bypass (to be implemented)
 - **Configuration**: Maintained in environment variables and src/lib/config.ts
-- **Types**: Defined in src/lib/types.ts for type safety
+- **Types**: Defined in src/lib/types.ts and src/lib/clickup/types.ts for type safety
 - **Metrics Processing**: Handled in src/lib/metrics.ts for calculations and data transformations
 - **Data Visualization**: Implemented through MetricsChart with dedicated chart types (line charts)
 
@@ -46,18 +51,31 @@ This separation ensures private data is never directly accessed from the client,
 9. ActiveProjects component renders the data with appropriate grouping and sorting
 10. User interacts with the data display (filtering and sorting to be enhanced)
 
+Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies.
+
 ## API Route Implementation
-The system implements several API routes to securely interact with AITable:
-1. **Projects Route** (`/api/projects`): 
-   - Fetches active projects (launched and onboarding)
-   - Resolves client names from client IDs
-   - Resolves media buyer names from member IDs
-   - Groups projects by team
-   - Handles potential data type variations
-   - Returns well-formatted project data with proper error handling
-2. **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
-3. **Clients Route** (`/api/clients`): Fetches client information
-4. **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
+The system implements several API routes to securely interact with external services:
+
+1. **AITable API Routes**:
+   - **Projects Route** (`/api/projects`): 
+     - Fetches active projects (launched and onboarding)
+     - Resolves client names from client IDs
+     - Resolves media buyer names from member IDs
+     - Groups projects by team
+     - Handles potential data type variations
+     - Returns well-formatted project data with proper error handling
+   - **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
+   - **Clients Route** (`/api/clients`): Fetches client information
+   - **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
+
+2. **ClickUp API Routes**:
+   - **Tasks Route** (`/api/clickup/tasks`): 
+     - Fetches tasks based on specified parameters
+     - Handles pagination for large datasets
+     - Implements rate limit handling (100 requests per minute)
+   - **Task Detail Route** (`/api/clickup/tasks/[id]`): Fetches details for a specific task
+   - **Create Task Route** (`/api/clickup/tasks`): Creates new tasks with POST method
+   - **Update Task Route** (`/api/clickup/tasks/[id]`): Updates existing tasks with PATCH method
 
 ## Home Page Architecture
 The home page is built with these key components:
@@ -82,28 +100,45 @@ The home page is built with these key components:
    - Color-coded status indicators
    - Team-based grouping of projects
 
-## UW Leadgen Metrics Component
-The UWLeadgenMetricsChart component follows these patterns:
-1. **Data Visualization**: 
-   - Flexible chart display for lead generation metrics
-   - Provides weekly and monthly view modes with toggle
-   - Groups metrics into categories (Funnel, Financial, Conversion Rates)
-   - Configurable metrics with color coding and formatting
-   - Uses MetricsChart for rendering line charts
-2. **Component State Management**:
-   - Uses useState for local state management
-   - Tracks selected metrics, date range, and view mode
-   - Implements useMemo for performance optimization of calculations
-3. **User Interaction**:
-   - Date range selection with DateRangeSelector component
-   - Toggle buttons for metric visibility
-   - View mode switching between weekly and monthly
-   - Visual feedback for selected metrics
-4. **Data Processing**:
-   - Filters records based on date range
-   - Aggregates data by week or month based on view mode
-   - Calculates sums and averages for different metric types
-   - Formats data appropriately for visualization
+## Leadgen Metrics Components
+The leadgen metrics components follow these patterns:
+
+1. **UWLeadgenMetricsChart Component**:
+   - **Data Visualization**: 
+     - Flexible chart display for UW lead generation metrics
+     - Provides weekly and monthly view modes with toggle
+     - Groups metrics into categories (Funnel, Financial, Conversion Rates)
+     - Configurable metrics with color coding and formatting
+     - Uses MetricsChart for rendering line charts
+   - **Component State Management**:
+     - Uses useState for local state management
+     - Tracks selected metrics, date range, and view mode
+     - Implements useMemo for performance optimization of calculations
+   - **User Interaction**:
+     - Date range selection with DateRangeSelector component
+     - Toggle buttons for metric visibility
+     - View mode switching between weekly and monthly
+     - Visual feedback for selected metrics
+   - **Data Processing**:
+     - Filters records based on date range
+     - Aggregates data by week or month based on view mode
+     - Calculates sums and averages for different metric types
+     - Formats data appropriately for visualization
+
+2. **FVRLeadgenMetricsChart Component**:
+   - Similar architecture to UWLeadgenMetricsChart
+   - Customized for FVR-specific metrics and data structure
+   - Shares common UI patterns and interaction models
+   - Implements specific calculations for FVR metrics
+   - Maintains consistent visualization approach with UW component
+
+3. **Shared Patterns Between Leadgen Components**:
+   - Common date range selection mechanism
+   - Consistent UI patterns for metric selection
+   - Shared MetricsChart component for rendering
+   - Similar data aggregation methods
+   - Common error handling patterns
+   - Performance optimization techniques
 
 ## Error Handling Patterns
 The system implements comprehensive error handling:
@@ -111,6 +146,7 @@ The system implements comprehensive error handling:
    - Different error types with specific status codes (401, 403, 404, 500)
    - Contextual error messages based on error type
    - Parsing of AITable API error responses
+   - Handling of ClickUp API errors and rate limits
 2. **Client-Side Error Handling**: 
    - Dedicated error states in components
    - User-friendly error messages
@@ -126,13 +162,15 @@ The system implements comprehensive error handling:
    - Client-side error catching and reporting
 
 ## Key Technical Decisions
-- Next.js API routes act as a secure proxy for AITable.ai
+- Next.js API routes act as a secure proxy for external APIs
 - Environment variables (.env.local) for sensitive configuration
-- Custom AITable API client with robust error handling
+- Custom API clients with robust error handling
 - Relation field resolution (client and media buyer names)
 - Team-based grouping of projects
 - Sort projects by start date
 - Tailwind CSS for styling with proper responsive design
 - Record ID detection logic for AITable relation fields
 - MetricsChart component for flexible data visualization
-- Separate aggregation methods for different metric types (sum vs. average) 
+- Separate aggregation methods for different metric types (sum vs. average)
+- Secure ClickUp integration for task management
+- Shared component patterns between similar visualization components 
