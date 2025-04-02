@@ -16,6 +16,7 @@ export interface AITableProject {
     Budget?: number;
     StartDate?: string;
     ProjectManager?: string;
+    Mediabuyer?: string | string[];
     team_lookup?: string;
     [key: string]: any;
   };
@@ -45,6 +46,14 @@ export interface AITableRecord {
   fields: Record<string, any>;
 }
 
+export interface AITableMember {
+  recordId: string;
+  fields: {
+    Title?: string; // The member's name
+    [key: string]: any;
+  };
+}
+
 /**
  * AITable API configuration 
  */
@@ -53,6 +62,7 @@ export const AITABLE_CONFIG = {
   BASE_ID: process.env.AITABLE_BASE_ID,
   PROJECTS_TABLE_ID: process.env.AITABLE_PROJECTS_TABLE_ID,
   CLIENTS_TABLE_ID: process.env.AITABLE_CLIENTS_TABLE_ID,
+  MEMBERS_TABLE_ID: process.env.AITABLE_MEMBERS_TABLE_ID,
 }; 
 
 // Function to validate configuration
@@ -274,5 +284,47 @@ export async function fetchClientsByIds(clientIds: string[]): Promise<Record<str
   } catch (error) {
     console.error('Error fetching clients by IDs:', error);
     return {};
+  }
+}
+
+/**
+ * Fetch member records by IDs
+ */
+export async function fetchMembersByIds(memberIds: string[]): Promise<Record<string, AITableMember>> {
+  if (!AITABLE_CONFIG.MEMBERS_TABLE_ID) {
+    console.warn('Missing AITABLE_MEMBERS_TABLE_ID environment variable');
+    return {};
+  }
+  
+  // If no IDs to fetch, return empty object
+  if (memberIds.length === 0) {
+    return {};
+  }
+  
+  // Create a map to store the results
+  const members: Record<string, AITableMember> = {};
+  
+  try {
+    // Create filter formula to get all records in one request
+    // We need to escape single quotes in our OR() function
+    const filter = memberIds.length === 1 
+      ? `RECORD_ID()='${memberIds[0]}'` 
+      : `OR(${memberIds.map(id => `RECORD_ID()='${id}'`).join(',')})`;
+      
+    const membersTableId = AITABLE_CONFIG.MEMBERS_TABLE_ID;
+    const records = await fetchTableRecords(membersTableId, filter);
+    
+    // Map records by ID
+    records.forEach(record => {
+      members[record.recordId] = {
+        recordId: record.recordId,
+        fields: record.fields
+      };
+    });
+    
+    return members;
+  } catch (error) {
+    console.error('Error fetching members by IDs:', error);
+    return members; // Return what we have
   }
 } 

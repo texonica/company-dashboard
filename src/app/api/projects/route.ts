@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AITABLE_CONFIG, fetchTableRecords, fetchClientsByIds, AITableClient } from '@/lib/api/aitable';
+import { AITABLE_CONFIG, fetchTableRecords, fetchClientsByIds, fetchMembersByIds, AITableClient, AITableMember } from '@/lib/api/aitable';
 
 // Type guard to check if a value is a string record ID
 function isRecordId(value: any): value is string {
@@ -26,6 +26,11 @@ export async function GET() {
       console.warn('Missing or invalid AITABLE_CLIENTS_TABLE_ID environment variable - client names cannot be resolved');
     }
 
+    // Check for members table ID
+    if (!process.env.AITABLE_MEMBERS_TABLE_ID || process.env.AITABLE_MEMBERS_TABLE_ID.includes('YourMembersTableIdHere')) {
+      console.warn('Missing or invalid AITABLE_MEMBERS_TABLE_ID environment variable - media buyer names cannot be resolved');
+    }
+
     // Log configuration for debugging
     console.log('API Config:', {
       baseId: process.env.AITABLE_BASE_ID,
@@ -48,9 +53,11 @@ export async function GET() {
       }
       
       let clientsMap: Record<string, AITableClient> = {};
+      let membersMap: Record<string, AITableMember> = {};
       
       // Collect client IDs by looking for fields that look like AITable record IDs (rec...)
       const clientIds: string[] = [];
+      const memberIds: string[] = [];
       
       records.forEach(record => {
         const client: ClientFieldType = record.fields?.Client;
@@ -68,11 +75,31 @@ export async function GET() {
             }
           });
         }
+        
+        // Handle media buyer IDs
+        const mediaBuyer: ClientFieldType = record.fields?.Mediabuyer;
+        
+        // Use the helper function to check if it's a valid record ID
+        if (isRecordId(mediaBuyer)) {
+          console.log(`Found media buyer ID: ${mediaBuyer}`);
+          memberIds.push(mediaBuyer);
+        } else if (Array.isArray(mediaBuyer) && mediaBuyer.length > 0) {
+          // Handle case where Mediabuyer is an array of IDs
+          mediaBuyer.forEach((item: any) => {
+            if (isRecordId(item)) {
+              console.log(`Found media buyer ID (from array): ${item}`);
+              memberIds.push(item);
+            }
+          });
+        }
       });
       
-      // Get unique client IDs (remove duplicates)
+      // Get unique IDs (remove duplicates)
       const uniqueClientIds = [...new Set(clientIds)];
+      const uniqueMemberIds = [...new Set(memberIds)];
+      
       console.log(`Found ${uniqueClientIds.length} unique client IDs to lookup: ${uniqueClientIds.join(', ')}`);
+      console.log(`Found ${uniqueMemberIds.length} unique media buyer IDs to lookup: ${uniqueMemberIds.join(', ')}`);
       
       // Only attempt client lookup if we have the clients table ID and it's properly configured
       if (process.env.AITABLE_CLIENTS_TABLE_ID && 
@@ -85,6 +112,20 @@ export async function GET() {
         } catch (clientError) {
           console.error('Error fetching client data:', clientError);
           // Continue with empty clientsMap - we'll use fallback values
+        }
+      }
+      
+      // Only attempt media buyer lookup if we have the members table ID and it's properly configured
+      if (process.env.AITABLE_MEMBERS_TABLE_ID && 
+          !process.env.AITABLE_MEMBERS_TABLE_ID.includes('YourMembersTableIdHere') && 
+          uniqueMemberIds.length > 0) {
+        try {
+          // Fetch media buyer data
+          membersMap = await fetchMembersByIds(uniqueMemberIds); 
+          console.log(`Successfully fetched ${Object.keys(membersMap).length} member records`);
+        } catch (memberError) {
+          console.error('Error fetching member data:', memberError);
+          // Continue with empty membersMap - we'll use fallback values
         }
       }
         
@@ -129,6 +170,31 @@ export async function GET() {
             budget = `$${record.fields.Budget.toLocaleString()}`;
           }
         }
+        
+        // Handle media buyer field which could be a single ID or array of IDs
+        let mediaBuyerName = 'Not assigned';
+        const mediaBuyerId: ClientFieldType = record.fields?.Mediabuyer;
+        
+        if (isRecordId(mediaBuyerId)) {
+          // Media buyer is a single record ID
+          if (membersMap[mediaBuyerId] && membersMap[mediaBuyerId].fields.Title) {
+            mediaBuyerName = membersMap[mediaBuyerId].fields.Title;
+          } else {
+            // If we have an ID but no mapped name, show the ID as fallback
+            mediaBuyerName = mediaBuyerId;
+          }
+        } else if (Array.isArray(mediaBuyerId) && mediaBuyerId.length > 0) {
+          // Media buyer is an array, check the first item
+          const firstItem = mediaBuyerId[0];
+          if (isRecordId(firstItem)) {
+            if (membersMap[firstItem] && membersMap[firstItem].fields.Title) {
+              mediaBuyerName = membersMap[firstItem].fields.Title;
+            } else {
+              // If we have an ID but no mapped name, show the ID as fallback
+              mediaBuyerName = firstItem;
+            }
+          }
+        }
             
         return {
           id: record.recordId,
@@ -138,7 +204,7 @@ export async function GET() {
           clientId: clientIdForDisplay,
           budget: budget,
           startDate: record.fields?.StartDate || 'Not specified',
-          manager: record.fields?.ProjectManager || 'Unassigned',
+          mediaBuyer: mediaBuyerName,
           team: record.fields?.team_lookup || 'Unassigned'
         };
       });

@@ -8,7 +8,7 @@ interface Project {
   clientId: string | null;
   budget: string;
   startDate: string;
-  manager: string;
+  mediaBuyer: string;
   team: string;
 }
 
@@ -114,7 +114,7 @@ export function ActiveProjects() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Media buyer</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
                 </tr>
               </thead>
@@ -147,7 +147,7 @@ export function ActiveProjects() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.budget}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.startDate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.manager}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.mediaBuyer}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.team}</td>
                   </tr>
                 ))}
