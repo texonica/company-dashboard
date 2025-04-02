@@ -18,6 +18,7 @@ This separation ensures private data is never directly accessed from the client,
 - **Client Components**: Interactive UI components with client-side state
 - **SWR Pattern**: For data fetching, caching, and revalidation
 - **Environment Variables**: For secure configuration management
+- **Error Boundary Pattern**: Comprehensive error handling with specific status codes
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
@@ -37,6 +38,17 @@ This separation ensures private data is never directly accessed from the client,
 6. Processed data is returned to the frontend
 7. Frontend renders the data with appropriate components
 
+## API Route Implementation
+The system implements several API routes to securely interact with AITable:
+1. **Projects Route** (`/api/projects`): Fetches all active projects with:
+   - Filtering for launched and onboarding projects
+   - Client name resolution from client IDs
+   - Team member resolution from member IDs
+   - Proper error handling with specific status codes
+2. **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
+3. **Clients Route** (`/api/clients`): Fetches client information
+4. **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
+
 ## Home Page Architecture
 1. **Dashboard Content Component**: Overall dashboard layout and organization
 2. **Active Projects Component**: Displays project information with:
@@ -48,6 +60,13 @@ This separation ensures private data is never directly accessed from the client,
    - Months active calculation (to be implemented)
 3. **Data Fetching**: Using SWR for caching and revalidation
 4. **UI Components**: Using shadcn/ui and Radix for consistent design
+
+## Error Handling Patterns
+The system implements comprehensive error handling:
+1. **API Error Categorization**: Different error types with specific status codes
+2. **Client-Side Error Handling**: User-friendly error messages in components
+3. **Fallbacks**: Graceful degradation when data is unavailable
+4. **Error Logging**: Detailed server-side error logging for debugging
 
 ## Key Technical Decisions
 - Next.js API routes act as a proxy for AITable.ai to keep API keys secure

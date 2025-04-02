@@ -147,18 +147,12 @@ export function DashboardPage() {
                         <h2 className="text-xl font-semibold mb-4 text-gray-900">Campaign Metrics</h2>
                         <MetricsChart
                             data={dailyMetrics}
-                            metric1={{
-                                key: selectedMetrics[0],
-                                label: metricOptions[selectedMetrics[0]].label,
-                                color: '#1e40af',
-                                format: (v: number) => metricOptions[selectedMetrics[0]].format(v)
-                            }}
-                            metric2={{
-                                key: selectedMetrics[1],
-                                label: metricOptions[selectedMetrics[1]].label,
-                                color: '#ea580c',
-                                format: (v: number) => metricOptions[selectedMetrics[1]].format(v)
-                            }}
+                            metrics={selectedMetrics.map(metric => ({
+                                key: metric,
+                                label: metricOptions[metric].label,
+                                color: metric === selectedMetrics[0] ? '#1e40af' : '#ea580c', // Assign colors dynamically
+                                format: (v: number) => metricOptions[metric].format(v)
+                            }))}
                             chartType={chartType}
                         />
                     </>
@@ -169,12 +163,12 @@ export function DashboardPage() {
                         </h2>
                         <MetricsChart
                             data={dailyProfitData}
-                            metric1={{
+                            metrics={[{
                                 key: 'profit',
                                 label: isProfitStrategy ? 'Profit' : 'Net Revenue',
                                 color: '#1e40af',
                                 format: (v: number) => formatCurrency(v, settings.currency)
-                            }}
+                            }]}
                             chartType="bar"
                             barColors={{
                                 profit: (value: number) => value >= 0 ? 'rgb(229 231 235)' : 'rgb(252 165 165)'

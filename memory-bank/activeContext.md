@@ -1,15 +1,16 @@
 # Active Context
 
 ## Current Focus
-We are currently implementing the home page with active projects display for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project and client data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, and team members tables.
+We are currently implementing the home page with active projects display for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project and client data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, team members, and UW lead generation tables.
 
 ## Recent Changes
 - Implemented backend API routes for projects and clients
 - Set up AITable.ai API integration with secure token handling
 - Added environment variables for AITable API configuration
-- Configured the Projects table ID, Clients table ID, and Members table ID
+- Configured all necessary table IDs (Projects, Clients, Members, UW LeadGen)
 - Created ActiveProjects component for displaying project information
 - Implemented DashboardContent component for the main dashboard
+- Added comprehensive error handling in API routes
 
 ## Next Steps
 - Complete the active projects display with:
@@ -43,4 +44,5 @@ We need to determine the best approach for:
 - How should we display complex data relationships (e.g., team members to projects)?
 - What level of data aggregation should happen on the backend vs. frontend?
 - How often should data be refreshed from AITable.ai?
-- What filtering capabilities are most important for users in the first release? 
+- What filtering capabilities are most important for users in the first release?
+- How should we utilize the UW LeadGen table in the dashboard? 

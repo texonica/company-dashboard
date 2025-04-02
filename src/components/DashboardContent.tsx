@@ -179,18 +179,20 @@ function DashboardData() {
 
                 <MetricsChart
                     data={dailyMetrics}
-                    metric1={{
-                        key: selectedMetrics[0],
-                        label: metricConfig[selectedMetrics[0]].label,
-                        color: COLORS.primary,
-                        format: (v: number) => metricConfig[selectedMetrics[0]].format(v, settings.currency)
-                    }}
-                    metric2={{
-                        key: selectedMetrics[1],
-                        label: metricConfig[selectedMetrics[1]].label,
-                        color: COLORS.secondary,
-                        format: (v: number) => metricConfig[selectedMetrics[1]].format(v, settings.currency)
-                    }}
+                    metrics={[
+                        {
+                            key: selectedMetrics[0],
+                            label: metricConfig[selectedMetrics[0]].label,
+                            color: COLORS.primary,
+                            format: (v: number) => metricConfig[selectedMetrics[0]].format(v, settings.currency)
+                        },
+                        {
+                            key: selectedMetrics[1],
+                            label: metricConfig[selectedMetrics[1]].label,
+                            color: COLORS.secondary,
+                            format: (v: number) => metricConfig[selectedMetrics[1]].format(v, settings.currency)
+                        }
+                    ]}
                 />
             </div>
         </DashboardLayout>

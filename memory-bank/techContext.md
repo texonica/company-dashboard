@@ -63,16 +63,20 @@ The AITable.ai integration has been set up with:
    - AITABLE_PROJECTS_TABLE_ID for projects data
    - AITABLE_CLIENTS_TABLE_ID for clients data
    - AITABLE_MEMBERS_TABLE_ID for team members data
+   - AITABLE_UW_LEADGEN_TABLE_ID for UW lead generation data
 
 2. Backend API implementation:
    - Custom API client in src/lib/api/aitable.ts
    - API routes in src/app/api/projects and src/app/api/clients
    - Secure proxy to protect API credentials
+   - Comprehensive error handling with specific error codes
+   - Test route in src/app/api/aitable-test for connection verification
 
 3. Data model access:
    - Projects data including title, team members, etc.
    - Client information
    - Team members data
+   - UW lead generation information
 
 4. Future implementation needs:
    - Calculate months active from start date

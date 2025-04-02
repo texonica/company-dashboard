@@ -18,18 +18,12 @@ interface ChartData {
 
 interface MetricsChartProps {
   data: ChartData[]
-  metric1: {
+  metrics: Array<{
     key: string
     label: string
     color: string
     format: (value: number) => string
-  }
-  metric2?: {
-    key: string
-    label: string
-    color: string
-    format: (value: number) => string
-  }
+  }>
   chartType?: ChartType
   barColors?: {
     [key: string]: (value: number) => string
@@ -39,14 +33,17 @@ interface MetricsChartProps {
 
 export function MetricsChart({
   data,
-  metric1,
-  metric2,
+  metrics,
   chartType: initialChartType = 'line',
   barColors,
   hideControls = false
 }: MetricsChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [currentChartType, setCurrentChartType] = useState<ChartType>(initialChartType)
+  
+  // For backward compatibility
+  const metric1 = metrics[0]
+  const metric2 = metrics.length > 1 ? metrics[1] : undefined
 
   useEffect(() => {
     if (!data.length || !svgRef.current) return
@@ -62,6 +59,20 @@ export function MetricsChart({
     const svg = d3.select(svgRef.current)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    // Create tooltip div
+    const tooltip = d3.select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('background-color', 'white')
+      .style('border', '1px solid #ddd')
+      .style('border-radius', '4px')
+      .style('padding', '8px')
+      .style('box-shadow', '0 2px 4px rgba(0,0,0,0.1)')
+      .style('pointer-events', 'none')
+      .style('opacity', 0)
+      .style('z-index', 1000)
 
     // Parse dates and filter labels to show only first of month
     const dates = data
@@ -105,23 +116,18 @@ export function MetricsChart({
 
     const xGroupScale = currentChartType === 'bar'
       ? d3.scaleBand()
-        .domain(metric2 ? ['metric1', 'metric2'] : ['metric1'])
+        .domain(metrics.map((_, i) => `metric${i + 1}`))
         .range([0, (xScale as d3.ScaleBand<string>).bandwidth()])
         .padding(0.1)
       : null
 
-    const y1Scale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d[metric1.key] as number) || 0])
-      .range([height, 0])
-      .nice()
-
-    let y2Scale
-    if (metric2) {
-      y2Scale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d[metric2.key] as number) || 0])
+    // Create Y-scales for each metric
+    const yScales = metrics.map(metric => {
+      return d3.scaleLinear()
+        .domain([0, d3.max(data, d => d[metric.key] as number) || 0])
         .range([height, 0])
         .nice()
-    }
+    })
 
     // Helper function to format y-axis ticks
     const formatYAxisTick = (d: number, key: string) => {
@@ -159,158 +165,176 @@ export function MetricsChart({
         .style('text-anchor', 'end')
         .attr('transform', 'rotate(-45)'))
 
+    // Add primary Y-axis (first metric)
     svg.append('g')
-      .call(d3.axisLeft(y1Scale)
+      .call(d3.axisLeft(yScales[0])
         .ticks(5)
-        .tickFormat(d => formatYAxisTick(d as number, metric1.key)))
+        .tickFormat(d => formatYAxisTick(d as number, metrics[0].key)))
       .call(g => g.select('.domain').attr('stroke', '#cbd5e1'))
       .call(g => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
       .call(g => g.selectAll('.tick text').attr('fill', '#64748b'))
 
-    if (metric2 && y2Scale) {
+    // Add secondary Y-axis if we have more than one metric
+    if (metrics.length > 1) {
       svg.append('g')
         .attr('transform', `translate(${width},0)`)
-        .call(d3.axisRight(y2Scale)
+        .call(d3.axisRight(yScales[1])
           .ticks(5)
-          .tickFormat(d => formatYAxisTick(d as number, metric2.key)))
+          .tickFormat(d => formatYAxisTick(d as number, metrics[1].key)))
         .call(g => g.select('.domain').attr('stroke', '#cbd5e1'))
         .call(g => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
         .call(g => g.selectAll('.tick text').attr('fill', '#64748b'))
     }
 
     if (currentChartType === 'line') {
-      // Add lines
-      const line1 = d3.line<ChartData>()
-        .x(d => (xScale as d3.ScaleTime<number, number>)(new Date(d.date)))
-        .y(d => y1Scale(d[metric1.key] as number))
-
-      svg.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', metric1.color)
-        .attr('stroke-width', 2)
-        .attr('d', line1 as any) // Type assertion needed due to d3 typing limitations
-
-      if (metric2 && y2Scale) {
-        const line2 = d3.line<ChartData>()
+      // Add lines for each metric
+      metrics.forEach((metric, i) => {
+        const line = d3.line<ChartData>()
           .x(d => (xScale as d3.ScaleTime<number, number>)(new Date(d.date)))
-          .y(d => y2Scale(d[metric2.key] as number))
+          .y(d => yScales[i](d[metric.key] as number))
+          .defined(d => d[metric.key] !== null) // Skip null values to create breaks in the line
 
         svg.append('path')
           .datum(data)
           .attr('fill', 'none')
-          .attr('stroke', metric2.color)
+          .attr('stroke', metric.color)
           .attr('stroke-width', 2)
-          .attr('d', line2 as any) // Type assertion needed due to d3 typing limitations
-      }
+          .attr('d', line as any) // Type assertion needed due to d3 typing limitations
+      })
+
+      // Add invisible circles for tooltip interactions for each metric
+      metrics.forEach((metric, metricIndex) => {
+        svg.selectAll(`.dot-metric${metricIndex + 1}`)
+          .data(data.filter(d => d[metric.key] !== null))
+          .join('circle')
+          .attr('class', `dot-metric${metricIndex + 1}`)
+          .attr('cx', d => (xScale as d3.ScaleTime<number, number>)(new Date(d.date)))
+          .attr('cy', d => yScales[metricIndex](d[metric.key] as number))
+          .attr('r', 5)
+          .attr('fill', 'transparent')
+          .attr('stroke', 'transparent')
+          .attr('stroke-width', 2)
+          .on('mouseover', (event, d) => {
+            tooltip.transition()
+              .duration(200)
+              .style('opacity', 0.9)
+            
+            // Create tooltip content showing all metrics for this date
+            let tooltipContent = `<div style="font-weight: bold">${format(new Date(d.date), 'MMM d, yyyy')}</div>`;
+            
+            // Add each selected metric to the tooltip
+            metrics.forEach(m => {
+              tooltipContent += `<div style="color: ${m.color}">${m.label}: ${m.format(d[m.key])}</div>`;
+            });
+            
+            tooltip.html(tooltipContent)
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 28) + 'px')
+            
+            // Highlight the current dot
+            d3.select(event.currentTarget)
+              .attr('fill', metric.color)
+              .attr('stroke', '#fff')
+              .attr('r', 6)
+          })
+          .on('mouseout', (event) => {
+            tooltip.transition()
+              .duration(500)
+              .style('opacity', 0)
+            
+            // Restore the dot appearance
+            d3.select(event.currentTarget)
+              .attr('fill', 'transparent')
+              .attr('stroke', 'transparent')
+              .attr('r', 5)
+          })
+      })
     } else {
-      // Add bars
+      // Bar chart implementation
       const bars = svg.append('g')
         .selectAll('g')
         .data(data)
         .join('g')
         .attr('transform', d => `translate(${(xScale as d3.ScaleBand<string>)(format(new Date(d.date), 'MMM d'))},0)`)
 
-      // Add metric1 bars
-      bars.append('rect')
-        .attr('x', () => xGroupScale!('metric1') || 0)
-        .attr('y', d => y1Scale(d[metric1.key] as number))
-        .attr('width', xGroupScale!.bandwidth())
-        .attr('height', d => height - y1Scale(d[metric1.key] as number))
-        .attr('fill', d => barColors?.[metric1.key]?.((d as ChartData)[metric1.key] as number) || metric1.color)
-        .attr('opacity', 0.8)
-
-      // Add metric2 bars if exists
-      if (metric2 && y2Scale) {
+      // Add bars for each metric
+      metrics.forEach((metric, i) => {
         bars.append('rect')
-          .attr('x', () => xGroupScale!('metric2') || 0)
-          .attr('y', d => y2Scale(d[metric2.key] as number))
+          .attr('x', () => xGroupScale!(`metric${i + 1}`) || 0)
+          .attr('y', d => yScales[i](d[metric.key] as number))
           .attr('width', xGroupScale!.bandwidth())
-          .attr('height', d => height - y2Scale(d[metric2.key] as number))
-          .attr('fill', d => barColors?.[metric2.key]?.((d as ChartData)[metric2.key] as number) || metric2.color)
+          .attr('height', d => height - yScales[i](d[metric.key] as number))
+          .attr('fill', d => barColors?.[metric.key]?.((d as ChartData)[metric.key] as number) || metric.color)
           .attr('opacity', 0.8)
-      }
+          .on('mouseover', (event, d) => {
+            tooltip.transition()
+              .duration(200)
+              .style('opacity', 0.9)
+            
+            // Create tooltip content
+            let tooltipContent = `<div style="font-weight: bold">${format(new Date(d.date), 'MMM d, yyyy')}</div>`;
+            
+            // Add each selected metric to the tooltip
+            metrics.forEach(m => {
+              tooltipContent += `<div style="color: ${m.color}">${m.label}: ${m.format(d[m.key])}</div>`;
+            });
+            
+            tooltip.html(tooltipContent)
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 28) + 'px')
+          })
+          .on('mouseout', () => {
+            tooltip.transition()
+              .duration(500)
+              .style('opacity', 0)
+          })
+      })
     }
 
-    // Add legend
+    // Create a legend
     const legend = svg.append('g')
-      .attr('transform', `translate(${width - 200}, -10)`)
+      .attr('class', 'legend')
+      .attr('transform', `translate(0, -20)`)
 
-    const legendSymbol = currentChartType === 'line' ? 'line' : 'rect'
-
-    if (legendSymbol === 'line') {
-      legend.append('line')
-        .attr('x1', 0)
-        .attr('x2', 20)
-        .attr('stroke', metric1.color)
-        .attr('stroke-width', 2)
-    } else {
-      legend.append('rect')
-        .attr('width', 15)
-        .attr('height', 15)
-        .attr('fill', barColors?.[metric1.key]?.(data[0]?.[metric1.key] as number) || metric1.color)
-        .attr('opacity', 0.8)
-    }
-
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', legendSymbol === 'line' ? 4 : 12)
-      .text(metric1.label)
-      .attr('fill', '#64748b')
-      .style('font-size', '12px')
-
-    if (metric2) {
-      const legend2 = legend.append('g')
-        .attr('transform', 'translate(100, 0)')
-        .attr('key', 'legend2')
-
-      if (legendSymbol === 'line') {
-        legend2.append('line')
-          .attr('x1', 0)
-          .attr('x2', 20)
-          .attr('stroke', metric2.color)
-          .attr('stroke-width', 2)
-      } else {
-        legend2.append('rect')
-          .attr('width', 15)
-          .attr('height', 15)
-          .attr('fill', barColors?.[metric2.key]?.(data[0]?.[metric2.key] as number) || metric2.color)
-          .attr('opacity', 0.8)
-      }
-
-      legend2.append('text')
-        .attr('x', 25)
-        .attr('y', legendSymbol === 'line' ? 4 : 12)
-        .text(metric2.label)
+    metrics.forEach((metric, i) => {
+      const legendItem = legend.append('g')
+        .attr('transform', `translate(${i * 120}, 0)`)
+      
+      legendItem.append('rect')
+        .attr('width', 10)
+        .attr('height', 10)
+        .attr('fill', metric.color)
+      
+      legendItem.append('text')
+        .attr('x', 15)
+        .attr('y', 10)
+        .attr('text-anchor', 'start')
+        .attr('font-size', '12px')
         .attr('fill', '#64748b')
-        .style('font-size', '12px')
+        .text(metric.label)
+    })
+
+    // Cleanup on component unmount
+    return () => {
+      tooltip.remove()
     }
-  }, [data, metric1, metric2, currentChartType, barColors])
+  }, [data, metrics, currentChartType, barColors])
+
+  // Chart type toggle
+  const handleToggleChartType = () => {
+    setCurrentChartType(currentChartType === 'line' ? 'bar' : 'line')
+  }
 
   return (
     <Card className="p-4">
       {!hideControls && (
         <div className="flex justify-end mb-4">
-          <div className="inline-flex rounded-md shadow-sm" role="group">
+          <div className="flex items-center space-x-2">
             <button
-              type="button"
-              onClick={() => setCurrentChartType('line')}
-              className={`px-4 py-2 text-sm font-medium border rounded-l-lg ${currentChartType === 'line'
-                ? 'bg-blue-50 text-blue-700 border-blue-700'
-                : 'bg-white text-gray-900 border-gray-200 hover:bg-gray-100'
-                }`}
+              onClick={handleToggleChartType}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded"
             >
-              Line
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentChartType('bar')}
-              className={`px-4 py-2 text-sm font-medium border rounded-r-lg ${currentChartType === 'bar'
-                ? 'bg-blue-50 text-blue-700 border-blue-700'
-                : 'bg-white text-gray-900 border-gray-200 hover:bg-gray-100'
-                }`}
-            >
-              Bar
+              {currentChartType === 'line' ? 'Switch to Bar Chart' : 'Switch to Line Chart'}
             </button>
           </div>
         </div>
@@ -318,8 +342,9 @@ export function MetricsChart({
       <svg
         ref={svgRef}
         className="w-full"
-        style={{ height: '400px' }}
-      />
+        height={400}
+        style={{ overflow: 'visible' }}
+      ></svg>
     </Card>
   )
 }

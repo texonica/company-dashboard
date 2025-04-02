@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { MetricsChart } from '@/components/MetricsChart'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { DateRangeSelector, DateRange } from '@/components/DateRangeSelector'
+import { subDays } from 'date-fns'
 
 interface UWLeadgenRecord {
   id: string
@@ -112,6 +114,41 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
       checked: false
     }
   ]);
+  
+  // Add date range state
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: subDays(new Date(), 28), // Default to last 4 weeks
+    endDate: new Date()
+  });
+  
+  // Add filtered records state
+  const [filteredRecords, setFilteredRecords] = useState<UWLeadgenRecord[]>(records);
+  
+  // Filter records when date range changes
+  useEffect(() => {
+    const filtered = records.filter(record => {
+      // Convert record date to Date object
+      const recordDate = record.fields.Date 
+        ? new Date(record.fields.Date) 
+        : record.fields.Title 
+          ? parseTitleToDate(record.fields.Title)
+          : new Date(); // Fallback
+          
+      return recordDate >= dateRange.startDate && recordDate <= dateRange.endDate;
+    });
+    
+    setFilteredRecords(filtered);
+  }, [records, dateRange]);
+  
+  // Helper function to parse Title in format YYYY:MM:WW to a Date
+  const parseTitleToDate = (title: string): Date => {
+    const parts = title.split(':').map(Number);
+    // Create a date for the first day of the month
+    const date = new Date(parts[0], parts[1] - 1, 1);
+    // Add (week - 1) * 7 days to get to the start of the week
+    date.setDate(date.getDate() + (parts[2] - 1) * 7);
+    return date;
+  };
 
   // Toggle metric visibility
   const toggleMetric = (index: number) => {
@@ -122,36 +159,95 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
     });
   };
 
-  // Format data for the chart
-  const chartData = records.map((record, index) => {
-    const { fields } = record;
-    // Make sure we always have a valid date - either from the record or a fallback
-    const date = fields.Date ? new Date(fields.Date).toISOString().split('T')[0] : 
-      // Fallback date using Title field in YYYY:MM:WW format
-      fields.Title ? `${fields.Title.split(':')[0]}-${String(fields.Title.split(':')[1]).padStart(2, '0')}-01` : 
-      // Last resort fallback - use current date
-      new Date().toISOString().split('T')[0];
-    
-    // Create a data point with all metrics
-    const dataPoint: any = { date, index }; // Add index to ensure uniqueness
-    metrics.forEach(metric => {
-      // Ensure all values are converted to numbers
-      let value = fields[metric.key];
-      dataPoint[metric.key] = typeof value === 'number' ? value : Number(value || 0);
+  // Format data for the chart - memoize this calculation to depend on filteredRecords AND metrics
+  const chartData = useMemo(() => {
+    const dataPoints = filteredRecords.map((record, index) => {
+      const { fields } = record;
+      // Make sure we always have a valid date - either from the record or a fallback
+      const date = fields.Date ? new Date(fields.Date).toISOString().split('T')[0] : 
+        // Fallback date using Title field in YYYY:MM:WW format
+        fields.Title ? `${fields.Title.split(':')[0]}-${String(fields.Title.split(':')[1]).padStart(2, '0')}-01` : 
+        // Last resort fallback - use current date
+        new Date().toISOString().split('T')[0];
+      
+      // Create a data point with all metrics
+      const dataPoint: any = { date, index }; // Add index to ensure uniqueness
+      metrics.forEach(metric => {
+        // Ensure all values are converted to numbers
+        let value = fields[metric.key];
+        dataPoint[metric.key] = typeof value === 'number' ? value : Number(value || 0);
+      });
+
+      return dataPoint;
     });
 
-    return dataPoint;
-  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Sort by date
+    const sortedData = dataPoints.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // Ensure we have data points for the entire date range, even if some dates have no data
+    // This will force the chart to display the full selected date range
+    const result = sortedData.length > 0 ? sortedData : [];
+    
+    // Add explicit start and end markers based on the date range if we have any data
+    if (result.length > 0) {
+      // Format dates to match the format used in dataPoints
+      const startDateStr = dateRange.startDate.toISOString().split('T')[0];
+      const endDateStr = dateRange.endDate.toISOString().split('T')[0];
+      
+      // Check if we need to add start boundary
+      if (new Date(result[0].date).getTime() > dateRange.startDate.getTime()) {
+        // Add a boundary point at the start date
+        const startPoint: any = { 
+          date: startDateStr, 
+          index: -1,
+          isBoundary: true
+        };
+        // Copy metric values from the first real data point, or use zeros
+        if (result.length > 0) {
+          metrics.forEach(metric => {
+            startPoint[metric.key] = null; // Use null to create discontinuity in the line chart
+          });
+        }
+        result.unshift(startPoint);
+      }
+      
+      // Check if we need to add end boundary
+      if (new Date(result[result.length - 1].date).getTime() < dateRange.endDate.getTime()) {
+        // Add a boundary point at the end date
+        const endPoint: any = { 
+          date: endDateStr, 
+          index: -2,
+          isBoundary: true
+        };
+        // Copy metric values from the last real data point, or use zeros
+        if (result.length > 0) {
+          metrics.forEach(metric => {
+            endPoint[metric.key] = null; // Use null to create discontinuity in the line chart
+          });
+        }
+        result.push(endPoint);
+      }
+    }
+    
+    return result;
+  }, [filteredRecords, metrics, dateRange]);
 
   // Get selected metrics for the chart
-  const selectedMetrics = metrics.filter(m => m.checked);
+  const selectedMetrics = useMemo(() => {
+    return metrics.filter(m => m.checked);
+  }, [metrics]);
 
-  // Only display two metrics at once to avoid clutter
-  const displayMetrics = selectedMetrics.slice(0, 2);
+  // Handle date range change
+  const handleDateRangeChange = (newRange: DateRange) => {
+    setDateRange(newRange);
+  };
 
   return (
     <Card className="p-4">
-      <h2 className="text-lg font-semibold mb-4">UW Leadgen Metrics Over Time</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">UW Leadgen Metrics Over Time</h2>
+        <DateRangeSelector onRangeChange={handleDateRangeChange} />
+      </div>
       
       <div className="mb-4 flex flex-wrap gap-4">
         {metrics.map((metric, index) => (
@@ -159,7 +255,11 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
             <Checkbox 
               id={`metric-${index}`} 
               checked={metric.checked}
-              onCheckedChange={() => toggleMetric(index)}
+              onCheckedChange={() => {
+                toggleMetric(index);
+                // Force a re-render for the chart
+                setTimeout(() => {}, 0);
+              }}
               style={{ color: metric.color }}
             />
             <Label
@@ -172,23 +272,18 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
         ))}
       </div>
       
-      {displayMetrics.length > 0 && chartData.length > 0 ? (
+      {selectedMetrics.length > 0 && chartData.length > 0 ? (
         <>
           <MetricsChart
+            key={selectedMetrics.map(m => m.key).join('-')}
             data={chartData}
-            metric1={displayMetrics[0]}
-            metric2={displayMetrics.length > 1 ? displayMetrics[1] : undefined}
+            metrics={selectedMetrics}
             chartType="line"
           />
-          {selectedMetrics.length > 2 && (
-            <div className="mt-2 text-sm text-amber-600">
-              Note: Only the first 2 selected metrics are displayed. Deselect some metrics to view others.
-            </div>
-          )}
         </>
       ) : (
         <div className="flex justify-center items-center h-64 text-gray-500">
-          Please select at least one metric to display the chart
+          {chartData.length === 0 ? "No data available for the selected date range" : "Please select at least one metric to display the chart"}
         </div>
       )}
       
