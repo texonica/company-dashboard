@@ -3,46 +3,54 @@
 ## Current Focus
 We are currently implementing the home page with active projects display for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project and client data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, team members, and UW lead generation tables.
 
+The backend API routes for projects have been implemented with comprehensive error handling, client name resolution, and media buyer resolution. The ActiveProjects component has been created and connected to the backend API, allowing for the display of sorted and grouped project information by team.
+
 ## Recent Changes
-- Implemented backend API routes for projects and clients
-- Set up AITable.ai API integration with secure token handling
-- Added environment variables for AITable API configuration
-- Configured all necessary table IDs (Projects, Clients, Members, UW LeadGen)
-- Created ActiveProjects component for displaying project information
-- Implemented DashboardContent component for the main dashboard
-- Added comprehensive error handling in API routes
+- Implemented backend API routes for projects and clients with detailed error handling
+- Set up AITable.ai API integration with secure token handling via environment variables
+- Added comprehensive error handling in API routes with specific status codes
+- Created ActiveProjects component for displaying project information with:
+  - Project titles and IDs
+  - Team grouping functionality
+  - Client name resolution from client IDs
+  - Media buyer resolution from member IDs
+  - Budget formatting
+  - Stage visualization with color coding
+  - Sorting by start date
+- Implemented DashboardContent component for the main dashboard layout
+- Integrated ActiveProjects into the main dashboard
 
 ## Next Steps
-- Complete the active projects display with:
-  - Team members information retrieval from AITable
-  - Media buyer display
-  - Retainer value in USD
-  - Start date calculation
-  - Number of months project has been active
-- Implement sorting and filtering for the projects table
+- Enhance the active projects display with:
+  - Months active calculation based on start date
+  - Additional filtering options
+  - Improved sorting capabilities
+  - Better error state handling
+- Implement authentication with Firebase
+- Set up role-based access control
+- Create financial reporting panels as the next major feature
 - Add data visualizations for key metrics
-- Set up authentication with Firebase
-- Add role-based access control
-- Implement financial reporting panels
-- Create detailed client views
+- Optimize data fetching to minimize API calls
+- Implement caching strategy for AITable data
+- Develop detailed client views
 
 *For detailed roadmap and implementation discussions, see [roadmap.md](roadmap.md)*
 
 ## Active Decisions
 We need to determine the best approach for:
 - Data fetching optimization to minimize API calls to AITable
-- Caching strategy for AITable data
-- User interface for financial reporting
+- Caching strategy for AITable data (using SWR)
+- User interface for financial reporting panels
 - Dashboard layout for different user roles
-- Error handling for API failures
+- Authentication implementation with Firebase
 - Data refresh strategy (manual vs. automatic)
-- How to display team members efficiently within project cards
+- How to calculate and display project duration (months active)
 
 ## Open Questions
 - What specific financial metrics should be prioritized for the first release?
-- What are the performance implications of frequent AITable.ai API calls?
-- How should we display complex data relationships (e.g., team members to projects)?
-- What level of data aggregation should happen on the backend vs. frontend?
+- How should we handle potentially large datasets from AITable?
+- What is the most efficient way to display team members within project cards?
 - How often should data be refreshed from AITable.ai?
 - What filtering capabilities are most important for users in the first release?
-- How should we utilize the UW LeadGen table in the dashboard? 
+- How should we utilize the UW LeadGen table in the dashboard?
+- What level of data aggregation should happen on the backend vs. frontend? 

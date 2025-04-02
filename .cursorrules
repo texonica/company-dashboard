@@ -7,6 +7,9 @@
 - Component-based architecture should be followed for maintainability
 - Responsive design is required for all UI elements
 - Next.js API routes are used for secure backend functionality
+- AITable relation fields (Client, Mediabuyer) may be strings or arrays and need special handling
+- Projects are grouped by team and sorted by start date
+- Projects are filtered to show only "Launched" and "Onboarding" stages
 
 ## User Preferences
 - Clear, intuitive data visualization is preferred over complex displays
@@ -15,6 +18,9 @@
 - Export functionality for reports is important
 - Filter and date range selection for all data views
 - Project information should be easily accessible on the home page
+- Team-based organization of projects for better visual grouping
+- Color-coded status indicators for different project stages
+- Proper error handling with user-friendly messages
 
 ## Known Challenges
 - AITable.ai API may have rate limits that need to be managed
@@ -23,15 +29,19 @@
 - Performance optimization for potentially large datasets
 - Balancing real-time data with system performance
 - Handling relationships between different AITable tables (projects, clients, members)
+- Resolving relation fields like Client and Mediabuyer that may be strings or arrays
+- Calculating and displaying months active based on start date
 
 ## Implementation Notes
 - Authentication must be implemented at both frontend and backend
 - API requests to AITable.ai should be cached when appropriate
-- Error handling should be robust and user-friendly
+- Error handling should be robust and user-friendly with specific status codes
 - Testing should cover security scenarios extensively
 - Code organization should follow clear separation of concerns
 - Environment variables should be used for all sensitive configuration
-- SWR is used for data fetching and caching
+- SWR is planned for data fetching and caching
+- Record ID detection should use regex like /^rec[a-zA-Z0-9]{8,}$/
+- Team-based grouping uses the team_lookup field from AITable
 
 ## Evolution of Decisions
 - Starting with focus on active projects display on home page
@@ -39,4 +49,6 @@
 - May need to refine data refresh strategies based on usage patterns
 - UI/UX decisions will evolve based on user feedback
 - Using Next.js with API routes instead of separate frontend/backend
-- Using Firebase for authentication with development bypass option 
+- Using Firebase for authentication with development bypass option
+- Implementing relation field resolution on the backend for better performance
+- Moving from individual component state to more centralized data management 
