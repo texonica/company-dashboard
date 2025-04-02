@@ -150,7 +150,10 @@ function DashboardData() {
     return (
         <DashboardLayout error={error}>
             <div className="space-y-6">
-                <ActiveProjects />
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Project Status</h2>
+                    <ActiveProjects />
+                </div>
                 
                 <CampaignSelect
                     campaigns={settings.campaigns || []}

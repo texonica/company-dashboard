@@ -74,3 +74,53 @@ To enhance the AITable integration:
 4. Expand error handling and retry logic
 5. Add more detailed project views
 
+## AITable Integration Setup
+
+This dashboard integrates with AITable.ai to fetch project and client data. Follow these steps to set up the integration:
+
+### 1. Get AITable API Credentials
+
+1. Log in to your AITable.ai account
+2. Go to User Center > Developer Configuration
+3. Create a new API token or use an existing one
+4. Copy the token for use in your environment variables
+
+### 2. Find Your AITable IDs
+
+**Base ID:**
+- Go to your AITable workspace
+- The Base ID is visible in the URL after `/space/` (e.g., `spc12q5HY4ay5`)
+
+**Projects Table ID:**
+- Open your projects datasheet
+- The Table ID is visible in the URL after `/dst/` (e.g., `dstq4onAEtjMleaeCm`)
+
+**Clients Table ID:**
+- Open your clients datasheet
+- The Table ID is visible in the URL after `/dst/` (e.g., `dstKLMnOpQrsSt`)
+
+### 3. Configure Environment Variables
+
+1. Copy the `.env.example` file to `.env.local`
+2. Update these variables:
+```
+AITABLE_API_TOKEN=your_api_token_here
+AITABLE_BASE_ID=your_base_id_here
+AITABLE_PROJECTS_TABLE_ID=your_projects_table_id_here
+AITABLE_CLIENTS_TABLE_ID=your_clients_table_id_here
+```
+
+### 4. Client ID Resolution
+
+For the client lookup feature to work correctly:
+
+1. The Projects table must have a "Client" field that contains AITable record IDs (recXXXXXXX) pointing to client records
+2. The Clients table must exist and have a "Name" field containing the client names
+3. Both the project and client tables must be in the same AITable base
+4. Your API token must have access to both tables
+
+If clients appear as IDs (orange/amber text) instead of names, check that:
+- The AITABLE_CLIENTS_TABLE_ID is set correctly
+- The Client field in the Projects table contains valid client record IDs
+- The Clients table has a Name field for each client
+

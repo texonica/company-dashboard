@@ -16,6 +16,7 @@ This separation ensures private data is never directly accessed from the client,
 - **MVC/MVVM Pattern**: For UI organization and state management
 - **Adapter Pattern**: For AITable.ai API integration
 - **Strategy Pattern**: For different report generation approaches
+- **Data Table Pattern**: For displaying project information on the home page
 
 ## Component Relationships
 - **Frontend Components**: Connect to backend services via API calls
@@ -23,15 +24,28 @@ This separation ensures private data is never directly accessed from the client,
 - **Data Services**: Handle communication with AITable.ai and transform data for the application
 - **Authentication Service**: Manages user sessions and permissions
 - **Reporting Engine**: Compiles data from various sources for presentation
+- **Projects Service**: Retrieves and processes active project data for the home page
 
 ## Data Flow
 1. User authenticates through the frontend
-2. Frontend requests data from backend API
+2. Frontend requests active projects data from backend API
 3. Backend validates request and user permissions
-4. Backend requests data from AITable.ai API
-5. Data is transformed and processed as needed
+4. Backend requests project data from AITable.ai API with appropriate filters
+5. Data is transformed and processed, calculating metrics like months active
 6. Processed data is returned to frontend
-7. Frontend renders data in appropriate visualizations
+7. Frontend renders active projects in a data table on the home page
+
+## Home Page Architecture
+1. **Projects Table Component**: Displays active projects with columns for:
+   - Project title
+   - Team members
+   - Media buyer
+   - Retainer value (USD)
+   - Start date
+   - Months active
+2. **Data Fetching Layer**: Manages API requests and caching
+3. **Transformation Layer**: Processes raw data into display format
+4. **Filtering/Sorting Controls**: Allows users to customize the projects view
 
 ## Key Technical Decisions
 - Backend acts as a proxy for AITable.ai to keep API keys and private data secure
@@ -39,4 +53,5 @@ This separation ensures private data is never directly accessed from the client,
 - Caching strategy for frequently accessed but infrequently changed data
 - Responsive design approach for multi-device support
 - API versioning strategy for future updates
-- Error handling and monitoring approach 
+- Error handling and monitoring approach
+- Calculate "months active" on the backend to standardize calculations 

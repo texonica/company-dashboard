@@ -12,6 +12,18 @@ export interface AITableProject {
     RecordID?: string;
     Stage?: string;
     Name?: string;
+    Client?: string;
+    Budget?: number;
+    StartDate?: string;
+    ProjectManager?: string;
+    [key: string]: any;
+  };
+}
+
+export interface AITableClient {
+  recordId: string;
+  fields: {
+    Name?: string;
     [key: string]: any;
   };
 }
@@ -39,6 +51,7 @@ export const AITABLE_CONFIG = {
   BASE_URL: 'https://aitable.ai',
   BASE_ID: process.env.AITABLE_BASE_ID,
   PROJECTS_TABLE_ID: process.env.AITABLE_PROJECTS_TABLE_ID,
+  CLIENTS_TABLE_ID: process.env.AITABLE_CLIENTS_TABLE_ID,
 }; 
 
 // Function to validate configuration
@@ -210,4 +223,55 @@ export async function fetchTables() {
   }
   
   return result.data;
+}
+
+/**
+ * Fetch a client record by ID
+ */
+export async function fetchClient(clientId: string): Promise<AITableClient | null> {
+  if (!AITABLE_CONFIG.CLIENTS_TABLE_ID) {
+    console.warn('Missing AITABLE_CLIENTS_TABLE_ID environment variable');
+    return null;
+  }
+  
+  try {
+    const record = await fetchRecord(AITABLE_CONFIG.CLIENTS_TABLE_ID, clientId);
+    return {
+      recordId: clientId,
+      fields: record.fields
+    };
+  } catch (error) {
+    console.error(`Error fetching client with ID ${clientId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch multiple client records by their IDs
+ */
+export async function fetchClientsByIds(clientIds: string[]): Promise<Record<string, AITableClient>> {
+  if (!AITABLE_CONFIG.CLIENTS_TABLE_ID || !clientIds.length) {
+    return {};
+  }
+  
+  // Create a filter formula to get only the clients with the specified IDs
+  // Example: OR(RECORD_ID()='rec123',RECORD_ID()='rec456')
+  const filter = clientIds.map(id => `RECORD_ID()='${id}'`).join(',');
+  const filterFormula = `OR(${filter})`;
+  
+  try {
+    const records = await fetchTableRecords(AITABLE_CONFIG.CLIENTS_TABLE_ID, filterFormula);
+    
+    // Create a map of client IDs to client records
+    return records.reduce((map, client) => {
+      map[client.recordId] = {
+        recordId: client.recordId,
+        fields: client.fields
+      };
+      return map;
+    }, {} as Record<string, AITableClient>);
+  } catch (error) {
+    console.error('Error fetching clients by IDs:', error);
+    return {};
+  }
 } 
