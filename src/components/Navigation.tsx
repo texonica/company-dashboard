@@ -36,7 +36,7 @@ export function Navigation() {
                                 onClick={() => setLeadgenOpen(!leadgenOpen)}
                                 className={cn(
                                     "flex items-center text-sm font-medium transition-colors hover:text-foreground/80",
-                                    pathname.startsWith("/leadgen") ? "text-foreground" : "text-foreground/60"
+                                    pathname.startsWith("/leadgen") && !pathname.includes("/leadgen/crm") ? "text-foreground" : "text-foreground/60"
                                 )}
                             >
                                 Leadgen
@@ -67,6 +67,15 @@ export function Navigation() {
                                 </div>
                             )}
                         </div>
+                        <Link
+                            href="/leadgen/crm"
+                            className={cn(
+                                "text-sm font-medium transition-colors hover:text-foreground/80",
+                                pathname === "/leadgen/crm" ? "text-foreground" : "text-foreground/60"
+                            )}
+                        >
+                            CRM
+                        </Link>
                         <Link
                             href="/terms"
                             className={cn(

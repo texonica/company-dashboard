@@ -29,6 +29,7 @@ interface MetricsChartProps {
     [key: string]: (value: number) => string
   }
   hideControls?: boolean
+  lineThickness?: number
 }
 
 export function MetricsChart({
@@ -36,7 +37,8 @@ export function MetricsChart({
   metrics,
   chartType: initialChartType = 'line',
   barColors,
-  hideControls = false
+  hideControls = false,
+  lineThickness = 2
 }: MetricsChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [currentChartType, setCurrentChartType] = useState<ChartType>(initialChartType)
@@ -59,6 +61,9 @@ export function MetricsChart({
     const svg = d3.select(svgRef.current)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    // Check if we're in monthly view (inferred from data)
+    const isMonthlyView = data.some(d => d.isMonthlyView) || data.some(d => d.monthlyData);
 
     // Create tooltip div
     const tooltip = d3.select('body')
@@ -198,7 +203,7 @@ export function MetricsChart({
           .datum(data)
           .attr('fill', 'none')
           .attr('stroke', metric.color)
-          .attr('stroke-width', 2)
+          .attr('stroke-width', isMonthlyView ? lineThickness : lineThickness) // Use the lineThickness or adjust for monthly
           .attr('d', line as any) // Type assertion needed due to d3 typing limitations
       })
 
@@ -210,7 +215,7 @@ export function MetricsChart({
           .attr('class', `dot-metric${metricIndex + 1}`)
           .attr('cx', d => (xScale as d3.ScaleTime<number, number>)(new Date(d.date)))
           .attr('cy', d => yScales[metricIndex](d[metric.key] as number))
-          .attr('r', 5)
+          .attr('r', isMonthlyView ? 7 : 5) // Larger dots for monthly view
           .attr('fill', 'transparent')
           .attr('stroke', 'transparent')
           .attr('stroke-width', 2)
@@ -224,7 +229,7 @@ export function MetricsChart({
             
             // Add each selected metric to the tooltip
             metrics.forEach(m => {
-              tooltipContent += `<div style="color: ${m.color}">${m.label}: ${m.format(d[m.key])}</div>`;
+              tooltipContent += `<div style="color: ${m.color}; font-weight: 500;">${m.label}: ${m.format(d[m.key])}</div>`;
             });
             
             tooltip.html(tooltipContent)
@@ -235,7 +240,7 @@ export function MetricsChart({
             d3.select(event.currentTarget)
               .attr('fill', metric.color)
               .attr('stroke', '#fff')
-              .attr('r', 6)
+              .attr('r', isMonthlyView ? 8 : 6) // Larger highlight for monthly view
           })
           .on('mouseout', (event) => {
             tooltip.transition()
@@ -246,7 +251,7 @@ export function MetricsChart({
             d3.select(event.currentTarget)
               .attr('fill', 'transparent')
               .attr('stroke', 'transparent')
-              .attr('r', 5)
+              .attr('r', isMonthlyView ? 7 : 5) // Restore to original size
           })
       })
     } else {
@@ -318,7 +323,7 @@ export function MetricsChart({
     return () => {
       tooltip.remove()
     }
-  }, [data, metrics, currentChartType, barColors])
+  }, [data, metrics, currentChartType, barColors, lineThickness])
 
   // Chart type toggle
   const handleToggleChartType = () => {
