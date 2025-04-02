@@ -6,6 +6,7 @@
 - Financial data requires special handling and validation
 - Component-based architecture should be followed for maintainability
 - Responsive design is required for all UI elements
+- Next.js API routes are used for secure backend functionality
 
 ## User Preferences
 - Clear, intuitive data visualization is preferred over complex displays
@@ -13,6 +14,7 @@
 - Security with minimal friction in the user experience
 - Export functionality for reports is important
 - Filter and date range selection for all data views
+- Project information should be easily accessible on the home page
 
 ## Known Challenges
 - AITable.ai API may have rate limits that need to be managed
@@ -20,6 +22,7 @@
 - Different user roles need different levels of data access
 - Performance optimization for potentially large datasets
 - Balancing real-time data with system performance
+- Handling relationships between different AITable tables (projects, clients, members)
 
 ## Implementation Notes
 - Authentication must be implemented at both frontend and backend
@@ -27,9 +30,13 @@
 - Error handling should be robust and user-friendly
 - Testing should cover security scenarios extensively
 - Code organization should follow clear separation of concerns
+- Environment variables should be used for all sensitive configuration
+- SWR is used for data fetching and caching
 
 ## Evolution of Decisions
-- Starting with focus on financial reporting panels
-- Will expand to additional dashboard panels in future phases
+- Starting with focus on active projects display on home page
+- Will expand to financial reporting panels in next phase
 - May need to refine data refresh strategies based on usage patterns
-- UI/UX decisions will evolve based on user feedback 
+- UI/UX decisions will evolve based on user feedback
+- Using Next.js with API routes instead of separate frontend/backend
+- Using Firebase for authentication with development bypass option 

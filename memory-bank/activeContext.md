@@ -1,51 +1,46 @@
 # Active Context
 
 ## Current Focus
-We are currently defining the home page requirements for the Texonica.com dashboard project. The main focus is on displaying active projects with key information after a user logs in. We are establishing how to securely connect to the AITable.ai API to retrieve project data while ensuring data privacy and security.
+We are currently implementing the home page with active projects display for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project and client data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, and team members tables.
 
 ## Recent Changes
-- Initialized Memory Bank documentation structure
-- Defined high-level project goals and requirements
-- Established the need for secure AITable.ai integration
-- Identified financial reporting as a key component
-- Defined home page requirements for displaying active projects
-- Created detailed roadmap.md file for tracking progress and implementation discussions
+- Implemented backend API routes for projects and clients
+- Set up AITable.ai API integration with secure token handling
+- Added environment variables for AITable API configuration
+- Configured the Projects table ID, Clients table ID, and Members table ID
+- Created ActiveProjects component for displaying project information
+- Implemented DashboardContent component for the main dashboard
 
 ## Next Steps
-- Implement home page with active projects display showing:
-  - Project titles
-  - Team members
-  - Media buyer
+- Complete the active projects display with:
+  - Team members information retrieval from AITable
+  - Media buyer display
   - Retainer value in USD
-  - Start date
+  - Start date calculation
   - Number of months project has been active
-- Explore AITable.ai API capabilities and limitations
-- Define specific data models needed for the dashboard
-- Create technical specifications for the backend API
-- Design initial wireframes for key dashboard panels
-- Establish authentication requirements and approach
-- Finalize technology stack decisions
-- Create development roadmap with milestones
+- Implement sorting and filtering for the projects table
+- Add data visualizations for key metrics
+- Set up authentication with Firebase
+- Add role-based access control
+- Implement financial reporting panels
+- Create detailed client views
 
 *For detailed roadmap and implementation discussions, see [roadmap.md](roadmap.md)*
 
 ## Active Decisions
 We need to determine the best approach for:
-- Home page layout and design for displaying active projects
-- Data fetching strategy for active projects from AITable.ai
-- Frontend framework and UI component library selection
-- Backend architecture and API design
-- Authentication mechanism (JWT, OAuth, etc.)
-- Deployment strategy and hosting environment
-- Testing strategy and quality assurance processes
-- Specific panels and reports to include in initial release
+- Data fetching optimization to minimize API calls to AITable
+- Caching strategy for AITable data
+- User interface for financial reporting
+- Dashboard layout for different user roles
+- Error handling for API failures
+- Data refresh strategy (manual vs. automatic)
+- How to display team members efficiently within project cards
 
 ## Open Questions
-- What specific AITable.ai bases will we need to access for project data?
-- What are the performance characteristics of the AITable.ai API?
-- What are the specific financial metrics that need to be displayed?
-- What level of user role granularity is required?
-- What are the data refresh requirements (real-time vs. periodic)?
-- Are there any regulatory compliance requirements to consider?
-- What are the expected user volumes and usage patterns?
-- How should we sort or filter the active projects on the home page? 
+- What specific financial metrics should be prioritized for the first release?
+- What are the performance implications of frequent AITable.ai API calls?
+- How should we display complex data relationships (e.g., team members to projects)?
+- What level of data aggregation should happen on the backend vs. frontend?
+- How often should data be refreshed from AITable.ai?
+- What filtering capabilities are most important for users in the first release? 

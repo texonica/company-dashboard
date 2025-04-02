@@ -2,56 +2,59 @@
 
 ## Architecture Overview
 The system follows a modern web application architecture with:
-- Frontend application for user interface
-- Backend API service for secure data access and business logic
-- Integration with AITable.ai API for data storage and retrieval
-- Authentication service for user management
+- Next.js 15 frontend application with App Router for routing and UI
+- Next.js API routes for backend functionality
+- Custom AITable.ai API client for data access
+- Firebase for authentication
+- Environment variables for secure configuration
 
 This separation ensures private data is never directly accessed from the client, maintaining security while providing a responsive user experience.
 
 ## Design Patterns
-- **Repository Pattern**: For data access abstraction
-- **Service Layer Pattern**: For business logic organization
-- **Component-Based Architecture**: For frontend organization
-- **MVC/MVVM Pattern**: For UI organization and state management
-- **Adapter Pattern**: For AITable.ai API integration
-- **Strategy Pattern**: For different report generation approaches
-- **Data Table Pattern**: For displaying project information on the home page
+- **Repository Pattern**: For data access abstraction through custom AITable API client
+- **API Route Pattern**: For secure backend endpoints that proxy AITable requests
+- **Component-Based Architecture**: For frontend organization with shadcn/ui and Radix
+- **Server Components**: Next.js server components for data fetching
+- **Client Components**: Interactive UI components with client-side state
+- **SWR Pattern**: For data fetching, caching, and revalidation
+- **Environment Variables**: For secure configuration management
 
 ## Component Relationships
-- **Frontend Components**: Connect to backend services via API calls
-- **Backend Services**: Authenticate users, validate requests, and proxy AITable.ai API calls
-- **Data Services**: Handle communication with AITable.ai and transform data for the application
-- **Authentication Service**: Manages user sessions and permissions
-- **Reporting Engine**: Compiles data from various sources for presentation
-- **Projects Service**: Retrieves and processes active project data for the home page
+- **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
+- **Backend API Routes**: Implemented in src/app/api for projects and clients
+- **AITable API Client**: Custom implementation in src/lib/api/aitable.ts
+- **Authentication**: Firebase authentication with optional development bypass
+- **Configuration**: Maintained in environment variables and src/lib/config.ts
+- **Types**: Defined in src/lib/types.ts for type safety
+- **Metrics Processing**: Handled in src/lib/metrics.ts
 
 ## Data Flow
-1. User authenticates through the frontend
-2. Frontend requests active projects data from backend API
-3. Backend validates request and user permissions
-4. Backend requests project data from AITable.ai API with appropriate filters
-5. Data is transformed and processed, calculating metrics like months active
-6. Processed data is returned to frontend
-7. Frontend renders active projects in a data table on the home page
+1. User requests data through frontend components
+2. Frontend makes requests to Next.js API routes (not directly to AITable)
+3. API routes authenticate the request
+4. API routes use the AITable client to securely fetch data
+5. Data is transformed and processed as needed
+6. Processed data is returned to the frontend
+7. Frontend renders the data with appropriate components
 
 ## Home Page Architecture
-1. **Projects Table Component**: Displays active projects with columns for:
-   - Project title
-   - Team members
-   - Media buyer
-   - Retainer value (USD)
+1. **Dashboard Content Component**: Overall dashboard layout and organization
+2. **Active Projects Component**: Displays project information with:
+   - Project titles
+   - Team members (to be fully implemented)
+   - Media buyer (to be fully implemented)
+   - Retainer value
    - Start date
-   - Months active
-2. **Data Fetching Layer**: Manages API requests and caching
-3. **Transformation Layer**: Processes raw data into display format
-4. **Filtering/Sorting Controls**: Allows users to customize the projects view
+   - Months active calculation (to be implemented)
+3. **Data Fetching**: Using SWR for caching and revalidation
+4. **UI Components**: Using shadcn/ui and Radix for consistent design
 
 ## Key Technical Decisions
-- Backend acts as a proxy for AITable.ai to keep API keys and private data secure
-- Role-based access control for different dashboard panels
-- Caching strategy for frequently accessed but infrequently changed data
-- Responsive design approach for multi-device support
-- API versioning strategy for future updates
-- Error handling and monitoring approach
-- Calculate "months active" on the backend to standardize calculations 
+- Next.js API routes act as a proxy for AITable.ai to keep API keys secure
+- Firebase authentication for user management
+- Environment variables (.env.local) for sensitive configuration
+- Custom AITable API client for standardized data access
+- SWR for efficient data fetching with caching
+- Responsive design with Tailwind CSS for all screen sizes
+- shadcn/ui and Radix for accessible UI components
+- Server-side calculation of derived metrics for consistency 

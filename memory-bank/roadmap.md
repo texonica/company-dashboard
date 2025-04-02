@@ -6,56 +6,56 @@ This document tracks our implementation roadmap, decisions, and progress for the
 ## Roadmap Phases
 
 ### Phase 1: Core Infrastructure (Current)
-- [ ] Explore AITable.ai API capabilities and limitations
+- [x] Explore AITable.ai API capabilities and limitations
   - Discussion: What specific bases and tables will we need? What are the authentication requirements?
-  - Decision: 
-  - Implementation Notes:
-- [ ] Design backend architecture for AITable.ai integration
+  - Decision: Use AITable.ai API with custom client implementation
+  - Implementation Notes: Created API client in src/lib/api/aitable.ts with proper error handling
+- [x] Design backend architecture for AITable.ai integration
   - Discussion: How will we handle API keys securely? What caching strategy will we use?
-  - Decision:
-  - Implementation Notes:
+  - Decision: Use Next.js API routes as a secure proxy for AITable.ai API calls; store API keys in environment variables
+  - Implementation Notes: Implemented in src/app/api/projects and src/app/api/clients
 - [ ] Create authentication system design
   - Discussion: What auth method best balances security with usability for Texonica staff?
-  - Decision:
-  - Implementation Notes:
-- [ ] Set up development environment
+  - Decision: Use Firebase for authentication with optional dev bypass
+  - Implementation Notes: Initial Firebase setup in src/lib/firebase.ts
+- [x] Set up development environment
   - Discussion: What local setup will best match production while maintaining developer productivity?
-  - Decision:
-  - Implementation Notes:
+  - Decision: Next.js development server with environment variables
+  - Implementation Notes: Created .env.local for configuration
 
-### Phase 2: Basic Dashboard Framework
+### Phase 2: Basic Dashboard Framework (Current)
 - [ ] Implement user authentication
-  - Discussion:
-  - Decision:
-  - Implementation Notes:
-- [ ] Create dashboard layout and navigation
-  - Discussion:
-  - Decision:
-  - Implementation Notes:
-- [ ] Develop core UI components
-  - Discussion:
-  - Decision:
-  - Implementation Notes:
-- [ ] Implement secure API proxy for AITable.ai
-  - Discussion:
-  - Decision:
-  - Implementation Notes:
+  - Discussion: How to balance security with ease of use?
+  - Decision: Firebase authentication with development bypass for testing
+  - Implementation Notes: Created AuthWrapper, ProtectedRoute, and RoleProtected components
+- [x] Create dashboard layout and navigation
+  - Discussion: What layout best organizes the various data panels?
+  - Decision: Sidebar navigation with main content area
+  - Implementation Notes: Created Navigation and DashboardContent components
+- [x] Develop core UI components
+  - Discussion: What component library provides the most flexibility?
+  - Decision: Use shadcn/ui and Radix for accessible components with Tailwind styling
+  - Implementation Notes: Set up component library and implemented basic UI
+- [x] Implement secure API proxy for AITable.ai
+  - Discussion: How to securely handle API credentials?
+  - Decision: Environment variables for API keys; Next.js API routes for secure proxy
+  - Implementation Notes: Created API routes for projects and clients
 
-### Phase 3: Financial Reporting Panels
+### Phase 3: Financial Reporting Panels (Next)
 - [ ] Define key financial metrics and KPIs
-  - Discussion:
-  - Decision:
+  - Discussion: What metrics are most important for Texonica's financial tracking?
+  - Decision: 
   - Implementation Notes:
 - [ ] Design financial reporting UI
-  - Discussion:
+  - Discussion: How to present financial data clearly and intuitively?
   - Decision:
   - Implementation Notes:
 - [ ] Implement data visualization components
-  - Discussion:
-  - Decision:
-  - Implementation Notes:
+  - Discussion: What visualization types best represent financial data?
+  - Decision: Use Tremor and D3.js for data visualization
+  - Implementation Notes: Initial D3.js setup in package.json
 - [ ] Create export functionality
-  - Discussion:
+  - Discussion: What export formats are most useful?
   - Decision:
   - Implementation Notes:
 
@@ -92,25 +92,32 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Implementation Notes:
 
 ## Current Sprint Focus
-*Document what we're actively working on this sprint*
+We are currently focusing on completing the Active Projects display on the home page, including:
+- Retrieving and displaying project data from AITable
+- Showing team members associated with each project
+- Calculating and displaying the months active for each project
+- Implementing sorting and filtering functionality
 
 ## Implementation Discussions
 
 ### AITable.ai Integration Strategy
-*Discussion of approach to AITable.ai integration*
+We are using a custom AITable API client implemented in src/lib/api/aitable.ts. This client handles authentication, error handling, and data retrieval. All AITable API calls are proxied through Next.js API routes to keep API keys secure. We've configured environment variables for the API token and table IDs (Projects, Clients, Members).
 
 ### Authentication Approach
-*Discussion of authentication options and decisions*
+We're using Firebase for authentication with components like AuthWrapper, ProtectedRoute, and RoleProtected to manage access. For development, we've implemented a bypass option to simplify testing.
 
 ### UI/UX Strategy
-*Discussion of UI/UX approach for the dashboard*
+We're using Next.js with shadcn/ui, Radix UI, and Tailwind CSS for a modern, responsive interface. The dashboard uses a sidebar navigation with content panels for different data views.
 
 ## Changelog
 | Date | Version | Changes |
 |------|---------|---------|
-|      | 0.1     | Initial roadmap created |
+| 4/1/2023 | 0.1 | Initial roadmap created |
+| 4/2/2023 | 0.2 | Updated with AITable integration progress |
 
 ## Decisions Log
 | Date | Decision | Rationale | Alternatives Considered |
 |------|----------|-----------|-------------------------|
-|      |          |           |                         | 
+| 4/1/2023 | Use Next.js with API routes | Simplified architecture with unified frontend/backend | Separate backend service |
+| 4/1/2023 | Use Firebase for auth | Easy integration, supports required auth features | Custom auth system, Auth0 |
+| 4/2/2023 | Custom AITable client | More control over error handling and data transformation | Using third-party client | 

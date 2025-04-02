@@ -2,79 +2,80 @@
 
 ## Technologies Used
 - **Frontend**: 
-  - React.js for UI components
-  - Redux or Context API for state management
-  - Chart.js or D3.js for data visualization
-  - Material UI or Tailwind CSS for UI framework
-  - React Table or similar for data tables on home page
+  - Next.js 15.x (App Router) for the application framework
+  - React 18 for UI components
+  - Tailwind CSS for styling
+  - shadcn/ui and Radix UI for component primitives
+  - Tremor for data visualization components
+  - D3.js for advanced data visualization
+  - SWR for data fetching and caching
+  - React Hook Form with Zod validation
+  - date-fns for date manipulation and calculations
 - **Backend**:
-  - Node.js with Express or NestJS
-  - Authentication middleware (JWT, Auth0, etc.)
-  - API integration libraries
-  - Date-fns or Moment.js for date calculations (months active)
+  - Next.js API routes for backend functionality
+  - Firebase for authentication
 - **Data Storage**:
   - AITable.ai for primary data (accessed via API)
-  - Potential local caching or intermediate database
+  - Environment variables for configuration (.env.local)
 - **DevOps**:
-  - Docker for containerization
-  - CI/CD pipeline (GitHub Actions, Jenkins, etc.)
-  - Cloud hosting (AWS, Azure, etc.)
+  - Planned CI/CD pipeline
+  - Deployment platform to be determined
 
 ## Development Environment
-The development environment should include:
-- Local development server with hot reloading
-- Environment variables for configuration
-- Integration with AITable.ai API (dev instance if available)
-- Mock data generation for development without API access
-- Unit and integration testing setup
-- Linting and code formatting tools
+The development environment includes:
+- Local development server with hot reloading (`npm run dev`)
+- Environment variables in .env.local for configuration
+- Integration with AITable.ai API using server-side API token
+- Development authentication bypass option for testing
+- ESLint for code quality
 
 ## Dependencies
-- AITable.ai API Client
-- Authentication service/library
-- Data visualization libraries
-- UI component framework
-- HTTP client for API requests
-- Form validation library
-- Date/time manipulation libraries
-- Data table components for projects display
-- Testing frameworks
-- Build tools and bundlers
+Key dependencies include:
+- AITable.ai API (custom implementation in src/lib/api/aitable.ts)
+- Firebase for authentication
+- Tremor and D3.js for data visualization
+- shadcn/ui and Radix UI for component library
+- SWR for data fetching with caching
+- React Hook Form and Zod for form validation
+- date-fns for date/time calculations (months active)
 
 ## Technical Constraints
 - Must securely store and transmit sensitive financial and client data
-- AITable.ai API limitations and rate limits
-- Cross-browser compatibility requirements
-- Performance requirements for potentially large datasets
-- Authentication and authorization implementation
-- Mobile responsiveness requirements
-- Accessibility compliance needs
+- AITable.ai API rate limits must be managed
+- Cross-browser compatibility is required
+- Performance optimization for data fetching
+- Authentication and authorization must be properly implemented
+- Mobile responsiveness is essential
+- Accessibility requirements must be met
 
 ## Build & Deployment
-- **Development**: Local development server with hot reloading
-- **Testing**: Automated tests run in CI pipeline before deployment
-- **Staging**: Deployment to staging environment for QA
-- **Production**: Deployment to production with proper security checks
-- **Monitoring**: Application performance and error monitoring
-- **Backup**: Data backup and recovery procedures
+- **Development**: Local Next.js development server (`npm run dev`)
+- **Building**: Next.js build process (`npm run build`)
+- **Production**: Start Next.js server (`npm run start`)
+- **Linting**: ESLint for code quality (`npm run lint`)
 
 ## AITable.ai Integration
-For the home page projects display, we need to:
-1. Create a backend API endpoint (`/api/projects/active`) that:
-   - Connects to AITable.ai securely using server-side credentials
-   - Retrieves active projects with all required fields
-   - Transforms data for frontend consumption (formats, calculations)
-   - Implements caching for performance optimization
+The AITable.ai integration has been set up with:
 
-2. Define the AITable.ai data model for projects:
-   - Project title field (text)
-   - Team members field (multiple select or linked records)
-   - Media buyer field (single select or linked record)
-   - Retainer value field (currency)
-   - Start date field (date)
-   - Status field for filtering active projects
+1. Environment variables for secure access:
+   - AITABLE_API_TOKEN for authentication
+   - AITABLE_BASE_ID for the workspace
+   - AITABLE_PROJECTS_TABLE_ID for projects data
+   - AITABLE_CLIENTS_TABLE_ID for clients data
+   - AITABLE_MEMBERS_TABLE_ID for team members data
 
-3. Calculate derived data:
-   - Calculate months active by comparing start date with current date
+2. Backend API implementation:
+   - Custom API client in src/lib/api/aitable.ts
+   - API routes in src/app/api/projects and src/app/api/clients
+   - Secure proxy to protect API credentials
+
+3. Data model access:
+   - Projects data including title, team members, etc.
+   - Client information
+   - Team members data
+
+4. Future implementation needs:
+   - Calculate months active from start date
    - Format currency values appropriately
-   - Handle potential missing or null values 
+   - Handle relationships between tables
+   - Implement caching for performance optimization 
