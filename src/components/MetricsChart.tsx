@@ -12,6 +12,7 @@ type ChartType = 'line' | 'bar'
 
 interface ChartData {
   date: string
+  index?: number // Add optional index for uniqueness
   [key: string]: any
 }
 
@@ -63,7 +64,24 @@ export function MetricsChart({
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
     // Parse dates and filter labels to show only first of month
-    const dates = data.map(d => new Date(d.date)).sort((a, b) => a.getTime() - b.getTime())
+    const dates = data
+      .map(d => {
+        try {
+          // Create and validate date object
+          const date = new Date(d.date);
+          // Check if date is valid
+          if (isNaN(date.getTime())) {
+            console.warn(`Invalid date found: ${d.date}, using current date instead`);
+            return new Date(); // Fallback to current date
+          }
+          return date;
+        } catch (e) {
+          console.warn(`Error parsing date: ${d.date}`, e);
+          return new Date(); // Fallback to current date
+        }
+      })
+      .sort((a, b) => a.getTime() - b.getTime())
+    
     const filteredDates = dates.filter((d, i) =>
       isFirstDayOfMonth(d) || i === 0 || i === dates.length - 1
     )
@@ -244,6 +262,7 @@ export function MetricsChart({
     if (metric2) {
       const legend2 = legend.append('g')
         .attr('transform', 'translate(100, 0)')
+        .attr('key', 'legend2')
 
       if (legendSymbol === 'line') {
         legend2.append('line')

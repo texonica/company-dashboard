@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Settings, LogOut, User } from 'lucide-react'
+import { Settings, LogOut, User, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { useState } from 'react'
 
 export function Navigation() {
     const pathname = usePathname()
     const { user, signOut, userRole } = useAuth()
+    const [leadgenOpen, setLeadgenOpen] = useState(false)
 
     return (
         <nav className="fixed top-0 z-50 w-full border-b bg-white">
@@ -20,6 +22,41 @@ export function Navigation() {
                                 Texonica Dashboard
                             </span>
                         </Link>
+                        <Link
+                            href="/"
+                            className={cn(
+                                "text-sm font-medium transition-colors hover:text-foreground/80",
+                                pathname === "/" ? "text-foreground" : "text-foreground/60"
+                            )}
+                        >
+                            Projects
+                        </Link>
+                        <div className="relative">
+                            <button 
+                                onClick={() => setLeadgenOpen(!leadgenOpen)}
+                                className={cn(
+                                    "flex items-center text-sm font-medium transition-colors hover:text-foreground/80",
+                                    pathname.startsWith("/leadgen") ? "text-foreground" : "text-foreground/60"
+                                )}
+                            >
+                                Leadgen
+                                <ChevronDown size={16} className="ml-1" />
+                            </button>
+                            {leadgenOpen && (
+                                <div className="absolute top-full left-0 mt-1 w-40 bg-white shadow-md rounded-md py-1 z-10">
+                                    <Link
+                                        href="/leadgen/uw"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/uw" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setLeadgenOpen(false)}
+                                    >
+                                        UW Leadgen
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                         <Link
                             href="/terms"
                             className={cn(
