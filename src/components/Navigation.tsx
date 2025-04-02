@@ -54,6 +54,16 @@ export function Navigation() {
                                     >
                                         UW Leadgen
                                     </Link>
+                                    <Link
+                                        href="/leadgen/fvr"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/fvr" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setLeadgenOpen(false)}
+                                    >
+                                        FVR Leadgen
+                                    </Link>
                                 </div>
                             )}
                         </div>
