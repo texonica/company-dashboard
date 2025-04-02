@@ -406,30 +406,102 @@ export function FVRLeadgenMetricsChart({ records }: FVRLeadgenMetricsChartProps)
         </div>
       </div>
       
-      <div className="mb-6 flex flex-wrap gap-2">
-        {metrics.map((metric, index) => {
-          const aggregatedValue = aggregatedValues[index];
+      <div className="mb-6">
+        {/* Group metrics into categories */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* GIG 1 Metrics Group */}
+          <div className="border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">GIG 1 Metrics</h3>
+            <div className="flex flex-wrap gap-2">
+              {metrics.filter(m => m.key.startsWith('GIG 1')).map((metric, i) => {
+                const index = metrics.findIndex(m => m.key === metric.key);
+                const aggregatedValue = aggregatedValues[index];
+                
+                return (
+                  <Button
+                    key={`${metric.key}-${index}`}
+                    variant={metric.checked ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleMetric(index)}
+                    className="flex flex-col items-center px-3 py-2 h-auto flex-1"
+                    style={{ 
+                      borderColor: metric.color,
+                      backgroundColor: metric.checked ? metric.color : 'transparent',
+                      color: metric.checked ? 'white' : metric.color 
+                    }}
+                  >
+                    <span className="font-medium">{metric.label.replace('GIG 1 ', '')}</span>
+                    <span className="text-xs mt-1">
+                      {metric.aggregation === 'sum' ? 'Total:' : 'Avg:'} {metric.format(aggregatedValue)}
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
           
-          return (
-            <Button
-              key={`${metric.key}-${index}`}
-              variant={metric.checked ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleMetric(index)}
-              className="flex flex-col items-center px-3 py-2 h-auto"
-              style={{ 
-                borderColor: metric.color,
-                backgroundColor: metric.checked ? metric.color : 'transparent',
-                color: metric.checked ? 'white' : metric.color 
-              }}
-            >
-              <span className="font-medium">{metric.label}</span>
-              <span className="text-xs mt-1">
-                {metric.aggregation === 'sum' ? 'Total:' : 'Avg:'} {metric.format(aggregatedValue)}
-              </span>
-            </Button>
-          );
-        })}
+          {/* GIG 2 Metrics Group */}
+          <div className="border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">GIG 2 Metrics</h3>
+            <div className="flex flex-wrap gap-2">
+              {metrics.filter(m => m.key.startsWith('GIG 2')).map((metric, i) => {
+                const index = metrics.findIndex(m => m.key === metric.key);
+                const aggregatedValue = aggregatedValues[index];
+                
+                return (
+                  <Button
+                    key={`${metric.key}-${index}`}
+                    variant={metric.checked ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleMetric(index)}
+                    className="flex flex-col items-center px-3 py-2 h-auto flex-1"
+                    style={{ 
+                      borderColor: metric.color,
+                      backgroundColor: metric.checked ? metric.color : 'transparent',
+                      color: metric.checked ? 'white' : metric.color 
+                    }}
+                  >
+                    <span className="font-medium">{metric.label.replace('GIG 2 ', '')}</span>
+                    <span className="text-xs mt-1">
+                      {metric.aggregation === 'sum' ? 'Total:' : 'Avg:'} {metric.format(aggregatedValue)}
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Leads Metrics Group */}
+          <div className="border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">Leads Metrics</h3>
+            <div className="flex flex-wrap gap-2">
+              {metrics.filter(m => m.key === 'LeadsAmount').map((metric, i) => {
+                const index = metrics.findIndex(m => m.key === metric.key);
+                const aggregatedValue = aggregatedValues[index];
+                
+                return (
+                  <Button
+                    key={`${metric.key}-${index}`}
+                    variant={metric.checked ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleMetric(index)}
+                    className="flex flex-col items-center px-3 py-2 h-auto flex-1"
+                    style={{ 
+                      borderColor: metric.color,
+                      backgroundColor: metric.checked ? metric.color : 'transparent',
+                      color: metric.checked ? 'white' : metric.color 
+                    }}
+                  >
+                    <span className="font-medium">{metric.label}</span>
+                    <span className="text-xs mt-1">
+                      Total: {metric.format(aggregatedValue)}
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
       
       {selectedMetrics.length > 0 && chartData.length > 0 ? (

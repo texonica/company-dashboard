@@ -7,6 +7,8 @@
   - Tailwind CSS for styling
   - SWR for data fetching and caching (planned implementation)
   - TypeScript for type safety
+  - date-fns for date manipulation and formatting
+  - Customizable chart components for data visualization
 - **Backend**:
   - Next.js API routes for backend functionality
   - Custom AITable API client
@@ -36,9 +38,13 @@ Key dependencies include:
 - **UI and Styling**:
   - Tailwind CSS for responsive styling
   - TypeScript for type-safe development
+  - shadcn/ui components (Card, Button, Switch, Label)
 - **Data Management**:
   - SWR for data fetching with caching (planned)
-  - date-fns for date/time calculations (months active calculation)
+  - date-fns for date/time calculations and formatting
+- **Data Visualization**:
+  - Custom chart components (MetricsChart)
+  - Configurable visualization settings
 
 ## Technical Constraints
 - Must securely store and transmit sensitive financial and client data
@@ -48,6 +54,7 @@ Key dependencies include:
 - Authentication and authorization must be properly implemented
 - Mobile responsiveness is essential for all dashboard views
 - Secure handling of API credentials using environment variables only
+- Charts must be optimized for both weekly and monthly data aggregation
 
 ## Build & Deployment
 - **Development**: Local Next.js development server (`npm run dev`)
@@ -91,4 +98,30 @@ The AITable.ai integration has been implemented with:
    - Filtering for active projects (`OR(Stage="Launched",Stage="Onboarding")`)
    - Processing of fetched data for frontend consumption
    - Client and member ID extraction and resolution
-   - Robust error handling with specific status codes and messages 
+   - Robust error handling with specific status codes and messages
+
+## Data Visualization Components
+The dashboard includes several data visualization components:
+
+1. **UWLeadgenMetricsChart**:
+   - Client component for visualizing UW lead generation metrics
+   - Supports weekly and monthly view modes with toggle
+   - Categorizes metrics into Funnel, Financial, and Conversion Rate groups
+   - Configurable metric visibility with custom formatting
+   - Interactive filtering by date range
+   - Uses date-fns for date manipulation and parsing
+   - Applies memoization for performance optimization
+   - Color-coded metrics with consistent styling
+   - Aggregates data using sum or average based on metric type
+
+2. **MetricsChart**:
+   - Reusable chart component for visualizing metric data
+   - Supports line charts with configurable properties
+   - Handles both weekly and monthly data visualization
+   - Accepts data points with multiple metrics
+   - Provides custom formatting options for different metric types
+
+3. **DateRangeSelector**:
+   - Reusable component for selecting date ranges
+   - Integrated with UWLeadgenMetricsChart for filtering data
+   - Emits range change events for parent components to react 

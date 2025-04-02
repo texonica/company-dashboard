@@ -19,6 +19,7 @@ This separation ensures private data is never directly accessed from the client,
 - **SWR Pattern**: To be implemented for efficient data fetching, caching, and revalidation
 - **Environment Variables**: Secure configuration management for all API keys and credentials
 - **Error Boundary Pattern**: Comprehensive error handling with specific error messages and status codes
+- **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart with flexible rendering options
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
@@ -26,10 +27,12 @@ This separation ensures private data is never directly accessed from the client,
 - **AITable API Client**: Custom implementation in src/lib/api/aitable.ts with comprehensive error handling
 - **Dashboard Layout**: DashboardContent component maintains the overall dashboard structure
 - **Active Projects Display**: ActiveProjects component for viewing current projects grouped by team
+- **UW Leadgen Metrics**: UWLeadgenMetricsChart component for displaying and visualizing lead generation metrics
 - **Authentication**: Firebase authentication with optional development bypass (to be implemented)
 - **Configuration**: Maintained in environment variables and src/lib/config.ts
 - **Types**: Defined in src/lib/types.ts for type safety
 - **Metrics Processing**: Handled in src/lib/metrics.ts for calculations and data transformations
+- **Data Visualization**: Implemented through MetricsChart with dedicated chart types (line charts)
 
 ## Data Flow
 1. User accesses the dashboard via the browser
@@ -79,6 +82,29 @@ The home page is built with these key components:
    - Color-coded status indicators
    - Team-based grouping of projects
 
+## UW Leadgen Metrics Component
+The UWLeadgenMetricsChart component follows these patterns:
+1. **Data Visualization**: 
+   - Flexible chart display for lead generation metrics
+   - Provides weekly and monthly view modes with toggle
+   - Groups metrics into categories (Funnel, Financial, Conversion Rates)
+   - Configurable metrics with color coding and formatting
+   - Uses MetricsChart for rendering line charts
+2. **Component State Management**:
+   - Uses useState for local state management
+   - Tracks selected metrics, date range, and view mode
+   - Implements useMemo for performance optimization of calculations
+3. **User Interaction**:
+   - Date range selection with DateRangeSelector component
+   - Toggle buttons for metric visibility
+   - View mode switching between weekly and monthly
+   - Visual feedback for selected metrics
+4. **Data Processing**:
+   - Filters records based on date range
+   - Aggregates data by week or month based on view mode
+   - Calculates sums and averages for different metric types
+   - Formats data appropriately for visualization
+
 ## Error Handling Patterns
 The system implements comprehensive error handling:
 1. **API Error Categorization**: 
@@ -93,6 +119,7 @@ The system implements comprehensive error handling:
 3. **Fallbacks**: 
    - Conditional rendering based on data availability
    - "No projects found" message when no data is available
+   - "No data available" message in charts when date range has no data
    - Fallback client and media buyer names when resolution fails
 4. **Error Logging**: 
    - Detailed server-side error logging for debugging
@@ -106,4 +133,6 @@ The system implements comprehensive error handling:
 - Team-based grouping of projects
 - Sort projects by start date
 - Tailwind CSS for styling with proper responsive design
-- Record ID detection logic for AITable relation fields 
+- Record ID detection logic for AITable relation fields
+- MetricsChart component for flexible data visualization
+- Separate aggregation methods for different metric types (sum vs. average) 
