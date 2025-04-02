@@ -138,7 +138,8 @@ export async function GET() {
           clientId: clientIdForDisplay,
           budget: budget,
           startDate: record.fields?.StartDate || 'Not specified',
-          manager: record.fields?.ProjectManager || 'Unassigned'
+          manager: record.fields?.ProjectManager || 'Unassigned',
+          team: record.fields?.team_lookup || 'Unassigned'
         };
       });
   

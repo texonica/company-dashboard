@@ -16,6 +16,7 @@ export interface AITableProject {
     Budget?: number;
     StartDate?: string;
     ProjectManager?: string;
+    team_lookup?: string;
     [key: string]: any;
   };
 }

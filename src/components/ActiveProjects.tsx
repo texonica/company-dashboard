@@ -9,6 +9,7 @@ interface Project {
   budget: string;
   startDate: string;
   manager: string;
+  team: string;
 }
 
 interface ErrorResponse {
@@ -79,56 +80,81 @@ export function ActiveProjects() {
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
   if (projects.length === 0) return <div className="p-4">No active projects found</div>;
 
+  // Sort projects by StartDate
+  const sortedProjects = [...projects].sort((a, b) => {
+    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+  });
+
+  // Group projects by team
+  const groupedByTeam: Record<string, Project[]> = {};
+  sortedProjects.forEach(project => {
+    const team = project.team || 'Unassigned';
+    if (!groupedByTeam[team]) {
+      groupedByTeam[team] = [];
+    }
+    groupedByTeam[team].push(project);
+  });
+
+  // Get unique teams sorted alphabetically
+  const teams = Object.keys(groupedByTeam).sort();
+
   return (
     <div className="bg-white shadow-md rounded-lg p-4 mb-6">
       <h2 className="text-xl font-semibold mb-4">Active Projects</h2>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stage</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {projects.map((project) => (
-              <tr key={project.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{project.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    project.stage === 'Launched' ? 'bg-green-100 text-green-800' : 
-                    project.stage === 'Onboarding' ? 'bg-blue-100 text-blue-800' : 
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {project.stage}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {project.client === 'No Client' ? (
-                    <span className="text-gray-400">No Client</span>
-                  ) : isRecordId(project.client) ? (
-                    <span className="text-amber-600 italic" title="Client ID needs resolution">
-                      {project.client}
-                    </span>
-                  ) : (
-                    <span title={project.clientId || undefined}>
-                      {project.client}
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.budget}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.startDate}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.manager}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {teams.map(team => (
+          <div key={team} className="mb-6">
+            <h3 className="text-lg font-medium text-gray-700 mb-2 px-6">{team}</h3>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stage</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {groupedByTeam[team].map((project) => (
+                  <tr key={project.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{project.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        project.stage === 'Launched' ? 'bg-green-100 text-green-800' : 
+                        project.stage === 'Onboarding' ? 'bg-blue-100 text-blue-800' : 
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {project.stage}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {project.client === 'No Client' ? (
+                        <span className="text-gray-400">No Client</span>
+                      ) : isRecordId(project.client) ? (
+                        <span className="text-amber-600 italic" title="Client ID needs resolution">
+                          {project.client}
+                        </span>
+                      ) : (
+                        <span title={project.clientId || undefined}>
+                          {project.client}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.budget}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.startDate}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.manager}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.team}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
       </div>
     </div>
   );
