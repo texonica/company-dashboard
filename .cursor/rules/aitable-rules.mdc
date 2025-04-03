@@ -3,11 +3,6 @@ description: AITable API integration guidelines and usage patterns
 globs: 
 alwaysApply: false
 ---
----
-description: AITable API integration guidelines and usage patterns
-globs: 
-alwaysApply: false
----
 # AITable API
 @load-when path="**/aitable/**" or path="**/api/aitable/**" or path="**/aitable-*.{ts,js}" or path="**/aitable*.{ts,js}" or path="**/lib/api/aitable.ts"
 
@@ -69,7 +64,40 @@ HTTP Request:
 GET https://aitable.ai/fusion/v1/datasheets/{tableId}/records/{recordId}
 ```
 
-### 3. fetchSpaceDetails()
+### 3. updateRecord(tableId, recordId, { fields })
+
+Updates a single record by its ID.
+
+```typescript
+// Example: Update a record's stage
+const updatedRecord = await updateRecord(
+  AITABLE_CONFIG.PROJECTS_TABLE_ID, 
+  'rec12345',
+  { fields: { Stage: 'Launched' }}
+);
+```
+
+HTTP Request:
+```
+PATCH https://aitable.ai/fusion/v1/datasheets/{tableId}/records
+```
+
+The request body must use this format:
+```json
+{
+  "records": [
+    {
+      "recordId": "rec12345",
+      "fields": {
+        "Field1": "Value1",
+        "Field2": "Value2"
+      }
+    }
+  ]
+}
+```
+
+### 4. fetchSpaceDetails()
 
 Retrieves information about the AITable space (base).
 
@@ -83,7 +111,7 @@ HTTP Request:
 GET https://aitable.ai/fusion/v1/spaces/{baseId}
 ```
 
-### 4. fetchTables()
+### 5. fetchTables()
 
 Retrieves all tables available in the space.
 
@@ -310,6 +338,36 @@ await updateRecord(tableId, recordId, {
 });
 ```
 
+## Important Implementation Note
+
+While our `updateRecord` function accepts a simple `{ fields: { ... } }` parameter structure, the actual API requires a more complex payload format. This is abstracted in our implementation:
+
+```typescript
+// What you use in your code (simple interface)
+await updateRecord(tableId, recordId, { 
+  fields: { 
+    "Stage": "Launched" 
+  }
+});
+
+// What our implementation sends to the API (actual required format)
+fetch(url, {
+  method: 'PATCH',
+  body: JSON.stringify({
+    records: [
+      {
+        recordId: recordId,
+        fields: { 
+          "Stage": "Launched" 
+        }
+      }
+    ]
+  })
+});
+```
+
+All API endpoints use the `/fusion/v1/` path prefix, with the appropriate resource paths.
+
 ## Response Format
 
 All API responses follow this general structure:
@@ -370,3 +428,64 @@ The AITable API provides access to the following resource types:
 - Spaces: Manage workspaces
 - Datasheets: Interact with tables
 - Contacts: Manage user permissions
+
+## Texonica Base Information
+
+IMPORTANT: We ONLY use the "Texonica" base (ID: spc12q5HY4ay5) for all operations. The "Leadgen" base should NOT be used.
+
+### Key Tables in Texonica Base
+
+1. **Projects Table** (ID: dstq4onAEtjMleaeCm)
+   - Primary field: "Title" (Formula field combining StartDate, Name, and Team)
+   - Important fields:
+     - "Stage": SingleSelect with options "Onboarding", "Launched", "Paused", "Stopped Working"
+     - "StartDate": Text field for project start date
+     - "Name": Text field for project name
+     - "Team": OneWayLink to Teams table
+     - "team_lookup": MagicLookUp field that retrieves team name
+     - "Mediabuyer": TwoWayLink to Members table
+     - "Client": TwoWayLink to Clients table (limited to single record)
+     - "Budget": Text field
+     - "ProjectValueUSD": MagicLookUp field calculating sum of subscription values
+
+2. **Teams Table** (ID: dstCv7Y9Hkhf4AQcDA)
+   - Used for organizing projects by team
+
+3. **Subscriptions Table** (ID: dst93iSE1ToDG39AUY)
+   - Connected to Projects via TwoWayLink
+   - Contains financial data for project subscriptions
+
+4. **Clients Table** (ID: dstoHuLq5fWmzRZvna)
+   - Connected to Projects via TwoWayLink
+
+5. **Members Table** (ID: dstEn1hH4TxaEoEC0W)
+   - Contains information about media buyers
+
+### Important Relationships
+
+- Projects have one Client (via Client field)
+- Projects can have multiple Subscriptions (via Subscriptions field)
+- Projects belong to one Team (via Team field)
+- Projects can have multiple Media Buyers (via Mediabuyer field)
+
+### Common Filters
+
+- Active Projects: `filterByFormula=OR(Stage="Launched",Stage="Onboarding")`
+- Projects by Team: `filterByFormula=AND(OR(Stage="Launched",Stage="Onboarding"),team_lookup="Team Name")`
+
+### Special Field Handling
+
+- **Relation fields**: When working with relations (Client, Mediabuyer), these may be returned as strings or arrays and need special handling:
+  ```typescript
+  // Example of handling relation fields that might be strings or arrays
+  const clientField = project.fields.Client;
+  const clientId = Array.isArray(clientField) ? clientField[0] : clientField;
+  ```
+
+- **Subscriptions**: When accessing subscription data, use the SubscriptionsID field to get IDs for related subscriptions:
+  ```typescript
+  // Example of retrieving subscription IDs from a project
+  const subscriptionIds = Array.isArray(project.fields.SubscriptionsID) 
+    ? project.fields.SubscriptionsID 
+    : [project.fields.SubscriptionsID];
+  ```
