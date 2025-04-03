@@ -32,6 +32,7 @@ interface CRMRecord {
       favicon?: string
     }
   }
+  shouldBeFiltered?: boolean
 }
 
 function FutureCRMPage() {
@@ -39,6 +40,16 @@ function FutureCRMPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  // Get end of current week - used for filtering records
+  const getEndOfWeekTimestamp = (): number => {
+    const now = new Date()
+    const endOfWeek = new Date(now)
+    const daysToSaturday = 6 - now.getDay() // 6 is Saturday
+    endOfWeek.setDate(now.getDate() + daysToSaturday)
+    endOfWeek.setHours(23, 59, 59, 999)
+    return endOfWeek.getTime()
+  }
 
   useEffect(() => {
     async function fetchFutureCRMData() {
@@ -73,12 +84,50 @@ function FutureCRMPage() {
     })
   }
 
-  // Handle stage update success
-  const handleStageSuccess = () => {
-    // Refresh the data after a short delay to allow the backend to update
-    setTimeout(() => {
-      setRefreshTrigger(prev => prev + 1)
-    }, 500)
+  // Handle stage update success - update just the single record
+  const handleStageSuccess = (recordId: string, newStage: string) => {
+    setRecords(prevRecords => {
+      // Check if record is excluded from this view based on certain conditions
+      const updatedRecords = prevRecords.map(record => {
+        if (record.id === recordId) {
+          // Get current NextAction timestamp
+          const nextActionTimestamp = record.fields.NextAction
+          
+          // Check if NextAction exists and is a valid timestamp
+          if (nextActionTimestamp && typeof nextActionTimestamp === 'number') {
+            // If NextAction is still after end of week, keep the record with updated stage
+            if (nextActionTimestamp > getEndOfWeekTimestamp()) {
+              return {
+                ...record,
+                fields: {
+                  ...record.fields,
+                  Stage: newStage
+                }
+              }
+            }
+            // Otherwise, this record no longer belongs in the "future" view
+            return null
+          }
+          
+          // If there's no NextAction, update the record but flag it for filtering
+          return {
+            ...record,
+            fields: {
+              ...record.fields,
+              Stage: newStage
+            },
+            shouldBeFiltered: true
+          }
+        }
+        return record
+      })
+      
+      // Remove null/filtered records and cast the result to ensure type safety
+      return updatedRecords
+        .filter((record): record is CRMRecord => 
+          record !== null && !record.shouldBeFiltered
+        )
+    })
   }
 
   // Handle stage update error
@@ -88,12 +137,25 @@ function FutureCRMPage() {
     setTimeout(() => setError(''), 5000)
   }
 
+  // Force refresh data functionality - useful as a fallback
+  const forceRefresh = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
+
   return (
     <div className="container mx-auto px-4 py-12 mt-16">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Future CRM Records</h1>
-        <div className="text-sm text-gray-500">
-          Showing records with next actions after the end of this week
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">
+            Showing records with next actions after the end of this week
+          </div>
+          <button 
+            onClick={forceRefresh}
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 py-1 px-2 rounded"
+          >
+            Refresh
+          </button>
         </div>
       </div>
       
@@ -155,7 +217,7 @@ function FutureCRMPage() {
                           <CRMStageDropdown 
                             recordId={record.id}
                             currentStage={record.fields.Stage || 'N/A'}
-                            onSuccess={handleStageSuccess}
+                            onSuccess={(newStage) => handleStageSuccess(record.id, newStage)}
                             onError={handleStageError}
                           />
                         </td>

@@ -32,7 +32,7 @@ const stageOptions = [
 type CRMStageDropdownProps = {
   recordId: string
   currentStage: string
-  onSuccess?: () => void
+  onSuccess?: (newStage: string) => void
   onError?: (error: string) => void
 }
 
@@ -66,7 +66,7 @@ export function CRMStageDropdown({ recordId, currentStage, onSuccess, onError }:
 
       // If we got here, the update was successful
       setStage(newStage)
-      if (onSuccess) onSuccess()
+      if (onSuccess) onSuccess(newStage)
     } catch (error) {
       console.error('Error updating CRM stage:', error)
       if (onError) onError(error instanceof Error ? error.message : 'Unknown error')

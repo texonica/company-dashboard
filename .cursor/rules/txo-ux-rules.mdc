@@ -1,0 +1,118 @@
+---
+description: UX guidelines for the Texonica Business Dashboard
+globs: ["**/components/**/*.tsx", "**/components/**/*.ts", "**/app/**/*.tsx", "**/app/**/*.ts"]
+---
+# Texonica Dashboard - UX Rules
+
+## Data Update Patterns
+
+### Smart Selective Updates
+- Prefer selective data updates over full page refreshes whenever possible
+- When updating a record, modify just that record in state rather than refetching all data
+- Consider data dependencies - update related data only when necessary
+- Implement conditional removal logic when a record change affects filtering criteria
+- Always provide a manual "Refresh" option as fallback for complex state situations
+- For complex dashboards, implement local caching with SWR or React Query
+
+### Example: Stage Change Updates
+```tsx
+// Good: Selectively update a record
+const handleStageUpdate = (recordId, newStage) => {
+  setRecords(prev => prev.map(record => 
+    record.id === recordId 
+      ? { ...record, fields: { ...record.fields, Stage: newStage } } 
+      : record
+  ))
+}
+
+// Bad: Refetch everything unnecessarily
+const handleStageUpdate = () => {
+  fetchAllRecordsAgain()
+}
+```
+
+### Real-time Data Considerations
+- For real-time collaborative features, implement optimistic UI updates
+- Show update indicators for collaborative editing (e.g., "User X is editing this")
+- When optimistic updates fail, provide clear error recovery paths
+
+## User Feedback Patterns
+
+### Loading States
+- Use inline loading indicators for component-specific operations
+- Avoid full page loading screens for minor updates
+- Show progress for long-running operations 
+- Maintain context during loading operations
+
+```tsx
+// Component-specific loading
+<div className="relative">
+  {isLoading && (
+    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 rounded">
+      <Spinner size="sm" />
+    </div>
+  )}
+  <ComponentContent />
+</div>
+```
+
+### Error Handling
+- Display errors contextually near the affected component
+- Provide actionable recovery options for common errors
+- Use toast notifications for non-critical errors
+- Maintain data integrity during error states
+- Log errors for troubleshooting but sanitize sensitive information
+
+### Success Feedback
+- Show temporary success notifications for background operations
+- Apply immediate visual feedback for direct UI interactions
+- Use subtle animations to indicate successful state changes
+
+## Navigation & Layout
+
+### Form Submission
+- Prevent accidental double-submissions
+- Verify form changes before navigation away
+- Provide "unsaved changes" warnings when appropriate
+- Support "save and continue" workflows for multi-step forms
+
+### Data Tables & Lists
+- Maintain scroll position after updates
+- Use keyed lists to prevent unnecessary re-renders
+- Implement progressive loading for large datasets
+- Offer filtering and sorting options consistently
+- Provide empty state designs for filtered views
+
+### Mobile Considerations
+- Ensure touch targets are sufficiently sized (min 44x44px)
+- Adapt complex tables for mobile viewing
+- Design for viewport stability (avoid content shifts)
+- Test interactions with touch events, not just mouse events
+
+## Accessibility Guidelines
+
+### Interactive Elements
+- Ensure all interactive elements have appropriate keyboard focus states
+- Maintain logical focus order for keyboard navigation
+- Provide ARIA attributes for custom interactive components
+- Test common screen reader workflows
+
+### Content Presentation
+- Use sufficient color contrast (minimum WCAG AA compliance)
+- Avoid conveying information through color alone
+- Support text scaling up to 200%
+- Design for reduced motion preferences
+
+## Performance Guidelines
+
+### Data Loading
+- Implement progressive data loading patterns
+- Use meaningful loading skeletons that match content layout
+- Cache API responses appropriately (SWR/React Query)
+- Debounce frequent updates (e.g., search inputs)
+
+### Rendering Optimization
+- Use virtualization for long lists (react-window, react-virtualized)
+- Memoize expensive components with React.memo
+- Split code by routes for faster initial loading
+- Monitor and optimize component re-render performance 

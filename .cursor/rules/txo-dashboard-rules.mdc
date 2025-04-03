@@ -24,7 +24,16 @@ alwaysApply: true
 - Conditional rules are available for specific APIs:
   - AITable API: See `.cursor/rules/aitable-rules.mdc` (loads when working with AITable files)
   - ClickUp API: See `.cursor/rules/clickup-rules.mdc` (loads when working with ClickUp files)
+  - UX Guidelines: See `.cursor/rules/txo-ux-rules.mdc` (loads when working with UI components)
 - The MCP integration for APIs is ONLY for debugging and development, never for production code
+
+## User Experience Guidelines
+- Follow the UX rules in `.cursor/rules/txo-ux-rules.mdc` for all user interface work
+- Implement Smart Selective Updates to avoid unnecessary API calls and page refreshes
+- Provide appropriate loading and error states for all user interactions
+- Use consistent patterns for data tables, forms, and interactive elements
+- Ensure a responsive design that works well on all screen sizes
+- Make accessibility a priority in all UI development
 
 ## Data Type Handling
 - Parse numeric fields with `Number()` or `parseFloat()`
