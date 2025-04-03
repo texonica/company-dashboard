@@ -3,6 +3,11 @@ description: AITable API integration guidelines and usage patterns
 globs: 
 alwaysApply: false
 ---
+---
+description: AITable API integration guidelines and usage patterns
+globs: 
+alwaysApply: false
+---
 # AITable API
 @load-when path="**/aitable/**" or path="**/api/aitable/**" or path="**/aitable-*.{ts,js}" or path="**/aitable*.{ts,js}" or path="**/lib/api/aitable.ts"
 
@@ -123,6 +128,186 @@ Use `sort` to specify sorting order:
 ```
 // Sort by "promotion price" in descending order
 sort={"field": "promotion price", "order": "desc"}
+```
+
+## Field Type Examples
+
+When updating records, different field types in AITable require specific formats. Use our `updateRecord` function with the proper format for each field type:
+
+### Text Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Name": "Project Name",
+    "Description": "Multi-line\ntext description"
+  }
+});
+```
+
+### Number Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Budget": 50000,
+    "Completion": 0.75 // 75%
+  }
+});
+```
+
+### Single Select
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Stage": "Launched" // Must match an existing option
+  }
+});
+```
+
+### Multiple Select
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Categories": ["Marketing", "Design"] // Array of existing options
+  }
+});
+```
+
+### Date Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "StartDate": "2023-10-01" // YYYY-MM-DD format
+  }
+});
+```
+
+### DateTime Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "CreatedTime": 1634567890000 // Unix timestamp in milliseconds
+  }
+});
+```
+
+### Attachment Fields
+```typescript
+// Attachments must be uploaded separately first, then referenced here
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Documents": [
+      {
+        "name": "document.pdf",
+        "size": 12345,
+        "type": "application/pdf",
+        "token": "attachment_token_from_upload"
+      }
+    ]
+  }
+});
+```
+
+### Link Fields (Relations)
+```typescript
+// Single link field
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Client": "rec123456" // Single record ID
+  }
+});
+
+// Multiple link field
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Team": ["rec123456", "rec789012"] // Array of record IDs
+  }
+});
+```
+
+### User Fields
+```typescript
+// Single user field
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "ProjectManager": "usr123456" // Single user ID
+  }
+});
+
+// Multiple user field
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Collaborators": ["usr123456", "usr789012"] // Array of user IDs
+  }
+});
+```
+
+### Checkbox Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Completed": true
+  }
+});
+```
+
+### Formula Fields
+```typescript
+// Formula fields are read-only and cannot be updated directly
+```
+
+### Lookup Fields
+```typescript
+// Lookup fields are read-only and cannot be updated directly
+```
+
+### Rollup Fields
+```typescript
+// Rollup fields are read-only and cannot be updated directly
+```
+
+### Currency Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Revenue": 125000.50  // Numeric value
+  }
+});
+```
+
+### Percent Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "GrowthRate": 0.25  // 25% as decimal
+  }
+});
+```
+
+### URL Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "Website": "https://example.com"
+  }
+});
+```
+
+### Email Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "ContactEmail": "contact@example.com"
+  }
+});
+```
+
+### Phone Fields
+```typescript
+await updateRecord(tableId, recordId, { 
+  fields: {
+    "ContactPhone": "+12125551234"
+  }
+});
 ```
 
 ## Response Format

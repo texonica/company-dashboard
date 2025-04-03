@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 # ClickUp API Integration Guidelines
 @load-when path="**/clickup/**" or path="**/api/clickup/**" or path="**/clickup-*.{ts,js}" or path="**/clickup*.{ts,js}"
 

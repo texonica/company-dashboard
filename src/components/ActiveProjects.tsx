@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { StageDropdown } from './StageDropdown';
 
 interface Project {
   id: string;
@@ -22,6 +23,7 @@ export function ActiveProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -69,7 +71,22 @@ export function ActiveProjects() {
     }
 
     fetchProjects();
-  }, []);
+  }, [refreshTrigger]);
+
+  // Helper function to handle successful stage update
+  const handleStageSuccess = () => {
+    // Refresh the data after a short delay to allow the backend to update
+    setTimeout(() => {
+      setRefreshTrigger(prev => prev + 1);
+    }, 500);
+  };
+
+  // Helper function to handle stage update error
+  const handleStageError = (errorMessage: string) => {
+    setError(`Error updating stage: ${errorMessage}`);
+    // Clear error after 5 seconds
+    setTimeout(() => setError(null), 5000);
+  };
 
   // Helper function to determine if a string is a record ID
   const isRecordId = (str: string): boolean => {
@@ -124,13 +141,12 @@ export function ActiveProjects() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{project.title}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        project.stage === 'Launched' ? 'bg-green-100 text-green-800' : 
-                        project.stage === 'Onboarding' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {project.stage}
-                      </span>
+                      <StageDropdown 
+                        recordId={project.id}
+                        currentStage={project.stage}
+                        onSuccess={handleStageSuccess}
+                        onError={handleStageError}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {project.client === 'No Client' ? (

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { UserRole } from '@/lib/firebase'
+import { CRMStageDropdown } from '@/components/CRMStageDropdown'
 
 interface CRMRecord {
   id: string
@@ -37,10 +38,12 @@ function FutureCRMPage() {
   const [records, setRecords] = useState<CRMRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     async function fetchFutureCRMData() {
       try {
+        setLoading(true)
         const response = await fetch('/api/leadgen/crm/future')
         
         if (!response.ok) {
@@ -58,7 +61,7 @@ function FutureCRMPage() {
     }
 
     fetchFutureCRMData()
-  }, [])
+  }, [refreshTrigger])
 
   // Format date from timestamp
   const formatDate = (timestamp: number | undefined) => {
@@ -68,6 +71,21 @@ function FutureCRMPage() {
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  // Handle stage update success
+  const handleStageSuccess = () => {
+    // Refresh the data after a short delay to allow the backend to update
+    setTimeout(() => {
+      setRefreshTrigger(prev => prev + 1)
+    }, 500)
+  }
+
+  // Handle stage update error
+  const handleStageError = (errorMessage: string) => {
+    setError(`Error updating stage: ${errorMessage}`)
+    // Clear error after 5 seconds
+    setTimeout(() => setError(''), 5000)
   }
 
   return (
@@ -134,9 +152,12 @@ function FutureCRMPage() {
                           {record.fields['Company Name'] || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageClass(record.fields.Stage)}`}>
-                            {record.fields.Stage || 'N/A'}
-                          </span>
+                          <CRMStageDropdown 
+                            recordId={record.id}
+                            currentStage={record.fields.Stage || 'N/A'}
+                            onSuccess={handleStageSuccess}
+                            onError={handleStageError}
+                          />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {formatDate(record.fields.NextAction)}
@@ -157,7 +178,7 @@ function FutureCRMPage() {
   )
 }
 
-// Helper function to get stage class for styling
+// Helper function to get stage class for styling (kept for reference)
 function getStageClass(stage: string | undefined): string {
   if (!stage) return 'bg-gray-100 text-gray-800'
   
@@ -174,6 +195,10 @@ function getStageClass(stage: string | undefined): string {
       return 'bg-green-100 text-green-800'
     case 'Won':
       return 'bg-emerald-100 text-emerald-800'
+    case 'SentAudit':
+      return 'bg-indigo-100 text-indigo-800'
+    case 'FirstCall':
+      return 'bg-sky-100 text-sky-800'
     default:
       return 'bg-gray-100 text-gray-800'
   }

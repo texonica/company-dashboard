@@ -118,6 +118,7 @@ export async function fetchTableRecords(tableId: string, filter?: string): Promi
   validateConfig();
   
   const API_TOKEN = process.env.AITABLE_API_TOKEN;
+  const BASE_ID = AITABLE_CONFIG.BASE_ID;
   
   const filterParam = filter ? `?filterByFormula=${encodeURIComponent(filter)}` : '';
   const url = `${AITABLE_CONFIG.BASE_URL}/fusion/v1/datasheets/${tableId}/records${filterParam}`;
@@ -163,8 +164,11 @@ export async function fetchRecord(tableId: string, recordId: string): Promise<AI
   validateConfig();
   
   const API_TOKEN = process.env.AITABLE_API_TOKEN;
+  const BASE_ID = AITABLE_CONFIG.BASE_ID;
   
   const url = `${AITABLE_CONFIG.BASE_URL}/fusion/v1/datasheets/${tableId}/records/${recordId}`;
+  
+  console.log('Fetching record from:', url);
   
   const response = await fetch(url, {
     method: 'GET',
@@ -389,4 +393,64 @@ export async function fetchMembersByIds(memberIds: string[]): Promise<Record<str
     console.error('Error fetching members by IDs:', error);
     return members; // Return what we have
   }
+}
+
+/**
+ * Update a record by ID
+ */
+export async function updateRecord(tableId: string, recordId: string, data: { fields: Record<string, any> }): Promise<AITableRecord> {
+  // Validate configuration
+  validateConfig();
+  
+  const API_TOKEN = process.env.AITABLE_API_TOKEN;
+  
+  // Ensure we're working with the fields object
+  const fields = data.fields;
+  
+  // Log the update for debugging
+  console.log(`AITable Update: tableId=${tableId}, recordId=${recordId}`);
+  console.log('Update fields:', fields);
+  
+  // Use the correct URL format for updates according to documentation
+  const url = `${AITABLE_CONFIG.BASE_URL}/fusion/v1/datasheets/${tableId}/records`;
+  
+  console.log('Request URL:', url);
+  
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      records: [
+        {
+          recordId: recordId,
+          fields: fields
+        }
+      ]
+    })
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`AITable API error (${response.status}):`, errorText);
+    throw new Error(`AITable API error (${response.status}): ${errorText}`);
+  }
+  
+  const result: AITableResponse = await response.json();
+  
+  // Check for API-level errors
+  if (!result.success) {
+    console.error(`AITable API error (${result.code}):`, result.message);
+    throw new Error(`AITable API error (${result.code}): ${result.message}`);
+  }
+  
+  // Validate response data
+  if (!result.data) {
+    throw new Error('Invalid response format from AITable API');
+  }
+  
+  // Access the first record in the records array since we're only updating one
+  return result.data.records?.[0] || result.data as unknown as AITableRecord;
 } 
