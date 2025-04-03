@@ -11,6 +11,7 @@ export function Navigation() {
     const pathname = usePathname()
     const { user, signOut, userRole } = useAuth()
     const [leadgenOpen, setLeadgenOpen] = useState(false)
+    const [operationsOpen, setOperationsOpen] = useState(false)
 
     return (
         <nav className="fixed top-0 z-50 w-full border-b bg-white">
@@ -76,6 +77,52 @@ export function Navigation() {
                         >
                             CRM
                         </Link>
+                        <div className="relative">
+                            <button 
+                                onClick={() => setOperationsOpen(!operationsOpen)}
+                                className={cn(
+                                    "flex items-center text-sm font-medium transition-colors hover:text-foreground/80",
+                                    pathname.startsWith("/operations") ? "text-foreground" : "text-foreground/60"
+                                )}
+                            >
+                                Operations
+                                <ChevronDown size={16} className="ml-1" />
+                            </button>
+                            {operationsOpen && (
+                                <div className="absolute top-full left-0 mt-1 w-40 bg-white shadow-md rounded-md py-1 z-10">
+                                    <Link
+                                        href="/operations/clients"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/operations/clients" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setOperationsOpen(false)}
+                                    >
+                                        Clients
+                                    </Link>
+                                    <Link
+                                        href="/operations/subscriptions"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/operations/subscriptions" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setOperationsOpen(false)}
+                                    >
+                                        Subscriptions
+                                    </Link>
+                                    <Link
+                                        href="/operations/payments"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/operations/payments" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setOperationsOpen(false)}
+                                    >
+                                        Payments
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                         <Link
                             href="/terms"
                             className={cn(

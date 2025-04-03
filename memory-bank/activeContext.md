@@ -1,13 +1,15 @@
 # Active Context
 
 ## Current Focus
-We are implementing data visualization components for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project, client, and UW leadgen data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, team members, and UW lead generation tables.
+We are implementing data visualization components and financial tracking features for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project, client, and leadgen data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, team members, and lead generation tables.
 
 The backend API routes for projects have been implemented with comprehensive error handling, client name resolution, and media buyer resolution. The ActiveProjects component has been created and connected to the backend API, allowing for the display of sorted and grouped project information by team.
 
 We have implemented two leadgen metrics visualization components: UWLeadgenMetricsChart and FVRLeadgenMetricsChart. Both provide interactive visualization of lead generation metrics with flexible display options, including weekly and monthly views, metric toggles, and date range selection.
 
 Additionally, we've integrated ClickUp API functionality to enable task management capabilities, with proper API client implementation, type definitions, and backend proxying to protect credentials.
+
+We're now starting to implement financial tracking features, with new API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
 
 ## Recent Changes
 - Implemented backend API routes for projects and clients with detailed error handling
@@ -37,8 +39,18 @@ Additionally, we've integrated ClickUp API functionality to enable task manageme
   - Proper type definitions
   - Example code for common operations
   - API client with comprehensive error handling
+- Started implementation of financial tracking features with:
+  - New API endpoints for payments and subscriptions
+  - Initial setup for the PnL tracking system
+  - Created operations section in the application structure
 
 ## Next Steps
+- Complete the payments and subscriptions API endpoints
+- Implement CSV import functionality for financial data
+- Create the financial reporting panels with:
+  - Gross margin calculation at project, team, and company levels
+  - Project count visualization per team
+  - PnL reporting with multi-level analysis
 - Enhance the active projects display with:
   - Months active calculation based on start date
   - Additional filtering options
@@ -50,23 +62,21 @@ Additionally, we've integrated ClickUp API functionality to enable task manageme
   - Enhanced data processing
 - Implement authentication with Firebase
 - Set up role-based access control
-- Create financial reporting panels as the next major feature
 - Add additional data visualizations for key metrics
 - Optimize data fetching to minimize API calls
 - Implement caching strategy for AITable and ClickUp data
 - Develop detailed client views
 - Integrate ClickUp task data with project management views
-- Plan for comprehensive PnL tracking system including:
-  - Xolo CSV import and processing pipeline
-  - AI-powered transaction categorization
-  - Client-Payment-Project mapping for complex financial relationships
-  - Subscription tracking with Chargebee integration
-  - Financial reconciliation workflow
 
 *For detailed roadmap and implementation discussions, see [roadmap.md](roadmap.md)*
 
 ## Active Decisions
 We need to determine the best approach for:
+- CSV import and parsing strategy for financial data
+- Data model for many-to-many payment-project relationships
+- AI/ML approach for transaction categorization
+- Subscription tracking model and integration with Chargebee
+- Financial reconciliation workflow UI and logic
 - Data fetching optimization to minimize API calls to AITable and ClickUp
 - Caching strategy for API data (using SWR)
 - User interface for financial reporting panels
@@ -77,14 +87,13 @@ We need to determine the best approach for:
 - Additional metrics to include in the leadgen visualizations
 - Best approach for data aggregation in monthly view mode
 - Integrating ClickUp tasks with project management workflow
-- PnL tracking system architecture:
-  - CSV import and parsing strategy
-  - AI model selection for transaction categorization
-  - Database schema for many-to-many payment-project relationships
-  - Subscription tracking integration approach
-  - User interface for financial reconciliation workflows
 
 ## Open Questions
+- What is the most efficient way to import and parse Xolo CSV data?
+- How should we structure the data model for handling payments that apply to multiple projects?
+- What ML approach is best for automatically categorizing financial transactions?
+- How should we handle subscription tracking and integrate with Chargebee?
+- What UI approach will work best for the financial reconciliation workflow?
 - What specific financial metrics should be prioritized for the first release?
 - How should we handle potentially large datasets from AITable and ClickUp?
 - What is the most efficient way to display team members within project cards?

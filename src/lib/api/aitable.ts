@@ -30,6 +30,34 @@ export interface AITableClient {
   };
 }
 
+export interface AITableSubscription {
+  recordId: string;
+  fields: {
+    Name?: string;
+    Client?: string; // Client ID or array of Client IDs
+    StartDate?: string;
+    EndDate?: string;
+    Status?: string;
+    Amount?: number;
+    BillingCycle?: string;
+    [key: string]: any;
+  };
+}
+
+export interface AITablePayment {
+  recordId: string;
+  fields: {
+    Name?: string;
+    Client?: string; // Client ID or array of Client IDs
+    Subscription?: string; // Subscription ID or array of Subscription IDs
+    Date?: string;
+    Amount?: number;
+    Status?: string;
+    PaymentMethod?: string;
+    [key: string]: any;
+  };
+}
+
 export interface AITableResponse {
   success: boolean;
   code: number;
@@ -63,6 +91,8 @@ export const AITABLE_CONFIG = {
   PROJECTS_TABLE_ID: process.env.AITABLE_PROJECTS_TABLE_ID,
   CLIENTS_TABLE_ID: process.env.AITABLE_CLIENTS_TABLE_ID,
   MEMBERS_TABLE_ID: process.env.AITABLE_MEMBERS_TABLE_ID,
+  SUBSCRIPTIONS_TABLE_ID: process.env.AITABLE_SUBSCRIPTIONS_TABLE_ID,
+  PAYMENTS_TABLE_ID: process.env.AITABLE_PAYMENTS_TABLE_ID,
 }; 
 
 // Function to validate configuration
@@ -283,6 +313,38 @@ export async function fetchClientsByIds(clientIds: string[]): Promise<Record<str
     }, {} as Record<string, AITableClient>);
   } catch (error) {
     console.error('Error fetching clients by IDs:', error);
+    return {};
+  }
+}
+
+/**
+ * Fetch multiple project records by their IDs
+ */
+export async function fetchProjectsByIds(projectIds: string[]): Promise<Record<string, AITableProject>> {
+  if (!AITABLE_CONFIG.PROJECTS_TABLE_ID || !projectIds.length) {
+    return {};
+  }
+  
+  // Create a filter formula to get only the projects with the specified IDs
+  // Example: OR(RECORD_ID()='rec123',RECORD_ID()='rec456')
+  const filter = projectIds.map(id => `RECORD_ID()='${id}'`).join(',');
+  const filterFormula = `OR(${filter})`;
+  
+  try {
+    const records = await fetchTableRecords(AITABLE_CONFIG.PROJECTS_TABLE_ID, filterFormula);
+    
+    // Create a map of project IDs to project records
+    return records.reduce((map, project) => {
+      map[project.recordId] = {
+        recordId: project.recordId,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        fields: project.fields
+      };
+      return map;
+    }, {} as Record<string, AITableProject>);
+  } catch (error) {
+    console.error('Error fetching projects by IDs:', error);
     return {};
   }
 }

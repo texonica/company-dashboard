@@ -21,10 +21,14 @@ This separation ensures private data is never directly accessed from the client,
 - **Environment Variables**: Secure configuration management for all API keys and credentials
 - **Error Boundary Pattern**: Comprehensive error handling with specific error messages and status codes
 - **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart and FVRLeadgenMetricsChart with flexible rendering options
+- **Financial Data Processing Pattern**: Planned implementation for handling CSV imports, transaction categorization, and payment-project mapping
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
-- **Backend API Routes**: Implemented in src/app/api/projects, src/app/api/clients, and src/app/api/clickup
+- **Backend API Routes**: 
+  - Projects and clients in src/app/api/projects and src/app/api/clients
+  - ClickUp task management in src/app/api/clickup
+  - Financial data in src/app/api/payments and src/app/api/subscriptions
 - **API Clients**: 
   - AITable API client in src/lib/api/aitable.ts with comprehensive error handling
   - ClickUp API client in src/lib/clickup/api.ts for task management
@@ -33,6 +37,10 @@ This separation ensures private data is never directly accessed from the client,
 - **Lead Generation Metrics**: 
   - UWLeadgenMetricsChart component for UW leadgen metrics
   - FVRLeadgenMetricsChart component for FVR leadgen metrics
+- **Financial Tracking**: 
+  - Payments API endpoints in src/app/api/payments
+  - Subscriptions API endpoints in src/app/api/subscriptions
+  - Operations section for financial management
 - **Authentication**: Firebase authentication with optional development bypass (to be implemented)
 - **Configuration**: Maintained in environment variables and src/lib/config.ts
 - **Types**: Defined in src/lib/types.ts and src/lib/clickup/types.ts for type safety
@@ -52,6 +60,14 @@ This separation ensures private data is never directly accessed from the client,
 10. User interacts with the data display (filtering and sorting to be enhanced)
 
 Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies.
+
+For financial data management, the planned flow is:
+1. User uploads financial data via CSV import
+2. Backend processes and categorizes transactions
+3. System maps payments to projects (potentially many-to-many)
+4. Financial data is aggregated for reporting
+5. User can review and reconcile unmapped transactions
+6. Subscription data is tracked and managed
 
 ## API Route Implementation
 The system implements several API routes to securely interact with external services:
@@ -76,6 +92,18 @@ The system implements several API routes to securely interact with external serv
    - **Task Detail Route** (`/api/clickup/tasks/[id]`): Fetches details for a specific task
    - **Create Task Route** (`/api/clickup/tasks`): Creates new tasks with POST method
    - **Update Task Route** (`/api/clickup/tasks/[id]`): Updates existing tasks with PATCH method
+
+3. **Financial Data Routes** (in development):
+   - **Payments Route** (`/api/payments`): 
+     - Will handle financial transaction data
+     - Support CSV imports for Xolo financial data
+     - Process transaction categorization
+     - Map payments to projects (many-to-many relationships)
+   - **Subscriptions Route** (`/api/subscriptions`):
+     - Will manage recurring payment data
+     - Track subscription status and renewal information
+     - Integrate with Chargebee (planned)
+     - Associate subscriptions with clients and projects
 
 ## Home Page Architecture
 The home page is built with these key components:
@@ -140,6 +168,39 @@ The leadgen metrics components follow these patterns:
    - Common error handling patterns
    - Performance optimization techniques
 
+## Financial Tracking Components (Planned)
+The financial tracking components will follow these patterns:
+
+1. **CSV Import Component**:
+   - Secure file upload interface
+   - Parsing logic for Xolo CSV format
+   - Data normalization and validation
+   - Error handling for invalid data
+
+2. **Transaction Categorization**:
+   - AI/ML-based classification system
+   - Training models for expense categorization
+   - Matching incoming payments with projects/clients
+   - Confidence scoring for categorization accuracy
+
+3. **Payment-Project Mapping**:
+   - Interface for allocating single payments across multiple projects
+   - Many-to-many relationship management
+   - Distribution percentage tracking
+   - Audit trail of payment allocations
+
+4. **Subscription Management**:
+   - Chargebee connector for subscription data
+   - Renewal tracking and alerting
+   - Client and project association
+   - Subscription lifecycle visualization
+
+5. **Financial Reconciliation**:
+   - Review interface for unmapped transactions
+   - Suggestion logic for likely matches
+   - Batch processing for similar transactions
+   - Audit trail maintenance
+
 ## Error Handling Patterns
 The system implements comprehensive error handling:
 1. **API Error Categorization**: 
@@ -173,4 +234,7 @@ The system implements comprehensive error handling:
 - MetricsChart component for flexible data visualization
 - Separate aggregation methods for different metric types (sum vs. average)
 - Secure ClickUp integration for task management
-- Shared component patterns between similar visualization components 
+- Shared component patterns between similar visualization components
+- Financial data processing will use a secure backend approach
+- CSV import for financial data with AI-powered categorization
+- Many-to-many relationships for payment-project mapping 

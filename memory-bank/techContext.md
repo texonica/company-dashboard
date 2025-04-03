@@ -14,10 +14,14 @@
   - Custom AITable API client
   - Custom ClickUp API client
   - Firebase for authentication (planned implementation)
+  - CSV parsing for financial data import (planned implementation)
+  - AI/ML capabilities for transaction categorization (planned)
 - **Data Storage**:
   - AITable.ai for primary data (accessed via secure API)
   - ClickUp for task management data
   - Environment variables for configuration (.env.local)
+- **External Services Integration**:
+  - Chargebee for subscription management (planned integration)
 - **DevOps**:
   - To be determined for CI/CD pipeline
   - Planned deployment platform to be decided
@@ -49,6 +53,10 @@ Key dependencies include:
 - **Data Visualization**:
   - Custom chart components (MetricsChart)
   - Configurable visualization settings
+- **Financial Data Processing** (planned):
+  - CSV parsing library for financial data imports
+  - AI/ML capabilities for transaction categorization
+  - Chargebee SDK for subscription management
 
 ## Technical Constraints
 - Must securely store and transmit sensitive financial and client data
@@ -60,6 +68,9 @@ Key dependencies include:
 - Mobile responsiveness is essential for all dashboard views
 - Secure handling of API credentials using environment variables only
 - Charts must be optimized for both weekly and monthly data aggregation
+- Financial data imports must handle potential inconsistencies in CSV formats
+- Transaction categorization models need continuous improvement capabilities
+- Many-to-many relationships between payments and projects require careful data modeling
 
 ## Build & Deployment
 - **Development**: Local Next.js development server (`npm run dev`)
@@ -133,6 +144,29 @@ The ClickUp integration has been implemented with:
    - Documentation of common patterns for ClickUp API usage
    - Reference code for integration with project management
 
+## Financial Data Management (In Development)
+The financial data management features are being implemented with:
+
+1. **API Routes for Financial Data**:
+   - Payments route in src/app/api/payments for handling financial transactions
+   - Subscriptions route in src/app/api/subscriptions for managing recurring payments
+   - Operations section in the application for financial management interfaces
+
+2. **Planned Implementation Components**:
+   - CSV import functionality for Xolo financial data
+   - Parsing and normalization of financial transaction data
+   - AI-powered transaction categorization
+   - Many-to-many relationship management for payment-project mapping
+   - Subscription tracking with Chargebee integration
+   - Financial reconciliation workflow
+
+3. **Technical Approach**:
+   - Secure backend processing for all financial data
+   - Database model for complex payment-project relationships
+   - AI/ML pipeline for continuous improvement of categorization
+   - Audit trail for all financial operations
+   - Export capabilities for financial reports
+
 ## Data Visualization Components
 The dashboard includes several data visualization components:
 
@@ -162,4 +196,11 @@ The dashboard includes several data visualization components:
 4. **DateRangeSelector**:
    - Reusable component for selecting date ranges
    - Integrated with metrics charts for filtering data
-   - Emits range change events for parent components to react 
+   - Emits range change events for parent components to react
+
+5. **Financial Visualization** (Planned):
+   - Gross margin calculations and display
+   - Project count visualization by team
+   - PnL reporting with multi-level analysis
+   - Subscription tracking visualization
+   - Payment allocation visualization 
