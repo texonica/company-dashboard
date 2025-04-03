@@ -12,6 +12,7 @@ export function Navigation() {
     const { user, signOut, userRole } = useAuth()
     const [leadgenOpen, setLeadgenOpen] = useState(false)
     const [operationsOpen, setOperationsOpen] = useState(false)
+    const [crmOpen, setCrmOpen] = useState(false)
 
     return (
         <nav className="fixed top-0 z-50 w-full border-b bg-white">
@@ -68,15 +69,62 @@ export function Navigation() {
                                 </div>
                             )}
                         </div>
-                        <Link
-                            href="/leadgen/crm"
-                            className={cn(
-                                "text-sm font-medium transition-colors hover:text-foreground/80",
-                                pathname === "/leadgen/crm" ? "text-foreground" : "text-foreground/60"
+                        <div className="relative">
+                            <button 
+                                onClick={() => setCrmOpen(!crmOpen)}
+                                className={cn(
+                                    "flex items-center text-sm font-medium transition-colors hover:text-foreground/80",
+                                    pathname.startsWith("/leadgen/crm") ? "text-foreground" : "text-foreground/60"
+                                )}
+                            >
+                                CRM
+                                <ChevronDown size={16} className="ml-1" />
+                            </button>
+                            {crmOpen && (
+                                <div className="absolute top-full left-0 mt-1 w-40 bg-white shadow-md rounded-md py-1 z-10">
+                                    <Link
+                                        href="/leadgen/crm"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/crm" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setCrmOpen(false)}
+                                    >
+                                        All
+                                    </Link>
+                                    <Link
+                                        href="/leadgen/crm/now"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/crm/now" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setCrmOpen(false)}
+                                    >
+                                        Now
+                                    </Link>
+                                    <Link
+                                        href="/leadgen/crm/future"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/crm/future" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setCrmOpen(false)}
+                                    >
+                                        Future
+                                    </Link>
+                                    <Link
+                                        href="/leadgen/crm/won"
+                                        className={cn(
+                                            "block px-4 py-2 text-sm transition-colors hover:bg-gray-100",
+                                            pathname === "/leadgen/crm/won" ? "text-foreground font-medium" : "text-foreground/60"
+                                        )}
+                                        onClick={() => setCrmOpen(false)}
+                                    >
+                                        Won
+                                    </Link>
+                                </div>
                             )}
-                        >
-                            CRM
-                        </Link>
+                        </div>
                         <div className="relative">
                             <button 
                                 onClick={() => setOperationsOpen(!operationsOpen)}
