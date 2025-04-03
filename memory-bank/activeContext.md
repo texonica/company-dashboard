@@ -1,20 +1,18 @@
 # Active Context
 
 ## Current Focus
-We are implementing data visualization components and financial tracking features for the Texonica.com dashboard project. We have made progress on establishing secure connections to the AITable.ai API through backend routes to retrieve project, client, and leadgen data. The AITable API configuration has been set up with proper environment variables for accessing projects, clients, team members, and lead generation tables.
+We are implementing financial tracking features and enhancing the project management interface for the Texonica.com dashboard. We have established secure connections to both the AITable.ai API and ClickUp API through backend routes to retrieve and manage project, client, leadgen, and task data. The backend API routes for projects, clients, and leadgen data have been implemented with comprehensive error handling. We have added StageDropdown and CRMStageDropdown components to improve project management functionality.
 
-The backend API routes for projects have been implemented with comprehensive error handling, client name resolution, and media buyer resolution. The ActiveProjects component has been created and connected to the backend API, allowing for the display of sorted and grouped project information by team.
+The ActiveProjects component has been enhanced and connected to the backend API, displaying sorted and grouped project information by team. We have implemented UWLeadgenMetricsChart and FVRLeadgenMetricsChart for interactive visualization of lead generation metrics with flexible display options.
 
-We have implemented two leadgen metrics visualization components: UWLeadgenMetricsChart and FVRLeadgenMetricsChart. Both provide interactive visualization of lead generation metrics with flexible display options, including weekly and monthly views, metric toggles, and date range selection.
-
-Additionally, we've integrated ClickUp API functionality to enable task management capabilities, with proper API client implementation, type definitions, and backend proxying to protect credentials.
-
-We're now starting to implement financial tracking features, with new API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
+We're now focusing on financial tracking features, with new API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
 
 ## Recent Changes
+- Added CRMStageDropdown component for improved project management
+- Enhanced StageDropdown component for better user interaction
+- Updated Navigation component with improved layout and functionality
 - Implemented backend API routes for projects and clients with detailed error handling
 - Set up AITable.ai API integration with secure token handling via environment variables
-- Added comprehensive error handling in API routes with specific status codes
 - Created ActiveProjects component for displaying project information with:
   - Project titles and IDs
   - Team grouping functionality
@@ -25,15 +23,13 @@ We're now starting to implement financial tracking features, with new API endpoi
   - Sorting by start date
 - Implemented DashboardContent component for the main dashboard layout
 - Integrated ActiveProjects into the main dashboard
-- Created UWLeadgenMetricsChart component with:
+- Created UWLeadgenMetricsChart and FVRLeadgenMetricsChart components with:
   - Weekly and monthly view modes
   - Categorized metrics display (Funnel, Financial, Conversion Rates)
   - Interactive metric toggles with color coding
   - Date range filtering
   - Dynamic data aggregation
   - Responsive visualization
-  - Performance optimization via memoization
-- Added FVRLeadgenMetricsChart component with similar capabilities for FVR-specific metrics
 - Implemented ClickUp API integration with:
   - Secure backend proxying through API routes
   - Proper type definitions
@@ -46,7 +42,7 @@ We're now starting to implement financial tracking features, with new API endpoi
 
 ## Next Steps
 - Complete the payments and subscriptions API endpoints
-- Implement CSV import functionality for financial data
+- Implement CSV import functionality for financial data (Xolo)
 - Create the financial reporting panels with:
   - Gross margin calculation at project, team, and company levels
   - Project count visualization per team
@@ -72,7 +68,7 @@ We're now starting to implement financial tracking features, with new API endpoi
 
 ## Active Decisions
 We need to determine the best approach for:
-- CSV import and parsing strategy for financial data
+- CSV import and parsing strategy for financial data (Xolo format)
 - Data model for many-to-many payment-project relationships
 - AI/ML approach for transaction categorization
 - Subscription tracking model and integration with Chargebee

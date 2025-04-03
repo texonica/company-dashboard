@@ -22,6 +22,7 @@ This separation ensures private data is never directly accessed from the client,
 - **Error Boundary Pattern**: Comprehensive error handling with specific error messages and status codes
 - **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart and FVRLeadgenMetricsChart with flexible rendering options
 - **Financial Data Processing Pattern**: Planned implementation for handling CSV imports, transaction categorization, and payment-project mapping
+- **Status Management Pattern**: Implemented through StageDropdown and CRMStageDropdown components for project status management
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
@@ -29,11 +30,16 @@ This separation ensures private data is never directly accessed from the client,
   - Projects and clients in src/app/api/projects and src/app/api/clients
   - ClickUp task management in src/app/api/clickup
   - Financial data in src/app/api/payments and src/app/api/subscriptions
+  - Leadgen data in src/app/api/leadgen
 - **API Clients**: 
   - AITable API client in src/lib/api/aitable.ts with comprehensive error handling
   - ClickUp API client in src/lib/clickup/api.ts for task management
 - **Dashboard Layout**: DashboardContent component maintains the overall dashboard structure
+- **Navigation**: Navigation component provides access to different sections
 - **Active Projects Display**: ActiveProjects component for viewing current projects grouped by team
+- **Status Management**: 
+  - StageDropdown component for managing project stages
+  - CRMStageDropdown component for advanced CRM stage management
 - **Lead Generation Metrics**: 
   - UWLeadgenMetricsChart component for UW leadgen metrics
   - FVRLeadgenMetricsChart component for FVR leadgen metrics
@@ -58,6 +64,7 @@ This separation ensures private data is never directly accessed from the client,
 8. Processed data is returned to the frontend
 9. ActiveProjects component renders the data with appropriate grouping and sorting
 10. User interacts with the data display (filtering and sorting to be enhanced)
+11. User can manage project status via the StageDropdown or CRMStageDropdown components
 
 Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies.
 
@@ -82,6 +89,7 @@ The system implements several API routes to securely interact with external serv
      - Returns well-formatted project data with proper error handling
    - **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
    - **Clients Route** (`/api/clients`): Fetches client information
+   - **Leadgen Route** (`/api/leadgen`): Fetches lead generation metrics data
    - **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
 
 2. **ClickUp API Routes**:
@@ -111,7 +119,10 @@ The home page is built with these key components:
    - Overall dashboard layout and organization
    - Integration of ActiveProjects component
    - User role protection (to be fully implemented)
-2. **Active Projects Component**: 
+2. **Navigation Component**:
+   - Provides access to different sections of the application
+   - Responsive design with mobile support
+3. **Active Projects Component**: 
    - Fetches project data from backend API
    - Groups projects by team
    - Sorts projects by start date
@@ -119,10 +130,13 @@ The home page is built with these key components:
    - Handles loading and error states
    - Color-codes project stages (Launched, Onboarding)
    - Displays client and media buyer information
-3. **Data Fetching**: 
+4. **Status Management Components**:
+   - StageDropdown for managing project stages
+   - CRMStageDropdown for advanced CRM stage management
+5. **Data Fetching**: 
    - Client-side data fetching with error handling
    - Plans to implement SWR for caching and revalidation
-4. **UI Components**: 
+6. **UI Components**: 
    - Using Tailwind CSS for styling
    - Clean tabular display with proper responsiveness
    - Color-coded status indicators

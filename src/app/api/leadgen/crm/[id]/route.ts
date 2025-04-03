@@ -9,10 +9,11 @@ const CRM_TABLE_ID = process.env.AITABLE_CRM_TABLE_ID || 'dstDfpcYqF2nW6azmR';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  // Properly await the params
-  const { id: recordId } = params;
+  // Properly await the params object before accessing its properties
+  const params = await Promise.resolve(context.params);
+  const recordId = params.id;
   
   try {
     const record = await fetchRecord(CRM_TABLE_ID, recordId);
@@ -41,10 +42,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  // Properly await the params
-  const { id: recordId } = params;
+  // Properly await the params object before accessing its properties
+  const params = await Promise.resolve(context.params);
+  const recordId = params.id;
   
   try {
     const body = await request.json();

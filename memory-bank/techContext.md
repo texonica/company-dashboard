@@ -117,6 +117,11 @@ The AITable.ai integration has been implemented with:
    - Client and member ID extraction and resolution
    - Robust error handling with specific status codes and messages
 
+6. **Status Management Components**:
+   - StageDropdown component for managing project stages
+   - CRMStageDropdown component for advanced CRM status management
+   - Integration with backend API for status updates
+
 ## ClickUp Integration
 The ClickUp integration has been implemented with:
 
@@ -198,9 +203,8 @@ The dashboard includes several data visualization components:
    - Integrated with metrics charts for filtering data
    - Emits range change events for parent components to react
 
-5. **Financial Visualization** (Planned):
-   - Gross margin calculations and display
-   - Project count visualization by team
-   - PnL reporting with multi-level analysis
-   - Subscription tracking visualization
-   - Payment allocation visualization 
+5. **Project Management Components**:
+   - StageDropdown for managing project stages
+   - CRMStageDropdown for advanced CRM integration
+   - ActiveProjects for team-based project organization
+   - Navigation for intuitive app sections access 

@@ -11,14 +11,22 @@ import {
 } from '@/components/ui/select'
 
 const stageOptions = [
-  { id: "opt1", name: "AskedTheTeamForAudit", color: "#EEF3FF", bgColor: "bg-blue-100", textColor: "text-blue-800" },
-  { id: "opt2", name: "Unqualified", color: "#FEE2E2", bgColor: "bg-red-100", textColor: "text-red-800" },
+  { id: "opt8", name: "FirstCall", color: "#DBEAFE", bgColor: "bg-sky-100", textColor: "text-sky-800" },
   { id: "opt3", name: "No Show/No Message", color: "#FEF3C7", bgColor: "bg-yellow-100", textColor: "text-yellow-800" },
-  { id: "opt4", name: "NonResponsive", color: "#FFEDD5", bgColor: "bg-orange-100", textColor: "text-orange-800" },
-  { id: "opt5", name: "Qualified", color: "#DCFCE7", bgColor: "bg-green-100", textColor: "text-green-800" },
-  { id: "opt6", name: "Won", color: "#D1FAE5", bgColor: "bg-emerald-100", textColor: "text-emerald-800" },
+  { id: "opt9", name: "RequestedAccessRights", color: "#E0E7FF", bgColor: "bg-indigo-100", textColor: "text-indigo-800" },
+  { id: "opt10", name: "GotAccessRights", color: "#DBEAFE", bgColor: "bg-sky-100", textColor: "text-sky-800" },
+  { id: "opt1", name: "AskedTheTeamForAudit", color: "#EEF3FF", bgColor: "bg-blue-100", textColor: "text-blue-800" },
+  { id: "opt11", name: "GotAudit", color: "#DCFCE7", bgColor: "bg-green-100", textColor: "text-green-800" },
   { id: "opt7", name: "SentAudit", color: "#E0E7FF", bgColor: "bg-indigo-100", textColor: "text-indigo-800" },
-  { id: "opt8", name: "FirstCall", color: "#DBEAFE", bgColor: "bg-sky-100", textColor: "text-sky-800" }
+  { id: "opt12", name: "ClientCall", color: "#FEF3C7", bgColor: "bg-yellow-100", textColor: "text-yellow-800" },
+  { id: "opt13", name: "ReachOutLater", color: "#DBEAFE", bgColor: "bg-sky-100", textColor: "text-sky-800" },
+  { id: "opt6", name: "Won", color: "#D1FAE5", bgColor: "bg-emerald-100", textColor: "text-emerald-800" },
+  { id: "opt14", name: "Lost", color: "#FEE2E2", bgColor: "bg-red-100", textColor: "text-red-800" },
+  { id: "opt2", name: "Unqualified", color: "#FEE2E2", bgColor: "bg-red-100", textColor: "text-red-800" },
+  { id: "opt4", name: "NonResponsive", color: "#FFEDD5", bgColor: "bg-orange-100", textColor: "text-orange-800" },
+  { id: "opt15", name: "https://calendly.com/texonica/f", color: "#DCFCE7", bgColor: "bg-green-100", textColor: "text-green-800" },
+  { id: "opt16", name: "4s", color: "#DCFCE7", bgColor: "bg-green-100", textColor: "text-green-800" },
+  { id: "opt5", name: "Qualified", color: "#DCFCE7", bgColor: "bg-green-100", textColor: "text-green-800" }
 ]
 
 type CRMStageDropdownProps = {
