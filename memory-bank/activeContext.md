@@ -56,6 +56,12 @@ Additionally, we've integrated ClickUp API functionality to enable task manageme
 - Implement caching strategy for AITable and ClickUp data
 - Develop detailed client views
 - Integrate ClickUp task data with project management views
+- Plan for comprehensive PnL tracking system including:
+  - Xolo CSV import and processing pipeline
+  - AI-powered transaction categorization
+  - Client-Payment-Project mapping for complex financial relationships
+  - Subscription tracking with Chargebee integration
+  - Financial reconciliation workflow
 
 *For detailed roadmap and implementation discussions, see [roadmap.md](roadmap.md)*
 
@@ -71,6 +77,12 @@ We need to determine the best approach for:
 - Additional metrics to include in the leadgen visualizations
 - Best approach for data aggregation in monthly view mode
 - Integrating ClickUp tasks with project management workflow
+- PnL tracking system architecture:
+  - CSV import and parsing strategy
+  - AI model selection for transaction categorization
+  - Database schema for many-to-many payment-project relationships
+  - Subscription tracking integration approach
+  - User interface for financial reconciliation workflows
 
 ## Open Questions
 - What specific financial metrics should be prioritized for the first release?

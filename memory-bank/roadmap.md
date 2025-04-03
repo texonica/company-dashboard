@@ -44,12 +44,12 @@ This document tracks our implementation roadmap, decisions, and progress for the
 ### Phase 3: Financial Reporting Panels (Next)
 - [ ] Define key financial metrics and KPIs
   - Discussion: What metrics are most important for Texonica's financial tracking?
-  - Decision: 
-  - Implementation Notes:
+  - Decision: Focus on gross margin (profit minus real cost) at project, team, and company levels
+  - Implementation Notes: Need to ensure data model supports multi-level financial analysis
 - [ ] Design financial reporting UI
   - Discussion: How to present financial data clearly and intuitively?
-  - Decision:
-  - Implementation Notes:
+  - Decision: Include dedicated views for gross margin analysis and team project counts
+  - Implementation Notes: Create visualizations for profit/cost metrics and team distribution
 - [ ] Implement data visualization components
   - Discussion: What visualization types best represent financial data?
   - Decision: Use Tremor and D3.js for data visualization
@@ -58,6 +58,32 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Discussion: What export formats are most useful?
   - Decision:
   - Implementation Notes:
+- [ ] Implement PnL reporting requirements
+  - Discussion: What specific financial insights are needed for business decisions?
+  - Decision: Key metrics must include:
+    • Gross margin (profit minus real cost) per project, per team, and company-wide
+    • Number of active projects per team for resource allocation analysis
+  - Implementation Notes: Will require data aggregation capabilities across project hierarchies
+- [ ] Implement Xolo CSV Import System
+  - Discussion: How to efficiently import financial data without integrating multiple payment systems?
+  - Decision: Use Xolo's CSV export as primary financial data source
+  - Implementation Notes: Build secure upload interface, CSV parser, and data normalization pipeline
+- [ ] Develop AI Categorization Engine
+  - Discussion: How to automatically categorize and assign financial transactions?
+  - Decision: Implement ML-based classification system for expenses and income
+  - Implementation Notes: Train models to categorize expenses and match incoming payments with projects/clients
+- [ ] Create Client-Payment-Project Mapping
+  - Discussion: How to handle payments that apply to multiple projects?
+  - Decision: Implement many-to-many relationship model between payments and projects
+  - Implementation Notes: Build allocation interface to distribute single payments across multiple projects
+- [ ] Integrate Subscription Management
+  - Discussion: How to track recurring payments and subscriptions?
+  - Decision: Build Chargebee connector to identify subscription payments
+  - Implementation Notes: Develop subscription registry tracking renewal frequency, client associations, and project allocations
+- [ ] Build Financial Reconciliation Workflow
+  - Discussion: How to handle unmatched or ambiguous transactions?
+  - Decision: Create review interface with suggestion logic for likely project/client matches
+  - Implementation Notes: Implement batch processing for similar transactions and maintain audit trail
 
 ### Phase 4: Additional Department Panels
 - [ ] Marketing performance dashboard

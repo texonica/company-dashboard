@@ -76,6 +76,9 @@ Additionally, we've integrated ClickUp API functionality to enable task manageme
 - Set up Firebase authentication
 - Implement role-based access control
 - Develop financial reporting panels
+  - Implement gross margin calculation (profit minus real cost) at project, team, and company levels
+  - Create project count visualization per team for resource allocation analysis
+  - Design PnL reporting with multi-level analysis capabilities
 - Create additional specialized data visualizations
 - Optimize data fetching with SWR caching
 - Implement testing infrastructure
