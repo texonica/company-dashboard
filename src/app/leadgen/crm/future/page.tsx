@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { UserRole } from '@/lib/firebase'
 import { CRMStageDropdown } from '@/components/CRMStageDropdown'
+import { DatePickerInput } from '@/components/DatePickerInput'
 
 interface CRMRecord {
   id: string
@@ -137,6 +138,24 @@ function FutureCRMPage() {
     setTimeout(() => setError(''), 5000)
   }
 
+  // Handle next action date update success
+  const handleNextActionSuccess = (recordId: string, newTimestamp: number) => {
+    setRecords(prevRecords => {
+      return prevRecords.map(record => {
+        if (record.id === recordId) {
+          return {
+            ...record,
+            fields: {
+              ...record.fields,
+              NextAction: newTimestamp
+            }
+          }
+        }
+        return record
+      })
+    })
+  }
+
   // Force refresh data functionality - useful as a fallback
   const forceRefresh = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -221,8 +240,14 @@ function FutureCRMPage() {
                             onError={handleStageError}
                           />
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatDate(record.fields.NextAction)}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center">
+                          <DatePickerInput
+                            recordId={record.id}
+                            currentTimestamp={record.fields.NextAction}
+                            fieldName="NextAction"
+                            onSuccess={(newTimestamp) => handleNextActionSuccess(record.id, newTimestamp)}
+                            onError={handleStageError}
+                          />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {record.fields.Source || 'N/A'}
