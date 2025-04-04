@@ -1,0 +1,379 @@
+# OpenAI API Integration Guidelines and Usage Patterns
+
+## Overview
+This document outlines the guidelines for integrating OpenAI's language models within the Texonica Business Dashboard. The OpenAI SDK provides access to various AI models including GPT-4, GPT-3.5-Turbo, and other specialized models.
+
+## Key Principles
+- API keys must be stored in environment variables, never in client-side code
+- All OpenAI API calls must be proxied through our backend routes
+- Implement appropriate rate limiting and error handling
+- Monitor and log token usage for cost management
+- Cache responses appropriately when possible
+
+## SDK Installation
+```bash
+npm install openai
+```
+
+## Environment Variables
+Required environment variables:
+```
+OPENAI_API_KEY=your_api_key_here
+```
+
+Optional environment variables:
+```
+OPENAI_ORGANIZATION=your_org_id  # Only if using organization feature
+OPENAI_MAX_RETRIES=3             # Configure retry behavior
+```
+
+## Backend API Implementation
+
+### Basic Setup
+```typescript
+// lib/api/openai.ts
+import OpenAI from 'openai';
+
+// Initialize the OpenAI client
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  organization: process.env.OPENAI_ORGANIZATION,
+  maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '3'),
+});
+
+// Add telemetry wrapper for tracking usage
+import { trackAPIRequest } from '@/lib/api/telemetry';
+
+export async function getChatCompletion(
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+  options: {
+    model?: string;
+    temperature?: number;
+    max_tokens?: number;
+  } = {}
+) {
+  return trackAPIRequest('openai.chat', async () => {
+    const response = await openai.chat.completions.create({
+      model: options.model || 'gpt-4o',
+      messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens,
+    });
+    
+    return response;
+  });
+}
+
+// Helper for text embeddings
+export async function getEmbeddings(input: string | string[]) {
+  return trackAPIRequest('openai.embeddings', async () => {
+    const response = await openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input,
+    });
+    
+    return response;
+  });
+}
+```
+
+### API Route Implementation
+```typescript
+// app/api/openai/chat/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getChatCompletion } from '@/lib/api/openai';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { messages, model, temperature, max_tokens } = body;
+    
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json(
+        { error: 'Messages are required and must be an array' },
+        { status: 400 }
+      );
+    }
+    
+    const response = await getChatCompletion(messages, {
+      model,
+      temperature,
+      max_tokens,
+    });
+    
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error('Error calling OpenAI:', error);
+    
+    // Handle rate limiting errors
+    if (error?.status === 429) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: error?.message || 'Error calling OpenAI' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Frontend Integration
+
+### React Hook
+```typescript
+// hooks/useOpenAI.ts
+import { useState } from 'react';
+import useSWRMutation from 'swr/mutation';
+
+type Message = {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+};
+
+async function sendChatRequest(
+  url: string, 
+  { arg }: { arg: { 
+    messages: Message[], 
+    model?: string, 
+    temperature?: number,
+    max_tokens?: number 
+  }}
+) {
+  const response = await fetch('/api/openai/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(arg),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Error calling OpenAI');
+  }
+  
+  return response.json();
+}
+
+export function useOpenAI() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  
+  const { trigger, isMutating, error, data } = useSWRMutation(
+    '/api/openai/chat',
+    sendChatRequest
+  );
+  
+  const sendMessage = async (
+    content: string, 
+    options: { 
+      model?: string, 
+      temperature?: number,
+      max_tokens?: number,
+      systemMessage?: string
+    } = {}
+  ) => {
+    const newMessages = [...messages];
+    
+    // Add system message if provided and not already present
+    if (options.systemMessage && !messages.some(m => m.role === 'system')) {
+      newMessages.unshift({ role: 'system', content: options.systemMessage });
+    }
+    
+    // Add user message
+    newMessages.push({ role: 'user', content });
+    setMessages(newMessages);
+    
+    const response = await trigger({
+      messages: newMessages,
+      model: options.model,
+      temperature: options.temperature,
+      max_tokens: options.max_tokens,
+    });
+    
+    // Add assistant response
+    const assistantMessage = response.choices[0]?.message;
+    if (assistantMessage) {
+      setMessages([...newMessages, assistantMessage]);
+    }
+    
+    return response;
+  };
+  
+  return {
+    messages,
+    setMessages,
+    sendMessage,
+    isLoading: isMutating,
+    error,
+    data,
+  };
+}
+```
+
+### Usage Example
+```tsx
+// components/AIAssistant.tsx
+import { useState } from 'react';
+import { useOpenAI } from '@/hooks/useOpenAI';
+
+export function AIAssistant() {
+  const [input, setInput] = useState('');
+  const { messages, sendMessage, isLoading } = useOpenAI();
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    
+    try {
+      await sendMessage(input, {
+        systemMessage: 'You are a helpful assistant for Texonica Dashboard users.',
+        temperature: 0.7,
+      });
+      setInput('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+  
+  return (
+    <div className="ai-assistant">
+      <div className="message-container">
+        {messages.filter(m => m.role !== 'system').map((message, index) => (
+          <div key={index} className={`message ${message.role}`}>
+            {message.content}
+          </div>
+        ))}
+        {isLoading && <div className="loading">Thinking...</div>}
+      </div>
+      
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask a question..."
+          disabled={isLoading}
+        />
+        <button type="submit" disabled={isLoading || !input.trim()}>
+          Send
+        </button>
+      </form>
+    </div>
+  );
+}
+```
+
+## Rate Limiting Implementation
+```typescript
+// lib/api/rate-limiter.ts
+import { LRUCache } from 'lru-cache';
+
+type RateLimitOptions = {
+  uniqueTokenPerInterval?: number;
+  interval?: number;
+};
+
+export default function getRateLimiter({
+  uniqueTokenPerInterval = 500,
+  interval = 60000, // 1 minute
+}: RateLimitOptions = {}) {
+  const tokenCache = new LRUCache<string, number[]>({
+    max: uniqueTokenPerInterval,
+    ttl: interval,
+  });
+
+  return {
+    check: (token: string, limit: number) => {
+      const tokenCount = tokenCache.get(token) || [];
+      const currentTime = Date.now();
+      const timeWindow = currentTime - interval;
+      
+      // Filter out timestamps that are older than the current interval
+      const recentRequests = tokenCount.filter(timestamp => timestamp > timeWindow);
+      
+      // Check if the token count is less than the limit
+      const isRateLimited = recentRequests.length >= limit;
+      
+      if (!isRateLimited) {
+        // Add the current timestamp to the existing records and store it
+        tokenCache.set(token, [...recentRequests, currentTime]);
+      }
+      
+      return {
+        isRateLimited,
+        limit,
+        remaining: Math.max(0, limit - recentRequests.length),
+        reset: new Date(currentTime + interval),
+      };
+    },
+  };
+}
+```
+
+## Telemetry Integration
+```typescript
+// lib/api/telemetry.ts (extend existing file)
+
+// Track OpenAI token usage
+export function trackOpenAIUsage(model: string, tokens: { input: number, output: number }) {
+  // Implementation depends on existing telemetry structure
+  const telemetry = getTelemetry();
+  
+  if (!telemetry.llmUsage.openai) {
+    telemetry.llmUsage.openai = {};
+  }
+  
+  if (!telemetry.llmUsage.openai[model]) {
+    telemetry.llmUsage.openai[model] = { 
+      totalInputTokens: 0, 
+      totalOutputTokens: 0,
+      requestCount: 0,
+    };
+  }
+  
+  const modelStats = telemetry.llmUsage.openai[model];
+  modelStats.totalInputTokens += tokens.input;
+  modelStats.totalOutputTokens += tokens.output;
+  modelStats.requestCount += 1;
+  
+  saveTelemetry(telemetry);
+}
+```
+
+## Best Practices
+1. **Prompt Engineering**: 
+   - Be specific and clear with instructions
+   - Use system messages to define the assistant's behavior
+   - Use temperature parameter to control creativity (lower for factual responses)
+
+2. **Error Handling**:
+   - Handle timeouts appropriately (OpenAI API can sometimes be slow)
+   - Implement retries with exponential backoff
+   - Provide meaningful error messages to users
+
+3. **Performance**:
+   - Cache responses when appropriate
+   - Consider using streaming for long responses
+   - Choose the right model for the task (smaller models for simple tasks)
+
+4. **Cost Management**:
+   - Monitor token usage
+   - Set maximum token limits
+   - Use cheaper models when possible
+
+5. **Security**:
+   - Never expose API keys in client-side code
+   - Validate and sanitize user inputs
+   - Be cautious with user-provided prompts
+
+## Model Selection Guide
+- **GPT-4o**: Best quality for complex tasks, most expensive
+- **GPT-3.5-Turbo**: Good balance of quality and cost for most tasks
+- **GPT-3.5-Turbo-Instruct**: For simpler completion tasks
+- **text-embedding-3-small**: For generating embeddings (vector representations)
+
+## Token Usage Estimates
+- GPT-4o: ~$0.005 / 1K input tokens, ~$0.015 / 1K output tokens
+- GPT-3.5-Turbo: ~$0.0005 / 1K input tokens, ~$0.0015 / 1K output tokens
+- text-embedding-3-small: ~$0.00002 / 1K tokens 

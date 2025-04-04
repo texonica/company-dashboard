@@ -111,6 +111,38 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Decision: Create review interface with AI-powered suggestion logic using Gemini API
   - Implementation Notes: Implement batch processing for similar transactions and maintain audit trail
 
+### Phase 3.5: Monitoring and Observability (New)
+- [x] Design telemetry system for API usage tracking
+  - Discussion: How to monitor API usage, performance, and costs?
+  - Decision: Implement middleware-based telemetry with memory storage
+  - Implementation Notes: Created src/middleware.ts with API request tracking and src/lib/api/telemetry.ts for data collection
+- [x] Implement LLM usage monitoring
+  - Discussion: How to track Gemini API costs and performance?
+  - Decision: Create specialized monitoring for token usage and costs
+  - Implementation Notes: Added LLM usage tracking in telemetry module
+- [ ] Set up Grafana integration
+  - Discussion: What metrics are most important to visualize?
+  - Decision: Focus on API performance, cache effectiveness, rate limits, and LLM costs
+  - Implementation Notes: Planning metrics export for Grafana dashboards
+- [ ] Implement server-side caching metrics
+  - Discussion: How to measure cache hit rates and performance impacts?
+  - Decision: Add cache tracking to middleware telemetry
+  - Implementation Notes: Design cache tracking with hit/miss counters and performance gains
+- [ ] Create monitoring dashboards
+  - Discussion: What specific views are needed for operations monitoring?
+  - Decision: Create dedicated dashboards for:
+    • API performance and rate limits
+    • LLM usage and costs
+    • Cache effectiveness
+    • Error rates and types
+  - Implementation Notes: Design Grafana dashboard templates
+
+### Phase 3.6: Payment Processing (Current)
+- [ ] Implement payment processing logic
+  - Discussion: How to handle payment processing across different payment systems?
+  - Decision: Implement payment processing logic in backend services
+  - Implementation Notes: Planning implementation with payment gateway integration
+
 ### Phase 4: Additional Department Panels (Planned)
 - [ ] Marketing performance dashboard
   - Discussion: What metrics should be included for marketing insights?
@@ -191,4 +223,12 @@ We're developing API endpoints for payments and subscriptions, with plans to imp
 | 4/3/2023 | Custom ClickUp client | Better handling of rate limits and error responses | Using third-party client |
 | 4/4/2023 | Custom Gemini client | Model selection flexibility and secure credential handling | Using third-party client |
 | 4/4/2023 | Comprehensive rate limiting | Prevent API quota issues across all external services | Independent rate limiting per API |
-| 4/4/2023 | AI-powered transaction categorization | Automate financial data processing with high accuracy | Manual categorization, rule-based system | 
+| 4/4/2023 | AI-powered transaction categorization | Automate financial data processing with high accuracy | Manual categorization, rule-based system |
+
+TEMPORARY_API_KEY=your_secure_random_string
+NEXT_PUBLIC_TEMPORARY_API_KEY=your_secure_random_string 
+
+import { recordLLMUsage } from '@/lib/api/telemetry';
+
+// After a successful Gemini API call
+recordLLMUsage('/api/gemini/completion', 'gemini-1.5-pro', promptTokens, completionTokens, estimatedCost); 

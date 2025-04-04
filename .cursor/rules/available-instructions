@@ -1,0 +1,20 @@
+{
+  "aitable-rules": {
+    "description": "The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, datasheets, attachments, spaces, and contacts.",
+    "globs": ["**/aitable/**", "**/api/aitable/**", "**/aitable-*.{ts,js}", "**/aitable*.{ts,js}", "**/lib/api/aitable.ts"]
+  },
+  "gemini-rules": {
+    "description": "Google Gemini AI integration guidelines and usage patterns",
+    "globs": ["**/lib/api/gemini.ts", "**/app/api/gemini/**/*", "**/hooks/useGemini.ts"]
+  },
+  "openai-rules": {
+    "description": "OpenAI API integration guidelines and usage patterns for the Texonica Business Dashboard",
+    "globs": ["**/lib/api/openai.ts", "**/app/api/openai/**/*", "**/hooks/useOpenAI.ts", "**/openai*.{ts,js}", "**/components/AI*.{tsx,jsx}"]
+  },
+  "txo-dashboard-rules": {
+    "description": "Main rules for the Texonica Business Dashboard"
+  },
+  "txo-ux-rules": {
+    "description": "UX guidelines for the Texonica Business Dashboard"
+  }
+} 

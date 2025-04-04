@@ -60,6 +60,21 @@
   - Caching strategy using SWR pattern
   - Request prioritization framework
 - Enhanced existing components with improved error handling and loading states
+- Implemented monitoring and observability features:
+  - Created middleware-based telemetry system in src/middleware.ts
+  - Added API request tracking across all external services
+  - Implemented LLM usage monitoring for Gemini API
+  - Built telemetry data collection in src/lib/api/telemetry.ts
+  - Added token usage and cost tracking for AI operations
+- Expanded leadgen API routes with specialized endpoints:
+  - Created /api/leadgen/crm/future for upcoming opportunities
+  - Created /api/leadgen/crm/now for current opportunities
+  - Created /api/leadgen/crm/won for completed deals
+  - Created /api/leadgen/crm/[id] for single record operations
+  - Created /api/leadgen/uw for UW-specific leadgen metrics
+  - Created /api/leadgen/fvr for FVR-specific leadgen metrics
+  - Added authentication bypass in development mode for testing
+  - Implemented comprehensive error handling with proper status codes
 
 ## Current Status
 The project is in the active implementation phase with multiple parallel development streams. We have established the core architecture and implemented the main dashboard for Texonica.com displaying active projects. The backend API infrastructure is in place with secure integrations to AITable.ai, ClickUp, and Google Gemini API, all properly configured with comprehensive error handling.
@@ -68,7 +83,9 @@ The ActiveProjects component has been enhanced with team-based grouping, sorting
 
 We've implemented direct interaction with AITable records through DatePickerInput, URLInput, and AITableViewButton components. ClickUp API integration enables task management capabilities with proper rate limit handling. Google Gemini API integration provides AI capabilities for planned features like transaction categorization and insights generation.
 
-We've designed a comprehensive rate limiting strategy to optimize API usage across all external services. We're now working on financial tracking features with API endpoints for payments and subscriptions, CSV import functionality for Xolo financial data, and AI-powered transaction categorization using the Gemini API.
+We've designed a comprehensive rate limiting strategy to optimize API usage across all external services. We've also implemented a telemetry system for API usage tracking and LLM cost monitoring. We're now working on financial tracking features with API endpoints for payments and subscriptions, CSV import functionality for Xolo financial data, and AI-powered transaction categorization using the Gemini API.
+
+Recent logs show active development and usage of the leadgen API routes, particularly for the crm/future and uw endpoints, with successful telemetry tracking of API requests. The authentication bypass for development mode is working as expected, facilitating testing of these endpoints.
 
 ## What Works
 - Documentation structure established with comprehensive Memory Bank
@@ -114,6 +131,19 @@ We've designed a comprehensive rate limiting strategy to optimize API usage acro
   - Backend proxy routes
   - Model selection capabilities
 - Comprehensive rate limiting strategy design
+- Monitoring and observability features:
+  - Middleware-based telemetry system
+  - API request tracking for all external services
+  - LLM usage monitoring with token and cost tracking
+  - Memory-based storage for telemetry data
+- Leadgen API routes with specialized endpoints:
+  - CRM future opportunities endpoint
+  - CRM current opportunities endpoint
+  - CRM completed deals endpoint
+  - UW leadgen metrics endpoint
+  - FVR leadgen metrics endpoint
+  - Authentication bypass in development mode
+  - Error handling with proper status codes
 
 ## What's Left
 - Complete payments and subscriptions API implementation
@@ -126,12 +156,21 @@ We've designed a comprehensive rate limiting strategy to optimize API usage acro
   - Transaction categorization
   - Project summary generation
   - Financial insights and recommendations
+- Implement additional LLM providers:
+  - Claude integration
+  - OpenAI integration
+  - Middleware abstraction for unified LLM interface
 - Implement the full rate limiting strategy:
   - Request throttling/queuing
   - Retry logic with exponential backoff
   - Batch request processing
   - Comprehensive caching
   - Request prioritization
+- Enhance monitoring capabilities:
+  - Set up Grafana integration
+  - Create monitoring dashboards
+  - Implement server-side caching metrics
+  - Add performance tracking for API operations
 - Add months active calculation based on start date
 - Implement additional sorting and filtering options
 - Enhance leadgen metrics visualizations with export functionality
@@ -153,6 +192,7 @@ We've designed a comprehensive rate limiting strategy to optimize API usage acro
   - Advanced analytics
   - Alerts and notifications
   - Mobile optimization
+- Optimize leadgen data retrieval performance for different time-based views
 
 ## Known Issues
 - Need to implement proper caching to prevent API rate limiting (AITable, ClickUp, Gemini)
@@ -172,4 +212,9 @@ We've designed a comprehensive rate limiting strategy to optimize API usage acro
 - Missing testing infrastructure
 - Performance optimization needed for chart components with large datasets
 - Gemini API integration needs proper prompt engineering
-- Need to implement error recovery strategies for API failures 
+- Need to implement error recovery strategies for API failures
+- Lacking visualizations for API usage and performance metrics
+- No centralized dashboard for monitoring API operations
+- Need to optimize LLM usage for cost efficiency
+- Leadgen API route performance needs optimization for large datasets
+- Relation field resolution (client and media buyer) needs performance improvement 

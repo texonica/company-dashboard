@@ -123,7 +123,14 @@ The system implements several API routes to securely interact with external serv
    - **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
    - **Clients Route** (`/api/clients`): Fetches client information
    - **Leadgen Route** (`/api/leadgen`): Fetches lead generation metrics data
-   - **Leadgen CRM Route** (`/api/leadgen/crm/[id]`): Updates CRM fields in leadgen records
+     - **Leadgen CRM Routes**:
+       - `/api/leadgen/crm/future`: Retrieves upcoming opportunities
+       - `/api/leadgen/crm/now`: Retrieves current opportunities
+       - `/api/leadgen/crm/won`: Retrieves completed deals
+       - `/api/leadgen/crm/[id]`: Operations on specific CRM records
+     - **Leadgen Metrics Routes**:
+       - `/api/leadgen/uw`: Retrieves UW-specific leadgen metrics
+       - `/api/leadgen/fvr`: Retrieves FVR-specific leadgen metrics
    - **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
 
 2. **ClickUp API Routes**:
@@ -160,6 +167,47 @@ The system implements several API routes to securely interact with external serv
      - Track subscription status and renewal information
      - Integrate with Chargebee (planned)
      - Associate subscriptions with clients and projects
+
+## Monitoring and Telemetry System
+The system implements comprehensive monitoring and telemetry to track API usage, performance, and costs:
+
+1. **Middleware-Based Telemetry**:
+   - Implemented in src/middleware.ts
+   - Intercepts all API requests for tracking
+   - Records request metadata (path, method, timestamp)
+   - Tracks response status and duration
+   - Stores telemetry data in memory-based storage
+   - Provides API for querying telemetry data
+   - Authentication bypass detection for development mode
+
+2. **API Telemetry Collection**:
+   - Implemented in src/lib/api/telemetry.ts
+   - Records API request patterns across all services
+   - Tracks rate limit approaches and hits
+   - Monitors cache effectiveness with hit/miss counters
+   - Provides aggregated usage statistics
+   - Support for custom telemetry events
+
+3. **LLM Usage Monitoring**:
+   - Specialized tracking for AI operations
+   - Token usage counters (prompt and completion)
+   - Cost estimation based on model and token usage
+   - Performance metrics for AI operations
+   - Usage pattern analysis for optimization
+
+4. **Logging System**:
+   - Structured logging for API operations
+   - Error logging with contextual information
+   - Debug mode toggling for development
+   - Environment-specific log levels
+
+5. **Planned Monitoring Dashboard**:
+   - Grafana integration for visualization
+   - API performance dashboards
+   - Cache effectiveness metrics
+   - Rate limit usage tracking
+   - LLM cost management tools
+   - Error rate and pattern analysis
 
 ## Home Page Architecture
 The home page is built with these key components:
