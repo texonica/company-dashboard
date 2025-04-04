@@ -13,6 +13,7 @@ alwaysApply: true
 - Follow Next.js 13+ App Router conventions
 - We use aitable.ai as a database with our own API implementation in `src/lib/api/aitable.ts`
 - We use ClickUp API for task management with our own implementation in `src/lib/clickup/`
+- We use Google Gemini API for AI capabilities with our implementation in `src/lib/api/gemini.ts`
 - API-specific rules are conditionally loaded when working on relevant files
 - All API calls must go through our backend API endpoints to protect credentials
 - We want to have high security. APIs are contacted only through backend.
@@ -24,6 +25,7 @@ alwaysApply: true
 - Conditional rules are available for specific APIs:
   - AITable API: See `.cursor/rules/aitable-rules.mdc` (loads when working with AITable files)
   - ClickUp API: See `.cursor/rules/clickup-rules.mdc` (loads when working with ClickUp files)
+  - Gemini API: See `.cursor/rules/gemini-rules.mdc` (loads when working with Gemini AI files)
   - UX Guidelines: See `.cursor/rules/txo-ux-rules.mdc` (loads when working with UI components)
 - The MCP integration for APIs is ONLY for debugging and development, never for production code
 
@@ -55,6 +57,7 @@ alwaysApply: true
 - Handle data fetching in dedicated API directories:
   - AITable: `src/lib/api/aitable.ts`
   - ClickUp: `src/lib/clickup/`
+  - Gemini AI: `src/lib/api/gemini.ts`
 - Process metrics in `src/lib/metrics.ts`
 
 ## File References
@@ -63,6 +66,7 @@ alwaysApply: true
 @file:src/lib/config.ts
 @file:src/lib/api/aitable.ts
 @file:src/lib/clickup/index.ts
+@file:src/lib/api/gemini.ts
 
 ## Project Structure
 Follow the established directory structure:
@@ -71,11 +75,13 @@ src/
 ├── app/                    # Next.js 13+ app directory
 │   ├── api/                # API routes for backend operations
 │   │   ├── projects/       # AITable projects API endpoint
-│   │   └── clickup/        # ClickUp API endpoint
+│   │   ├── clickup/        # ClickUp API endpoint
+│   │   └── gemini/         # Gemini AI API endpoint
 ├── components/             # Reusable UI components
 └── lib/                    # Core logic and utilities
     ├── api/                # API client implementations
-    │   └── aitable.ts      # AITable API client
+    │   ├── aitable.ts      # AITable API client
+    │   └── gemini.ts       # Gemini AI API client
     └── clickup/            # ClickUp API client
 ```
 

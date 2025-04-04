@@ -1,0 +1,331 @@
+---
+description: description: "Google Gemini AI integration guidelines and usage patterns" globs: "**/lib/api/gemini.ts,**/app/api/gemini/**/*,**/hooks/useGemini.ts"
+globs: 
+alwaysApply: false
+---
+---
+description: "Google Gemini AI integration guidelines and usage patterns"
+globs: "**/lib/api/gemini.ts,**/app/api/gemini/**/*,**/hooks/useGemini.ts"
+alwaysApply: false
+---
+ # Gemini AI Integration - AI Rules
+
+## Model Selection Guide
+
+### Available Models and Use Cases
+
+| Model Name | Best Use Cases | When Not to Choose | Cost (Paid Tier) |
+|------------|----------------|-------------------|------------------|
+| `gemini-2.0-flash` | General purpose, voice AI (with Live API), multimodal input & output (preview), agentic capabilities, coding, function calling, large context data analytics, video editing workflows. | Simple, high-frequency text tasks (might be more expensive than Flash-Lite). | Input: Text/Image/Video: $0.10 / 1M tokens, Audio: $0.70 / 1M tokens. Output: $0.40 / 1M tokens. |
+| `gemini-2.0-flash-lite` | High-frequency, low-latency tasks, cost-sensitive applications, chatbots, text processing, voice AI. | Applications needing image/audio output, search or code execution as a tool, Multimodal Live API. | Input: $0.075 / 1M tokens. Output: $0.30 / 1M tokens. |
+| `gemini-2.5-pro-exp-03-25` | Complex reasoning, advanced coding, code transformation/editing, handling vast datasets, creative coding, data visualization, complex simulations. | Applications requiring high stability (experimental model), production apps needing guaranteed low latency, compositional function calling. | Currently free in Google AI Studio (pricing expected in the future). |
+| `gemini-1.5-pro` | Analyzing large documents, long conversations, understanding multimodal input (audio, video, image, text) within a large context, complex information retrieval, function calling, vector search. | Applications needing the absolute latest features of Gemini 2.0 or non-text output (e.g., image generation). | Pricing varies; consult Google AI pricing page. Video input free until July 2024 (for early testing). |
+
+### Selection Criteria
+
+- **For general-purpose applications**: Use `gemini-2.0-flash` when you need a balance of performance and features, including multimodal capabilities and real-time processing.
+- **For cost-sensitive, high-frequency tasks**: Use `gemini-2.0-flash-lite` when prioritizing speed, efficiency, and cost-effectiveness for text-based tasks.
+- **For advanced reasoning and complex problems**: Use `gemini-2.5-pro-exp-03-25` when you need cutting-edge performance for complex reasoning, coding, and data handling (note its experimental status).
+- **For large context analysis**: Use `gemini-1.5-pro` when your application depends on analyzing very large contexts or processing diverse multimodal inputs.
+
+### Implementation Example
+
+```typescript
+import { geminiClient } from '@/lib/api/gemini';
+
+// Choose model based on task requirements
+export async function generateWithOptimalModel(prompt: string, task: 'general' | 'simple' | 'complex' | 'largeContext') {
+  let model = 'gemini-2.0-flash'; // Default model
+  
+  switch (task) {
+    case 'simple':
+      model = 'gemini-2.0-flash-lite'; // Optimized for cost and speed
+      break;
+    case 'complex':
+      model = 'gemini-2.5-pro-exp-03-25'; // Advanced reasoning capabilities
+      break;
+    case 'largeContext':
+      model = 'gemini-1.5-pro'; // Best for large context windows
+      break;
+    default:
+      model = 'gemini-2.0-flash'; // General purpose
+  }
+  
+  return await geminiClient.generateContent(prompt, model);
+}
+```
+
+## General Guidelines
+
+- Always use the server-side implementation for Gemini API calls
+- Never expose API keys in client-side code
+- Use the provided hooks and components for client-side interactions
+- All requests must go through the backend API endpoints
+- Follow rate limiting best practices to avoid API usage issues
+- Use proper error handling for all Gemini API interactions
+- Document all prompts and AI interactions for maintenance
+
+## Implementation Details
+
+- Server-side client: `src/lib/api/gemini.ts`
+- API routes: `src/app/api/gemini/`
+- Client hooks: `src/lib/hooks/useGemini.ts`
+
+## API Key Management
+
+- Store the API key in environment variables (`GEMINI_API_KEY`)
+- For local development, use `.env.local`
+- For production, set up secure environment variables in your hosting platform
+- Never commit API keys to version control
+
+## Common Use Cases
+
+### 1. Simple Text Generation
+
+```typescript
+// Server-side implementation
+import { geminiClient } from '@/lib/api/gemini';
+
+export async function generateContent(prompt: string) {
+  return await geminiClient.generateContent(prompt);
+}
+
+// Client-side usage with hooks
+import { useGemini } from '@/lib/hooks/useGemini';
+
+function MyComponent() {
+  const { generateContent, isLoading, error } = useGemini();
+  
+  const handleGenerate = async () => {
+    try {
+      const response = await generateContent("Explain quantum computing in simple terms");
+      console.log(response);
+    } catch (error) {
+      console.error("Failed to generate content:", error);
+    }
+  };
+  
+  return (
+    <div>
+      <button onClick={handleGenerate} disabled={isLoading}>
+        {isLoading ? 'Generating...' : 'Generate Response'}
+      </button>
+      {error && <p className="text-red-500">{error}</p>}
+    </div>
+  );
+}
+```
+
+### 2. Chat Interface
+
+```typescript
+// Client-side chat implementation
+import { useGemini } from '@/lib/hooks/useGemini';
+import { useState } from 'react';
+
+function ChatComponent() {
+  const { sendChatMessage, chatHistory, resetChat, isLoading } = useGemini();
+  const [message, setMessage] = useState('');
+  
+  const handleSend = async () => {
+    if (!message.trim()) return;
+    
+    try {
+      await sendChatMessage(message);
+      setMessage('');
+    } catch (error) {
+      console.error("Chat error:", error);
+    }
+  };
+  
+  return (
+    <div>
+      <div className="chat-history">
+        {chatHistory.map((msg, i) => (
+          <div key={i} className={`message ${msg.role}`}>
+            {msg.parts[0].text}
+          </div>
+        ))}
+      </div>
+      
+      <div className="input-area">
+        <input 
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          disabled={isLoading}
+        />
+        <button onClick={handleSend} disabled={isLoading}>
+          Send
+        </button>
+        <button onClick={resetChat}>Reset Chat</button>
+      </div>
+    </div>
+  );
+}
+```
+
+### 3. Processing Images
+
+```typescript
+// Server-side implementation
+import { geminiClient } from '@/lib/api/gemini';
+import * as fs from 'fs';
+
+export async function analyzeImage(imagePath: string, prompt: string) {
+  const imageData = fs.readFileSync(imagePath);
+  const base64Image = Buffer.from(imageData).toString('base64');
+  
+  const imageObj = {
+    inlineData: {
+      data: base64Image,
+      mimeType: "image/jpeg" // Adjust based on your image type
+    }
+  };
+  
+  return await geminiClient.generateContent([prompt, imageObj], "gemini-1.5-pro");
+}
+
+// API route implementation
+import { NextRequest, NextResponse } from 'next/server';
+import { geminiClient } from '@/lib/api/gemini';
+
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const prompt = formData.get('prompt') as string;
+    const imageFile = formData.get('image') as File;
+    
+    if (!prompt || !imageFile) {
+      return NextResponse.json({ error: 'Prompt and image are required' }, { status: 400 });
+    }
+    
+    // Convert file to base64
+    const bytes = await imageFile.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64Image = buffer.toString('base64');
+    
+    const imageObj = {
+      inlineData: {
+        data: base64Image,
+        mimeType: imageFile.type
+      }
+    };
+    
+    const response = await geminiClient.generateContent([prompt, imageObj], "gemini-1.5-pro");
+    
+    return NextResponse.json({ response });
+  } catch (error: any) {
+    console.error('Error in image analysis:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to analyze image' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Advanced Configuration
+
+### Temperature and Token Control
+
+```typescript
+// Configure model parameters for more creative or deterministic responses
+const creativeConfig = {
+  temperature: 0.9,
+  topK: 40,
+  topP: 0.95,
+  maxOutputTokens: 800,
+};
+
+const preciseConfig = {
+  temperature: 0.1,
+  topP: 0.7,
+  maxOutputTokens: 500,
+};
+
+// Example usage
+const creativeResponse = await geminiClient.generateContent(
+  "Write a short sci-fi story about AI",
+  "gemini-1.5-flash",
+  creativeConfig
+);
+
+const preciseResponse = await geminiClient.generateContent(
+  "Explain how quantum computers work",
+  "gemini-1.5-flash",
+  preciseConfig
+);
+```
+
+### Safety Settings
+
+```typescript
+// Configure safety settings
+import { HarmCategory, HarmBlockThreshold } from '@/lib/api/gemini';
+
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
+
+const response = await geminiClient.generateContent(
+  "Write a story about adventure",
+  "gemini-1.5-flash",
+  { safetySettings }
+);
+```
+
+## Performance Considerations
+
+- Implement caching for repetitive prompts
+- Use streaming responses for longer outputs when possible
+- Optimize prompt engineering for better results and lower token usage
+- Implement rate limiting to avoid API quota issues
+- Monitor API usage and optimize as needed
+
+## Error Handling
+
+Always implement proper error handling for AI interactions:
+
+```typescript
+try {
+  const response = await geminiClient.generateContent(prompt);
+  // Process successful response
+} catch (error) {
+  if (error.message.includes('rate limit')) {
+    // Handle rate limiting
+    console.error("Rate limit exceeded. Please try again later.");
+  } else if (error.message.includes('blocked')) {
+    // Handle safety filter blocks
+    console.error("Content was blocked by safety settings.");
+  } else {
+    // Handle other errors
+    console.error("An error occurred:", error.message);
+  }
+}
+```
+
+## Best Practices
+
+1. **Prompt Engineering**: Create clear, specific prompts for best results
+2. **Context Management**: Maintain appropriate context in chat applications
+3. **Error Recovery**: Implement graceful fallbacks for API failures
+4. **User Feedback**: Provide clear loading states and error messages
+5. **Security**: Never expose API keys, always proxy through backend
+6. **Testing**: Test AI responses for edge cases and unexpected inputs
+7. **Performance**: Optimize token usage and implement caching where appropriate
+8. **Documentation**: Document all prompts and expected behaviors

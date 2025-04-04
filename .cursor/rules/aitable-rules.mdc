@@ -1,5 +1,5 @@
 ---
-description: AITable API integration guidelines and usage patterns
+description: @load-when path="**/aitable/**" or path="**/api/aitable/**" or path="**/aitable-*.{ts,js}" or path="**/aitable*.{ts,js}" or path="**/lib/api/aitable.ts"  The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, datasheets, attachments, spaces, and contacts.
 globs: 
 alwaysApply: false
 ---

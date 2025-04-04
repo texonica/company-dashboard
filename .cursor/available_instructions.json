@@ -1,0 +1,27 @@
+{
+  "txo-dashboard-rules": {
+    "description": "Main rules for the Texonica Business Dashboard",
+    "path": ".cursor/rules/txo-dashboard-rules.mdc",
+    "glob": "**/*"
+  },
+  "aitable-rules": {
+    "description": "AITable API integration guidelines and usage patterns",
+    "path": ".cursor/rules/aitable-rules.mdc",
+    "glob": "**/lib/api/aitable.ts,**/app/api/aitable*/**/*,**/app/api/projects/**/*"
+  },
+  "clickup-rules": {
+    "description": "ClickUp API integration guidelines and usage patterns",
+    "path": ".cursor/rules/clickup-rules.mdc",
+    "glob": "**/lib/clickup/**/*,**/app/api/clickup/**/*"
+  },
+  "gemini-rules": {
+    "description": "Google Gemini AI integration guidelines and usage patterns",
+    "path": ".cursor/rules/gemini-rules.mdc",
+    "glob": "**/lib/api/gemini.ts,**/app/api/gemini/**/*,**/hooks/useGemini.ts"
+  },
+  "txo-ux-rules": {
+    "description": "UX guidelines for the Texonica Business Dashboard",
+    "path": ".cursor/rules/txo-ux-rules.mdc",
+    "glob": "**/components/**/*"
+  }
+} 

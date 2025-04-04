@@ -10,14 +10,14 @@ We have recently added several new components to improve data entry and interact
 
 The ActiveProjects component has been enhanced and connected to the backend API, displaying sorted and grouped project information by team. We have implemented UWLeadgenMetricsChart and FVRLeadgenMetricsChart for interactive visualization of lead generation metrics with flexible display options.
 
-We're now focusing on financial tracking features, with API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
+We're now focusing on financial tracking features, with API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap. This includes developing interfaces for CSV import of Xolo financial data, implementing the financial reporting panels, and creating AI/ML capabilities for transaction categorization.
 
 ## Recent Changes
-- Added DatePickerInput component for intuitive date selection
-- Added URLInput component for URL field editing with nested field support
-- Added AITableViewButton component for direct access to AITable records
+- Added DatePickerInput component for intuitive date selection with calendar interface
+- Added URLInput component for URL field editing with nested field support and popover interface
+- Added AITableViewButton component for direct access to AITable records in new browser tabs
 - Enhanced CRMStageDropdown component for improved project management
-- Updated StageDropdown component for better user interaction
+- Updated StageDropdown component for better user interaction with loading state feedback
 - Updated Navigation component with improved layout and functionality
 - Implemented backend API routes for payments and subscriptions
 - Set up AITable.ai API integration with secure token handling via environment variables
@@ -30,19 +30,18 @@ We're now focusing on financial tracking features, with API endpoints for paymen
   - Stage visualization with color coding
   - Sorting by start date
 - Implemented DashboardContent component for the main dashboard layout
-- Integrated ActiveProjects into the main dashboard
 - Created UWLeadgenMetricsChart and FVRLeadgenMetricsChart components with:
-  - Weekly and monthly view modes
+  - Weekly and monthly view modes with toggle switch
   - Categorized metrics display (Funnel, Financial, Conversion Rates)
   - Interactive metric toggles with color coding
-  - Date range filtering
-  - Dynamic data aggregation
-  - Responsive visualization
+  - Date range filtering with DateRangeSelector component
+  - Dynamic data aggregation based on view mode
+  - Responsive visualization with error handling
 - Implemented ClickUp API integration with:
   - Secure backend proxying through API routes
-  - Proper type definitions
+  - Proper type definitions and error handling
+  - Rate limit management (100 requests per minute)
   - Example code for common operations
-  - API client with comprehensive error handling
 - Started implementation of financial tracking features with:
   - New API endpoints for payments and subscriptions
   - Initial setup for the PnL tracking system
@@ -50,11 +49,14 @@ We're now focusing on financial tracking features, with API endpoints for paymen
 
 ## Next Steps
 - Complete the payments and subscriptions API endpoints
-- Implement CSV import functionality for financial data (Xolo)
+- Implement CSV import functionality for financial data (Xolo format)
 - Create the financial reporting panels with:
   - Gross margin calculation at project, team, and company levels
   - Project count visualization per team
   - PnL reporting with multi-level analysis
+- Develop AI/ML models for transaction categorization
+- Build subscription tracking interface with Chargebee integration
+- Create financial reconciliation workflow
 - Enhance the active projects display with:
   - Months active calculation based on start date
   - Additional filtering options
@@ -62,13 +64,13 @@ We're now focusing on financial tracking features, with API endpoints for paymen
   - Better error state handling
 - Implement authentication with Firebase
 - Set up role-based access control
+- Optimize data fetching with SWR caching
 - Add additional data visualizations for key metrics
-- Optimize data fetching to minimize API calls
-- Implement caching strategy for AITable and ClickUp data
-- Develop detailed client views
-- Integrate ClickUp task data with project management views
-
-*For detailed roadmap and implementation discussions, see [roadmap.md](roadmap.md)*
+- Implement testing infrastructure
+- Create detailed client views
+- Implement export functionality
+- Integrate ClickUp tasks with project management views
+- Set up proper caching to prevent API rate limiting (both AITable and ClickUp)
 
 ## Active Decisions
 We need to determine the best approach for:
@@ -87,6 +89,7 @@ We need to determine the best approach for:
 - Additional metrics to include in the leadgen visualizations
 - Best approach for data aggregation in monthly view mode
 - Integrating ClickUp tasks with project management workflow
+- Rate limiting strategy implementation for AITable and ClickUp APIs
 
 ## Open Questions
 - What is the most efficient way to import and parse Xolo CSV data?
@@ -102,4 +105,6 @@ We need to determine the best approach for:
 - What additional leadgen metrics would be valuable to display?
 - What level of data aggregation should happen on the backend vs. frontend?
 - Should we add drill-down capabilities to charts for more detailed analysis?
-- How should we integrate ClickUp tasks with project views? 
+- How should we integrate ClickUp tasks with project views?
+- What's the best approach for implementing API rate limiting to avoid hitting AITable and ClickUp limits?
+- How should we optimize the performance of chart components with large datasets? 

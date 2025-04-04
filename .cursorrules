@@ -4,6 +4,7 @@
 - Private data security is a top priority in all implementation decisions
 - Backend must proxy all AITable.ai API requests to protect API keys and credentials
 - Backend must also proxy all ClickUp API requests to protect API tokens and credentials
+- Backend must also proxy all Google Gemini API requests to protect API keys
 - Financial data requires special handling and validation
 - Component-based architecture should be followed for maintainability
 - Responsive design is required for all UI elements
@@ -12,6 +13,8 @@
 - Projects are grouped by team and sorted by start date
 - Projects are filtered to show only "Launched" and "Onboarding" stages
 - Leadgen metrics components share patterns but have customizations for specific data structures
+- Component state management uses useState with memoization for performance optimization
+- Date range selection is implemented using a reusable DateRangeSelector component
 
 ## User Preferences
 - Clear, intuitive data visualization is preferred over complex displays
@@ -24,10 +27,14 @@
 - Color-coded status indicators for different project stages
 - Proper error handling with user-friendly messages
 - Consistent visualization formats between similar data types
+- Calendar interface for date field editing is preferred over text input
+- Popover interfaces for form inputs to maximize space efficiency
+- Loading indicators during API operations for better user feedback
 
 ## Known Challenges
 - AITable.ai API may have rate limits that need to be managed
 - ClickUp API has rate limits (100 requests per minute per token) that must be respected
+- Google Gemini API has quota limits that need to be managed
 - Private financial data requires secure handling throughout the application
 - Different user roles need different levels of data access
 - Performance optimization for potentially large datasets
@@ -37,11 +44,15 @@
 - Calculating and displaying months active based on start date
 - Integrating ClickUp task data with project management workflow
 - Date parsing from Title fields in leadgen components needs optimization
+- Managing many-to-many relationships between payments and projects
+- CSV import for Xolo financial data with transaction categorization
+- Chart rendering performance with large datasets and multiple metrics
 
 ## Implementation Notes
 - Authentication must be implemented at both frontend and backend
 - API requests to AITable.ai should be cached when appropriate
 - API requests to ClickUp should be cached when appropriate
+- API requests to Gemini API should be cached when appropriate
 - Error handling should be robust and user-friendly with specific status codes
 - Testing should cover security scenarios extensively
 - Code organization should follow clear separation of concerns
@@ -51,12 +62,21 @@
 - Team-based grouping uses the team_lookup field from AITable
 - Shared component patterns between leadgen metrics components
 - Date range selection component used across multiple data visualization components
+- Team-based filtering will be implemented to allow view management by team
+- Server-side processing preferred for complex data operations
+- Performance profiling needed for chart components with large datasets
+- Implementing reusable chart components with configurable rendering options
+- Using DatePickerInput for intuitive date field editing
+- Using URLInput for URL field editing with validation
+- Using AITableViewButton for direct AITable record access
 
 ## API Integration Rules
 - AITable API: See aitable-rules.mdc for detailed usage guidelines
 - ClickUp API: See clickup-rules.mdc for detailed usage guidelines and examples
+- Gemini API: See gemini-rules.mdc for detailed usage guidelines and examples
 - Rate limit handling for ClickUp API is critical (100 requests per minute)
 - Both AITable and ClickUp credentials must be protected via backend proxying
+- Gemini API credentials must be protected via backend proxying
 
 ## Evolution of Decisions
 - Starting with focus on active projects display on home page
@@ -68,12 +88,46 @@
 - Implementing relation field resolution on the backend for better performance
 - Moving from individual component state to more centralized data management
 - Added ClickUp integration for task management capabilities
+- Added Gemini AI integration for AI-powered features
 - Created shared patterns between leadgen metrics components for consistency 
-- Planned API rate limiting strategy (to be implemented) with the following components:
-  - Request throttling/queuing system
-  - Retry logic with exponential backoff
-  - Batch requests where possible
-  - Configurable caching with datasheet-specific TTLs
-  - Backend proxy with rate monitoring
-  - Request prioritization system
-  - Future monitoring with Grafana (planned for post-development phase) 
+- Planning to implement API rate limiting strategy with the following detailed components:
+  - Request throttling/queuing system:
+    - Implement a queue-based system to manage API request flow
+    - Set configurable concurrency limits for different API endpoints
+    - Prioritize critical requests over background operations
+  - Retry logic with exponential backoff:
+    - Implement 429 error detection for rate limit responses
+    - Add automatic retry with increasing delay between attempts
+    - Max retry attempts configurable per API endpoint
+  - Batch request processing:
+    - Combine multiple related requests where API supports it
+    - Implement custom batching for endpoints that don't natively support it
+    - Balance batch size vs. request frequency
+  - Caching strategy:
+    - Implement SWR for client-side caching with revalidation
+    - Use server-side caching for frequently accessed data
+    - Configure TTL based on data type and update frequency
+    - Implement stale-while-revalidate pattern for improved UX
+  - Backend proxy architecture:
+    - Route all API requests through Next.js API routes
+    - Implement rate monitoring and throttling at proxy level
+    - Add headers for request tracking and debugging
+  - Request prioritization:
+    - Critical user-facing requests get priority queue placement
+    - Background/admin operations handled with lower priority
+    - Allow emergency override for critical operations
+  - Performance monitoring:
+    - Track API request volume, timing, and rate limit hits
+    - Implement logging for request patterns analysis
+    - Plan for future integration with Grafana dashboards
+
+<available_instructions>
+Cursor rules are user provided instructions for the AI to follow to help work with the codebase.
+They may or may not be relevent to the task at hand. If they are, use the fetch_rules tool to fetch the full rule.
+Some rules may be automatically attached to the conversation if the user attaches a file that matches the rule's glob, and wont need to be fetched.
+
+aitable-rules: AITable API integration guidelines and usage patterns
+clickup-rules: ClickUp API integration guidelines and usage patterns 
+gemini-rules: Google Gemini AI integration guidelines and usage patterns
+txo-dashboard-rules: Main rules for the Texonica Business Dashboard
+txo-ux-rules: UX guidelines for the Texonica Business Dashboard 
