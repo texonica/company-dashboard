@@ -5,6 +5,8 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { UserRole } from '@/lib/firebase'
 import { CRMStageDropdown } from '@/components/CRMStageDropdown'
 import { DatePickerInput } from '@/components/DatePickerInput'
+import { URLInput } from '@/components/URLInput'
+import { AITableViewButton } from '@/components/AITableViewButton'
 
 interface CRMRecord {
   id: string
@@ -13,6 +15,7 @@ interface CRMRecord {
     Title?: string
     Name?: string
     Email?: string
+    Phone?: string
     Stage?: string
     Source?: string
     'Company Name'?: string
@@ -156,6 +159,27 @@ function FutureCRMPage() {
     })
   }
 
+  // Handle URL update success
+  const handleURLSuccess = (recordId: string, newURL: string) => {
+    setRecords(prevRecords => {
+      return prevRecords.map(record => {
+        if (record.id === recordId) {
+          return {
+            ...record,
+            fields: {
+              ...record.fields,
+              URL: {
+                ...(record.fields.URL || {}),
+                text: newURL
+              }
+            }
+          }
+        }
+        return record
+      })
+    })
+  }
+
   // Force refresh data functionality - useful as a fallback
   const forceRefresh = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -204,10 +228,10 @@ function FutureCRMPage() {
                         Name
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
+                        Email & Phone
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Company
+                        URL
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Stage
@@ -218,6 +242,9 @@ function FutureCRMPage() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Source
                       </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -227,10 +254,17 @@ function FutureCRMPage() {
                           {record.fields.Name || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.fields.Email || 'N/A'}
+                          <div>{record.fields.Email || 'N/A'}</div>
+                          {record.fields.Phone && <div className="text-xs text-gray-500">{record.fields.Phone}</div>}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.fields['Company Name'] || 'N/A'}
+                          <URLInput
+                            recordId={record.id}
+                            currentURL={record.fields.URL?.text}
+                            fieldName="URL.text"
+                            onSuccess={(newURL) => handleURLSuccess(record.id, newURL)}
+                            onError={handleStageError}
+                          />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <CRMStageDropdown 
@@ -251,6 +285,9 @@ function FutureCRMPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {record.fields.Source || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <AITableViewButton recordId={record.id} />
                         </td>
                       </tr>
                     ))}

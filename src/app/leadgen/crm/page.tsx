@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { UserRole } from '@/lib/firebase'
+import { URLInput } from '@/components/URLInput'
+import { AITableViewButton } from '@/components/AITableViewButton'
 
 interface CRMRecord {
   id: string
@@ -11,6 +13,7 @@ interface CRMRecord {
     Title?: string
     Name?: string
     Email?: string
+    Phone?: string
     Stage?: string
     Source?: string
     'Company Name'?: string
@@ -89,14 +92,41 @@ function CRMPage() {
     fetchCRMData()
   }, [])
 
-  // Format date from timestamp
-  const formatDate = (timestamp: number | undefined) => {
+  // Format date for display
+  const formatDate = (timestamp?: number) => {
     if (!timestamp) return 'N/A'
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  // Handle URL update success
+  const handleURLSuccess = (recordId: string, newURL: string) => {
+    setRecords(prevRecords => {
+      return prevRecords.map(record => {
+        if (record.id === recordId) {
+          return {
+            ...record,
+            fields: {
+              ...record.fields,
+              URL: {
+                ...(record.fields.URL || {}),
+                text: newURL
+              }
+            }
+          }
+        }
+        return record
+      })
+    })
+  }
+
+  // Handle error for any field updates
+  const handleUpdateError = (error: string) => {
+    setError(error)
+    setTimeout(() => setError(''), 5000) // Clear error after 5 seconds
   }
 
   return (
@@ -127,10 +157,10 @@ function CRMPage() {
                       Name
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
+                      Email & Phone
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
+                      URL
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Stage
@@ -144,6 +174,9 @@ function CRMPage() {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Last Edit
                     </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -153,10 +186,17 @@ function CRMPage() {
                         {record.fields.Name || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {record.fields.Email || 'N/A'}
+                        <div>{record.fields.Email || 'N/A'}</div>
+                        {record.fields.Phone && <div className="text-xs text-gray-500">{record.fields.Phone}</div>}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {record.fields['Company Name'] || 'N/A'}
+                        <URLInput
+                          recordId={record.id}
+                          currentURL={record.fields.URL?.text}
+                          fieldName="URL.text"
+                          onSuccess={(newURL) => handleURLSuccess(record.id, newURL)}
+                          onError={handleUpdateError}
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageClass(record.fields.Stage)}`}>
@@ -169,8 +209,11 @@ function CRMPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(record.fields.FirstCall)}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {record.fields['Last Edit'] ? formatDate(record.fields['Last Edit']) : 'N/A'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(record.fields['Last Edit'])}
+                        <AITableViewButton recordId={record.id} />
                       </td>
                     </tr>
                   ))}
