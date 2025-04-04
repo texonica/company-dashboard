@@ -46,7 +46,7 @@ Key dependencies include:
 - **UI and Styling**:
   - Tailwind CSS for responsive styling
   - TypeScript for type-safe development
-  - shadcn/ui components (Card, Button, Switch, Label)
+  - shadcn/ui components (Card, Button, Switch, Label, Popover, Input, Calendar)
 - **Data Management**:
   - SWR for data fetching with caching (planned)
   - date-fns for date/time calculations and formatting
@@ -121,6 +121,12 @@ The AITable.ai integration has been implemented with:
    - StageDropdown component for managing project stages
    - CRMStageDropdown component for advanced CRM status management
    - Integration with backend API for status updates
+
+7. **Data Input Components**:
+   - DatePickerInput component for date field editing
+   - URLInput component for URL field editing with nested field support
+   - AITableViewButton component for direct AITable record access
+   - Integration with backend API for field updates with proper loading state management
 
 ## ClickUp Integration
 The ClickUp integration has been implemented with:
@@ -207,4 +213,9 @@ The dashboard includes several data visualization components:
    - StageDropdown for managing project stages
    - CRMStageDropdown for advanced CRM integration
    - ActiveProjects for team-based project organization
-   - Navigation for intuitive app sections access 
+   - Navigation for intuitive app sections access
+
+6. **AITable Integration Components**:
+   - DatePickerInput for date field editing with calendar interface
+   - URLInput for URL field editing with validation
+   - AITableViewButton for direct AITable record access 

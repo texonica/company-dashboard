@@ -1,17 +1,25 @@
 # Active Context
 
 ## Current Focus
-We are implementing financial tracking features and enhancing the project management interface for the Texonica.com dashboard. We have established secure connections to both the AITable.ai API and ClickUp API through backend routes to retrieve and manage project, client, leadgen, and task data. The backend API routes for projects, clients, and leadgen data have been implemented with comprehensive error handling. We have added StageDropdown and CRMStageDropdown components to improve project management functionality.
+We are implementing financial tracking features and enhancing the project management interface for the Texonica.com dashboard. We have established secure connections to both the AITable.ai API and ClickUp API through backend routes to retrieve and manage project, client, leadgen, and task data. The backend API routes for projects, clients, and leadgen data have been implemented with comprehensive error handling. 
+
+We have recently added several new components to improve data entry and interaction with AITable records:
+- DatePickerInput component for date field editing
+- URLInput component for URL field editing
+- AITableViewButton component for direct AITable record access
 
 The ActiveProjects component has been enhanced and connected to the backend API, displaying sorted and grouped project information by team. We have implemented UWLeadgenMetricsChart and FVRLeadgenMetricsChart for interactive visualization of lead generation metrics with flexible display options.
 
-We're now focusing on financial tracking features, with new API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
+We're now focusing on financial tracking features, with API endpoints for payments and subscriptions being set up to support the PnL tracking system outlined in our roadmap.
 
 ## Recent Changes
-- Added CRMStageDropdown component for improved project management
-- Enhanced StageDropdown component for better user interaction
+- Added DatePickerInput component for intuitive date selection
+- Added URLInput component for URL field editing with nested field support
+- Added AITableViewButton component for direct access to AITable records
+- Enhanced CRMStageDropdown component for improved project management
+- Updated StageDropdown component for better user interaction
 - Updated Navigation component with improved layout and functionality
-- Implemented backend API routes for projects and clients with detailed error handling
+- Implemented backend API routes for payments and subscriptions
 - Set up AITable.ai API integration with secure token handling via environment variables
 - Created ActiveProjects component for displaying project information with:
   - Project titles and IDs
@@ -52,10 +60,6 @@ We're now focusing on financial tracking features, with new API endpoints for pa
   - Additional filtering options
   - Improved sorting capabilities
   - Better error state handling
-- Improve the leadgen metrics visualizations with:
-  - Additional export capabilities
-  - More comprehensive analytics
-  - Enhanced data processing
 - Implement authentication with Firebase
 - Set up role-based access control
 - Add additional data visualizations for key metrics

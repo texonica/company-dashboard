@@ -23,6 +23,8 @@ This separation ensures private data is never directly accessed from the client,
 - **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart and FVRLeadgenMetricsChart with flexible rendering options
 - **Financial Data Processing Pattern**: Planned implementation for handling CSV imports, transaction categorization, and payment-project mapping
 - **Status Management Pattern**: Implemented through StageDropdown and CRMStageDropdown components for project status management
+- **Field Editing Pattern**: Implemented through DatePickerInput, URLInput components for direct AITable field editing with loading state feedback
+- **External Link Pattern**: Implemented through AITableViewButton for direct record access in AITable
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
@@ -40,6 +42,10 @@ This separation ensures private data is never directly accessed from the client,
 - **Status Management**: 
   - StageDropdown component for managing project stages
   - CRMStageDropdown component for advanced CRM stage management
+- **Data Input Components**:
+  - DatePickerInput component for date field editing with calendar interface
+  - URLInput component for URL field editing with validation
+  - AITableViewButton component for direct AITable record access
 - **Lead Generation Metrics**: 
   - UWLeadgenMetricsChart component for UW leadgen metrics
   - FVRLeadgenMetricsChart component for FVR leadgen metrics
@@ -65,6 +71,9 @@ This separation ensures private data is never directly accessed from the client,
 9. ActiveProjects component renders the data with appropriate grouping and sorting
 10. User interacts with the data display (filtering and sorting to be enhanced)
 11. User can manage project status via the StageDropdown or CRMStageDropdown components
+12. User can edit date fields via DatePickerInput component with immediate API updates
+13. User can edit URL fields via URLInput component with immediate API updates
+14. User can access records directly in AITable via AITableViewButton
 
 Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies.
 
@@ -90,6 +99,7 @@ The system implements several API routes to securely interact with external serv
    - **Project Detail Route** (`/api/projects/[id]`): Fetches details for a specific project
    - **Clients Route** (`/api/clients`): Fetches client information
    - **Leadgen Route** (`/api/leadgen`): Fetches lead generation metrics data
+   - **Leadgen CRM Route** (`/api/leadgen/crm/[id]`): Updates CRM fields in leadgen records
    - **Test Route** (`/api/aitable-test`): Verifies AITable API connectivity
 
 2. **ClickUp API Routes**:
@@ -182,6 +192,40 @@ The leadgen metrics components follow these patterns:
    - Common error handling patterns
    - Performance optimization techniques
 
+## AITable Integration Components
+The AITable integration components follow these patterns:
+
+1. **DatePickerInput Component**:
+   - **Data Editing**:
+     - Provides a calendar interface for date selection
+     - Handles AITable date field updates
+     - Submits changes directly to the backend API
+   - **Component State Management**:
+     - Tracks loading state during API calls
+     - Maintains original value for error recovery
+     - Toggles editing mode with visual feedback
+   - **User Interaction**:
+     - Popover interface for calendar selection
+     - Clear visual indication of editing state
+     - Loading indicator during API operations
+   - **Error Handling**:
+     - Reverts to original value on API errors
+     - Provides error callback for parent component notification
+     - Maintains UI responsiveness during API operations
+
+2. **URLInput Component**:
+   - Similar architecture to DatePickerInput
+   - Customized for URL field editing
+   - Handles both simple and nested field structures
+   - Provides popover interface for text entry
+   - Implements cancel and save functionality
+
+3. **AITableViewButton Component**:
+   - Provides direct access to AITable records
+   - Opens AITable record in a new browser tab
+   - Configurable with view and datasheet IDs
+   - Consistent styling with other action buttons
+
 ## Financial Tracking Components (Planned)
 The financial tracking components will follow these patterns:
 
@@ -235,6 +279,10 @@ The system implements comprehensive error handling:
 4. **Error Logging**: 
    - Detailed server-side error logging for debugging
    - Client-side error catching and reporting
+5. **Data Editing Error Handling**:
+   - Value reversion on API errors
+   - Visual feedback during API operations
+   - Error callbacks for parent component notification
 
 ## Key Technical Decisions
 - Next.js API routes act as a secure proxy for external APIs
@@ -248,7 +296,5 @@ The system implements comprehensive error handling:
 - MetricsChart component for flexible data visualization
 - Separate aggregation methods for different metric types (sum vs. average)
 - Secure ClickUp integration for task management
-- Shared component patterns between similar visualization components
-- Financial data processing will use a secure backend approach
-- CSV import for financial data with AI-powered categorization
-- Many-to-many relationships for payment-project mapping 
+- Direct AITable field editing with immediate API updates
+- Popover interfaces for form inputs to maximize space efficiency 

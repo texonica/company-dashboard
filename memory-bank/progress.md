@@ -41,13 +41,19 @@
   - Created API endpoints for payments and subscriptions
   - Defined operations area in application structure
   - Started implementation of PnL tracking components
+- Added new components for AITable record interaction:
+  - DatePickerInput component for date field editing
+  - URLInput component for URL field editing with nested field support
+  - AITableViewButton component for direct AITable record access
 
 ## Current Status
 The project is in the active implementation phase. We have established the core architecture and implemented the main dashboard for Texonica.com displaying active projects. The backend API for secure AITable.ai integration has been set up with proper configuration for all required tables. We have implemented detailed API routes for projects with robust error handling, client name resolution, and media buyer integration. 
 
 The ActiveProjects component has been enhanced and connected to the backend API, allowing users to view projects grouped by team and sorted by start date. We've also implemented CRMStageDropdown and StageDropdown components for improved project management. We've created visualization components including UWLeadgenMetricsChart and FVRLeadgenMetricsChart for lead generation metrics with flexible display options and interactive filtering.
 
-We've integrated ClickUp API functionality to enable task management capabilities with proper API client implementation, type definitions, and backend proxying. We've started implementing financial tracking features with new API endpoints for payments and subscriptions. We're now working on enhancing the project information display with calculated fields like months active, implementing authentication, and continuing to develop the financial reporting panels.
+We've integrated ClickUp API functionality to enable task management capabilities with proper API client implementation, type definitions, and backend proxying. We've started implementing financial tracking features with new API endpoints for payments and subscriptions. We've added components for interacting with AITable records, including DatePickerInput for date selection, URLInput for URL field editing, and AITableViewButton for direct record access.
+
+We're now working on enhancing the project information display with calculated fields like months active, implementing authentication, and continuing to develop the financial reporting panels.
 
 ## What Works
 - Documentation structure established
@@ -79,6 +85,10 @@ We've integrated ClickUp API functionality to enable task management capabilitie
 - ClickUp API integration for task management capabilities
 - API endpoint structure for payments and subscriptions
 - Application structure for operations/financial features
+- New components for AITable record interaction:
+  - DatePickerInput for date selection
+  - URLInput for URL field editing
+  - AITableViewButton for direct record access
 
 ## What's Left
 - Complete payments and subscriptions API implementation
