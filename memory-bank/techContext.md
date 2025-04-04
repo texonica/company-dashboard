@@ -13,14 +13,18 @@
   - Next.js API routes for backend functionality
   - Custom AITable API client
   - Custom ClickUp API client
+  - Custom Google Gemini API client
   - Firebase for authentication (planned implementation)
   - CSV parsing for financial data import (planned implementation)
-  - AI/ML capabilities for transaction categorization (planned)
+  - AI/ML capabilities through Google Gemini API
 - **Data Storage**:
   - AITable.ai for primary data (accessed via secure API)
   - ClickUp for task management data
   - Environment variables for configuration (.env.local)
 - **External Services Integration**:
+  - AITable.ai for database functionality
+  - ClickUp for task management
+  - Google Gemini API for AI capabilities
   - Chargebee for subscription management (planned integration)
 - **DevOps**:
   - To be determined for CI/CD pipeline
@@ -29,9 +33,10 @@
 ## Development Environment
 The development environment includes:
 - Local development server with hot reloading (`npm run dev`)
-- Environment variables in .env.local for configuration
-- Integration with AITable.ai API using server-side API token
-- Integration with ClickUp API using server-side API token
+- Environment variables in .env.local for configuration:
+  - AITable.ai API token and table IDs
+  - ClickUp API token and workspace configurations
+  - Google Gemini API key
 - Development authentication bypass option for testing (to be implemented)
 - Responsive design testing for multiple screen sizes
 
@@ -40,7 +45,9 @@ Key dependencies include:
 - **API Integration**:
   - Custom AITable.ai API client in src/lib/api/aitable.ts
   - Custom ClickUp API client in src/lib/clickup/api.ts
+  - Custom Google Gemini API client in src/lib/api/gemini.ts
   - HTTP fetch for API requests with proper error handling
+  - Comprehensive rate limiting implementation
 - **Authentication**:
   - Firebase for authentication (to be implemented)
 - **UI and Styling**:
@@ -55,13 +62,20 @@ Key dependencies include:
   - Configurable visualization settings
 - **Financial Data Processing** (planned):
   - CSV parsing library for financial data imports
-  - AI/ML capabilities for transaction categorization
+  - AI/ML capabilities through Google Gemini API for transaction categorization
   - Chargebee SDK for subscription management
+- **Rate Limiting and Performance**:
+  - Custom request throttling/queuing system
+  - Retry logic with exponential backoff
+  - Batch request processing
+  - Comprehensive caching strategy
+  - Request prioritization framework
 
 ## Technical Constraints
 - Must securely store and transmit sensitive financial and client data
 - AITable.ai API rate limits must be managed with proper caching
 - ClickUp API rate limits (100 requests per minute per token) must be respected
+- Google Gemini API quota limits must be managed
 - Cross-browser compatibility is required
 - Performance optimization for data fetching to minimize API calls
 - Authentication and authorization must be properly implemented
@@ -69,8 +83,9 @@ Key dependencies include:
 - Secure handling of API credentials using environment variables only
 - Charts must be optimized for both weekly and monthly data aggregation
 - Financial data imports must handle potential inconsistencies in CSV formats
-- Transaction categorization models need continuous improvement capabilities
+- Transaction categorization must be accurate while maintaining privacy
 - Many-to-many relationships between payments and projects require careful data modeling
+- All external API requests must be proxied through backend endpoints
 
 ## Build & Deployment
 - **Development**: Local Next.js development server (`npm run dev`)
@@ -97,6 +112,7 @@ The AITable.ai integration has been implemented with:
    - Secure proxy to protect API credentials
    - Validation of configuration before making requests
    - Error handling with specific status codes and messages
+   - Rate limiting implementation to prevent API quota issues
 
 3. **Data fetching functions**:
    - fetchTableRecords() for retrieving multiple records with filtering
@@ -142,6 +158,7 @@ The ClickUp integration has been implemented with:
    - Secure proxy to protect API credentials
    - Handling of ClickUp's rate limits (100 requests per minute)
    - Error handling with specific status codes and messages
+   - Rate limiting implementation to prevent API quota issues
 
 3. **Data fetching functions**:
    - getTasksByList() for retrieving tasks from a specific list
@@ -155,6 +172,86 @@ The ClickUp integration has been implemented with:
    - Documentation of common patterns for ClickUp API usage
    - Reference code for integration with project management
 
+## Gemini AI Integration
+The Gemini AI integration has been implemented with:
+
+1. **Environment variables for secure access**:
+   - GEMINI_API_KEY for authentication
+   - Additional configuration for model selection and parameters
+
+2. **Backend API implementation**:
+   - Custom API client in src/lib/api/gemini.ts with comprehensive error handling
+   - API routes in src/app/api/gemini
+   - Secure proxy to protect API credentials
+   - Handling of API quota limits
+   - Error handling with specific status codes and messages
+   - Safety settings for content generation
+
+3. **Model selection**:
+   - Support for different Gemini models based on task requirements:
+     - gemini-2.0-flash: General purpose, voice AI, multimodal capabilities
+     - gemini-2.0-flash-lite: High-frequency, low-latency, cost-sensitive applications
+     - gemini-2.5-pro-exp-03-25: Complex reasoning, advanced coding (experimental)
+     - gemini-1.5-pro: Analyzing large documents, long conversations, multimodal input
+   - Optimization for cost, performance, and capabilities
+
+4. **Content generation functions**:
+   - generateContent() for text generation based on prompts
+   - chatConversation() for multi-turn conversations
+   - analyzeImage() for multimodal inputs (text + image)
+   - Configuration options for temperature, token limits, etc.
+
+5. **Planned applications**:
+   - Transaction categorization for financial data
+   - Project summary generation for dashboards
+   - Financial insights and recommendations
+   - Data analysis assistance for reporting
+
+## Rate Limiting Strategy
+The rate limiting strategy has been designed to manage API usage across all external services:
+
+1. **Request throttling/queuing system**:
+   - Queue-based architecture to manage API request flow
+   - Configurable concurrency limits for different endpoints
+   - Priority system for user-facing vs. background operations
+   - Implementation across all external APIs (AITable, ClickUp, Gemini)
+
+2. **Retry logic with exponential backoff**:
+   - Detection of rate limit responses (429 errors)
+   - Automatic retry with increasing delay between attempts
+   - Configurable maximum retry attempts
+   - Error reporting for persistent failures
+
+3. **Batch request processing**:
+   - Combining related requests where API supports it
+   - Custom batching for endpoints without native support
+   - Optimization of batch size vs. request frequency
+   - Error handling for partial batch failures
+
+4. **Caching strategy**:
+   - SWR for client-side caching with revalidation
+   - Server-side caching for frequently accessed data
+   - Configurable TTL based on data type and update frequency
+   - Stale-while-revalidate pattern for improved user experience
+
+5. **Backend proxy architecture**:
+   - All API requests routed through Next.js API routes
+   - Rate monitoring and throttling at the proxy level
+   - Headers for request tracking and debugging
+   - Consistent error handling across all APIs
+
+6. **Request prioritization**:
+   - Critical user-facing requests get priority queue placement
+   - Background operations handled with lower priority
+   - Emergency override capability for critical operations
+   - Configurable priority levels per endpoint
+
+7. **Performance monitoring**:
+   - Tracking of API request volume, timing, and rate limit hits
+   - Logging infrastructure for request pattern analysis
+   - Planned monitoring dashboard integration
+   - Alerts for approaching rate limits
+
 ## Financial Data Management (In Development)
 The financial data management features are being implemented with:
 
@@ -166,7 +263,7 @@ The financial data management features are being implemented with:
 2. **Planned Implementation Components**:
    - CSV import functionality for Xolo financial data
    - Parsing and normalization of financial transaction data
-   - AI-powered transaction categorization
+   - AI-powered transaction categorization using Gemini API
    - Many-to-many relationship management for payment-project mapping
    - Subscription tracking with Chargebee integration
    - Financial reconciliation workflow
@@ -174,7 +271,7 @@ The financial data management features are being implemented with:
 3. **Technical Approach**:
    - Secure backend processing for all financial data
    - Database model for complex payment-project relationships
-   - AI/ML pipeline for continuous improvement of categorization
+   - AI/ML pipeline using Gemini API for transaction categorization
    - Audit trail for all financial operations
    - Export capabilities for financial reports
 
@@ -203,6 +300,7 @@ The dashboard includes several data visualization components:
    - Handles both weekly and monthly data visualization
    - Accepts data points with multiple metrics
    - Provides custom formatting options for different metric types
+   - Optimized for performance with large datasets
 
 4. **DateRangeSelector**:
    - Reusable component for selecting date ranges
@@ -218,4 +316,10 @@ The dashboard includes several data visualization components:
 6. **AITable Integration Components**:
    - DatePickerInput for date field editing with calendar interface
    - URLInput for URL field editing with validation
-   - AITableViewButton for direct AITable record access 
+   - AITableViewButton for direct AITable record access
+
+7. **Planned Financial Visualization**:
+   - Gross margin charts at project, team, and company levels
+   - Project count visualization per team
+   - PnL reporting with multi-level analysis
+   - Subscription tracking and renewal visualization 

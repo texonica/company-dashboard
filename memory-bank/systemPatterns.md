@@ -6,13 +6,14 @@ The system follows a modern web application architecture with:
 - Next.js API routes for backend functionality and secure API proxying
 - Custom AITable.ai API client for data access with error handling
 - Custom ClickUp API client for task management
+- Custom Google Gemini API client for AI capabilities
 - Firebase for authentication (not yet implemented)
 - Environment variables for secure configuration of API keys and credentials
 
-This separation ensures private data is never directly accessed from the client, maintaining security while providing a responsive user experience.
+This separation ensures private data is never directly accessed from the client, maintaining security while providing a responsive user experience. All external API interactions are proxied through backend routes to protect credentials and implement rate limiting.
 
 ## Design Patterns
-- **Repository Pattern**: Abstracted data access through custom API clients in src/lib/api/aitable.ts and src/lib/clickup/api.ts
+- **Repository Pattern**: Abstracted data access through custom API clients in src/lib/api/aitable.ts, src/lib/clickup/api.ts, and src/lib/api/gemini.ts
 - **API Route Pattern**: Secure backend endpoints that proxy API requests with error handling
 - **Component-Based Architecture**: Frontend organization with shadcn/ui, Radix, and Tailwind CSS
 - **Server Components**: Next.js server components for data fetching
@@ -20,7 +21,9 @@ This separation ensures private data is never directly accessed from the client,
 - **SWR Pattern**: To be implemented for efficient data fetching, caching, and revalidation
 - **Environment Variables**: Secure configuration management for all API keys and credentials
 - **Error Boundary Pattern**: Comprehensive error handling with specific error messages and status codes
+- **Rate Limiting Pattern**: Advanced request management with throttling, queuing, batching, and caching
 - **Presentational Charts Pattern**: Configurable chart displays like UWLeadgenMetricsChart and FVRLeadgenMetricsChart with flexible rendering options
+- **AI Integration Pattern**: Structured prompts and context management for Google Gemini API interactions
 - **Financial Data Processing Pattern**: Planned implementation for handling CSV imports, transaction categorization, and payment-project mapping
 - **Status Management Pattern**: Implemented through StageDropdown and CRMStageDropdown components for project status management
 - **Field Editing Pattern**: Implemented through DatePickerInput, URLInput components for direct AITable field editing with loading state feedback
@@ -31,11 +34,13 @@ This separation ensures private data is never directly accessed from the client,
 - **Backend API Routes**: 
   - Projects and clients in src/app/api/projects and src/app/api/clients
   - ClickUp task management in src/app/api/clickup
+  - Gemini AI capabilities in src/app/api/gemini
   - Financial data in src/app/api/payments and src/app/api/subscriptions
   - Leadgen data in src/app/api/leadgen
 - **API Clients**: 
   - AITable API client in src/lib/api/aitable.ts with comprehensive error handling
   - ClickUp API client in src/lib/clickup/api.ts for task management
+  - Gemini API client in src/lib/api/gemini.ts for AI capabilities
 - **Dashboard Layout**: DashboardContent component maintains the overall dashboard structure
 - **Navigation**: Navigation component provides access to different sections
 - **Active Projects Display**: ActiveProjects component for viewing current projects grouped by team
@@ -53,11 +58,17 @@ This separation ensures private data is never directly accessed from the client,
   - Payments API endpoints in src/app/api/payments
   - Subscriptions API endpoints in src/app/api/subscriptions
   - Operations section for financial management
+- **AI Capabilities**:
+  - Gemini AI client in src/lib/api/gemini.ts
+  - Proxy routes in src/app/api/gemini
+  - Model selection based on task requirements
+  - Prompt engineering for specific use cases
 - **Authentication**: Firebase authentication with optional development bypass (to be implemented)
 - **Configuration**: Maintained in environment variables and src/lib/config.ts
 - **Types**: Defined in src/lib/types.ts and src/lib/clickup/types.ts for type safety
 - **Metrics Processing**: Handled in src/lib/metrics.ts for calculations and data transformations
 - **Data Visualization**: Implemented through MetricsChart with dedicated chart types (line charts)
+- **Rate Limiting**: Comprehensive strategy implemented across all external API interactions
 
 ## Data Flow
 1. User accesses the dashboard via the browser
@@ -65,17 +76,30 @@ This separation ensures private data is never directly accessed from the client,
 3. Next.js API route (/api/projects) receives the request
 4. API route authenticates the request (to be implemented)
 5. API route uses the AITable client to securely fetch project data
-6. API route fetches additional client and member data to resolve names
-7. Response data is transformed and processed as needed
-8. Processed data is returned to the frontend
-9. ActiveProjects component renders the data with appropriate grouping and sorting
-10. User interacts with the data display (filtering and sorting to be enhanced)
-11. User can manage project status via the StageDropdown or CRMStageDropdown components
-12. User can edit date fields via DatePickerInput component with immediate API updates
-13. User can edit URL fields via URLInput component with immediate API updates
-14. User can access records directly in AITable via AITableViewButton
+6. API route applies rate limiting strategies to prevent hitting API limits
+7. API route fetches additional client and member data to resolve names
+8. Response data is transformed and processed as needed
+9. Processed data is returned to the frontend
+10. ActiveProjects component renders the data with appropriate grouping and sorting
+11. User interacts with the data display (filtering and sorting to be enhanced)
+12. User can manage project status via the StageDropdown or CRMStageDropdown components
+13. User can edit date fields via DatePickerInput component with immediate API updates
+14. User can edit URL fields via URLInput component with immediate API updates
+15. User can access records directly in AITable via AITableViewButton
 
-Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies.
+Similar flow applies to ClickUp API requests, with API routes in /api/clickup acting as secure proxies and applying rate limiting strategies.
+
+For Gemini AI capabilities, the flow is:
+1. User interacts with an AI-powered feature
+2. Frontend sends a request to the backend API
+3. API route (/api/gemini) receives the request
+4. API route authenticates the request (to be implemented)
+5. API route constructs the appropriate prompt with context
+6. API route selects the optimal Gemini model based on the task
+7. API route sends the request to Gemini API with secure credentials
+8. Response is processed and transformed as needed
+9. Results are returned to the frontend
+10. Frontend displays the AI-generated content to the user
 
 For financial data management, the planned flow is:
 1. User uploads financial data via CSV import
@@ -111,7 +135,21 @@ The system implements several API routes to securely interact with external serv
    - **Create Task Route** (`/api/clickup/tasks`): Creates new tasks with POST method
    - **Update Task Route** (`/api/clickup/tasks/[id]`): Updates existing tasks with PATCH method
 
-3. **Financial Data Routes** (in development):
+3. **Gemini API Routes**:
+   - **Generate Content Route** (`/api/gemini/generate`): 
+     - Generates content based on provided prompts
+     - Selects appropriate model based on task requirements
+     - Handles safety settings and parameter configuration
+     - Returns AI-generated content with proper error handling
+   - **Chat Route** (`/api/gemini/chat`): 
+     - Maintains chat context for conversational interactions
+     - Handles multi-turn conversations with context preservation
+     - Returns chat responses with proper error handling
+   - **Analyze Image Route** (`/api/gemini/image`): 
+     - Processes multimodal inputs (text + image)
+     - Returns analysis of image content with proper error handling
+
+4. **Financial Data Routes** (in development):
    - **Payments Route** (`/api/payments`): 
      - Will handle financial transaction data
      - Support CSV imports for Xolo financial data
@@ -226,6 +264,91 @@ The AITable integration components follow these patterns:
    - Configurable with view and datasheet IDs
    - Consistent styling with other action buttons
 
+## Gemini AI Integration
+The Gemini AI integration follows these patterns:
+
+1. **API Client Implementation**:
+   - Secure backend client in src/lib/api/gemini.ts
+   - Handles API key management and authentication
+   - Supports different model selection
+   - Configurable parameters for generation
+   - Comprehensive error handling
+
+2. **Model Selection Logic**:
+   - Selects appropriate model based on task requirements
+   - Supports various models (gemini-2.0-flash, gemini-2.0-flash-lite, etc.)
+   - Optimizes for cost, performance, and capabilities
+   - Configurable parameters for different use cases
+
+3. **Content Generation**:
+   - Structured prompts for different tasks
+   - Context management for improved results
+   - Parameter configuration (temperature, tokens, etc.)
+   - Safety settings for appropriate content generation
+
+4. **Chat Interface**:
+   - Multi-turn conversation support
+   - Context preservation between messages
+   - History management for ongoing interactions
+   - Error recovery for failed requests
+
+5. **Image Analysis**:
+   - Multimodal input processing (text + image)
+   - Base64 encoding for image transfer
+   - Secure file handling on the backend
+   - Error handling for different input types
+
+6. **Planned Applications**:
+   - Transaction categorization for financial data
+   - Project summary generation
+   - Financial insights and recommendations
+   - Data analysis and visualization assistance
+
+## Rate Limiting Strategy
+The system implements a comprehensive rate limiting strategy across all external API interactions:
+
+1. **Request Throttling/Queuing System**:
+   - Queue-based system to manage API request flow
+   - Configurable concurrency limits for different endpoints
+   - Priority system for critical vs. background operations
+   - Implementation across all external APIs (AITable, ClickUp, Gemini)
+
+2. **Retry Logic with Exponential Backoff**:
+   - Detection of rate limit responses (429 errors)
+   - Automatic retry with increasing delay between attempts
+   - Configurable maximum retry attempts per endpoint
+   - Error reporting for persistent failures
+
+3. **Batch Request Processing**:
+   - Combining multiple related requests where supported
+   - Custom batching for endpoints without native support
+   - Optimizing batch size vs. request frequency
+   - Error handling for partial batch failures
+
+4. **Caching Strategy**:
+   - SWR implementation for client-side caching
+   - Server-side caching for frequently accessed data
+   - Configurable TTL based on data type and update frequency
+   - Stale-while-revalidate pattern for improved UX
+
+5. **Backend Proxy Architecture**:
+   - All API requests routed through Next.js API routes
+   - Rate monitoring and throttling at proxy level
+   - Request tracking headers for debugging
+   - Consistent error handling across all APIs
+
+6. **Request Prioritization**:
+   - Critical user-facing requests get priority queue placement
+   - Background/admin operations handled with lower priority
+   - Emergency override capability for critical operations
+   - Configurable priority levels per endpoint and operation
+
+7. **Performance Monitoring**:
+   - Tracking of API request volume, timing, and rate limit hits
+   - Logging infrastructure for request pattern analysis
+   - Planned integration with monitoring dashboards
+   - Alerts for rate limit approaches
+
 ## Financial Tracking Components (Planned)
 The financial tracking components will follow these patterns:
 
@@ -236,7 +359,7 @@ The financial tracking components will follow these patterns:
    - Error handling for invalid data
 
 2. **Transaction Categorization**:
-   - AI/ML-based classification system
+   - AI-powered classification using Gemini API
    - Training models for expense categorization
    - Matching incoming payments with projects/clients
    - Confidence scoring for categorization accuracy
@@ -255,7 +378,7 @@ The financial tracking components will follow these patterns:
 
 5. **Financial Reconciliation**:
    - Review interface for unmapped transactions
-   - Suggestion logic for likely matches
+   - AI-powered suggestion logic for likely matches
    - Batch processing for similar transactions
    - Audit trail maintenance
 
@@ -266,6 +389,7 @@ The system implements comprehensive error handling:
    - Contextual error messages based on error type
    - Parsing of AITable API error responses
    - Handling of ClickUp API errors and rate limits
+   - Processing of Gemini API errors and safety blocks
 2. **Client-Side Error Handling**: 
    - Dedicated error states in components
    - User-friendly error messages
@@ -283,18 +407,27 @@ The system implements comprehensive error handling:
    - Value reversion on API errors
    - Visual feedback during API operations
    - Error callbacks for parent component notification
+6. **Rate Limit Error Recovery**:
+   - Automatic retry with exponential backoff
+   - Queue management for failed requests
+   - Priority-based retry strategy
+   - User feedback during delays
 
 ## Key Technical Decisions
-- Next.js API routes act as a secure proxy for external APIs
-- Environment variables (.env.local) for sensitive configuration
-- Custom API clients with robust error handling
-- Relation field resolution (client and media buyer names)
-- Team-based grouping of projects
-- Sort projects by start date
+- Next.js API routes act as a secure proxy for all external APIs (AITable, ClickUp, Gemini)
+- Environment variables (.env.local) for all sensitive configuration
+- Custom API clients with robust error handling for all external services
+- Comprehensive rate limiting strategy across all external API interactions
+- Relation field resolution (client and media buyer names) for AITable data
+- Team-based grouping of projects with sorting by start date
 - Tailwind CSS for styling with proper responsive design
 - Record ID detection logic for AITable relation fields
 - MetricsChart component for flexible data visualization
 - Separate aggregation methods for different metric types (sum vs. average)
-- Secure ClickUp integration for task management
+- Secure ClickUp integration for task management with rate limiting
+- Gemini API integration for AI capabilities with model selection logic
 - Direct AITable field editing with immediate API updates
-- Popover interfaces for form inputs to maximize space efficiency 
+- Popover interfaces for form inputs to maximize space efficiency
+- Financial data management with CSV import and AI-powered categorization
+- Planned SWR implementation for efficient data fetching and caching
+- Comprehensive error handling with specific error types and messages 
