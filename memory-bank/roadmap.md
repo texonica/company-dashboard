@@ -143,6 +143,16 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Decision: Implement payment processing logic in backend services
   - Implementation Notes: Planning implementation with payment gateway integration
 
+### Phase 3.7: CRM Enhancements (New)
+- [ ] Implement duplicate call detection for CRM
+  - Discussion: How to identify and handle duplicate bookings from the same person?
+  - Decision: Detect users who book multiple calls within 7 days and keep only one call record
+  - Implementation Notes: Implement detection logic in API endpoint with configurable time window
+- [ ] Create unified contact tracking system
+  - Discussion: How to track unique contacts accurately across multiple interactions?
+  - Decision: Use AI-powered contact matching to identify duplicates from UW/Underwriting
+  - Implementation Notes: Plan implementation with AITable relation fields for consolidated tracking
+
 ### Phase 4: Additional Department Panels (Planned)
 - [ ] Marketing performance dashboard
   - Discussion: What metrics should be included for marketing insights?
@@ -182,6 +192,7 @@ We are currently focusing on:
 3. Creating the Google Gemini integration for AI-powered features
 4. Designing the CSV import functionality for Xolo financial data
 5. Enhancing the project display with improved data visualization
+6. Implementing duplicate call detection in the CRM to track unique contacts from UW/Underwriting
 
 ## Implementation Discussions
 
@@ -213,6 +224,7 @@ We're developing API endpoints for payments and subscriptions, with plans to imp
 | 4/2/2023 | 0.2 | Updated with AITable integration progress |
 | 4/3/2023 | 0.3 | Added ClickUp integration details |
 | 4/4/2023 | 0.4 | Added Google Gemini integration and rate limiting strategy |
+| 4/5/2023 | 0.5 | Added CRM duplicate call detection feature requirement |
 
 ## Decisions Log
 | Date | Decision | Rationale | Alternatives Considered |
@@ -224,6 +236,7 @@ We're developing API endpoints for payments and subscriptions, with plans to imp
 | 4/4/2023 | Custom Gemini client | Model selection flexibility and secure credential handling | Using third-party client |
 | 4/4/2023 | Comprehensive rate limiting | Prevent API quota issues across all external services | Independent rate limiting per API |
 | 4/4/2023 | AI-powered transaction categorization | Automate financial data processing with high accuracy | Manual categorization, rule-based system |
+| 4/5/2023 | CRM duplicate call detection | Accurately track unique contacts by eliminating duplicates within 7 days | Manual review, maintaining all duplicate records |
 
 TEMPORARY_API_KEY=your_secure_random_string
 NEXT_PUBLIC_TEMPORARY_API_KEY=your_secure_random_string 
