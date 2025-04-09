@@ -152,6 +152,10 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Discussion: How to track unique contacts accurately across multiple interactions?
   - Decision: Use AI-powered contact matching to identify duplicates from UW/Underwriting
   - Implementation Notes: Plan implementation with AITable relation fields for consolidated tracking
+- [ ] Implement CRM record metrics dashboard
+  - Discussion: How to track the quality and completeness of our CRM data?
+  - Decision: Create metrics showing total records, records with emails, and records with phone numbers
+  - Implementation Notes: Add analytics component to CRM page with real-time data quality indicators
 
 ### Phase 4: Additional Department Panels (Planned)
 - [ ] Marketing performance dashboard
@@ -193,6 +197,7 @@ We are currently focusing on:
 4. Designing the CSV import functionality for Xolo financial data
 5. Enhancing the project display with improved data visualization
 6. Implementing duplicate call detection in the CRM to track unique contacts from UW/Underwriting
+7. Adding CRM metrics dashboard to track total records, records with emails, and phone numbers
 
 ## Implementation Discussions
 
