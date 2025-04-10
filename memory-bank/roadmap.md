@@ -143,6 +143,59 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Decision: Implement payment processing logic in backend services
   - Implementation Notes: Planning implementation with payment gateway integration
 
+### Phase 3.61: CSV Payment Import & Reconciliation System (New)
+- [ ] Phase 1: Core CSV Import Foundation
+  - [x] Update Payment Schema
+    - Add `PaymentDirection` field (DBIT/CRDT)
+    - Add `PaymentSource` enum (Stripe, Wire, PayPal)
+    - Add `BankAccount` identifier field
+    - Add `RawSender` field to preserve original name
+  - [ ] Basic CSV Parser Enhancement
+    - Update `parseCSVData()` to detect payment source based on description and bank account
+    - Implement pattern detection for Stripe/Chargebee references
+    - Extract transaction identifiers where available
+  - [ ] Client-Only Mapping Logic
+    - Create simple name-matching function for sender to client
+    - Implement client name normalization for better matching
+    - Store mapping preferences for repeat senders
+
+- [ ] Phase 2: Source-Specific Processing
+  - [ ] Stripe/Chargebee Integration
+    - Extract Chargebee IDs from transaction descriptions
+    - Match with existing subscriptions via ChargebeeId field
+    - Update `chargebee-sync.ts` to handle payment matching
+  - [ ] Wire Transfer Handler
+    - Create bank account identification mapping
+    - Build sender name normalization for wire transfers
+    - Implement client matching based on previous transfers
+  - [ ] PayPal Handler
+    - Extract PayPal transaction IDs and emails
+    - Match email addresses to client records
+    - Handle PayPal fee identification in amounts
+
+- [ ] Phase 3: User Interface & Reconciliation
+  - [ ] Import UI Improvements
+    - Add payment source detection display
+    - Show client matches before final import
+    - Add confidence indicators for matches
+    - Allow manual client assignment for low-confidence matches
+  - [ ] Reconciliation Dashboard
+    - Update to include payment source filtering
+    - Add bank account analysis view
+    - Implement variance calculation by payment source
+    - Create client statement view showing all payment sources
+
+- [ ] Phase 4: Data Quality & Automation
+  - [ ] Client Name Mapping System
+    - Build persistent mapping database between sender names and clients
+    - Create admin interface to review and approve mappings
+    - Implement auto-learning from manual corrections
+  - [ ] Reporting & Analytics
+    - Add payment source distribution charts
+    - Create monthly reconciliation reports
+    - Build payment pattern detection for anomalies
+    - Implement export functionality for accounting
+
 ### Phase 3.7: CRM Enhancements (New)
 - [ ] Implement duplicate call detection for CRM
   - Discussion: How to identify and handle duplicate bookings from the same person?
@@ -156,6 +209,10 @@ This document tracks our implementation roadmap, decisions, and progress for the
   - Discussion: How to track the quality and completeness of our CRM data?
   - Decision: Create metrics showing total records, records with emails, and records with phone numbers
   - Implementation Notes: Add analytics component to CRM page with real-time data quality indicators
+- [ ] Implement 4s task pacing tracker for UW
+  - Discussion: How to track progress against the goal of 2 4s tasks per month for UW?
+  - Decision: Create pacing tracker based on hire dates to monitor 4s task completion rate
+  - Implementation Notes: Build visualization showing actual vs target 4s task completion with timing indicators
 
 ### Phase 4: Additional Department Panels (Planned)
 - [ ] Marketing performance dashboard
@@ -198,6 +255,7 @@ We are currently focusing on:
 5. Enhancing the project display with improved data visualization
 6. Implementing duplicate call detection in the CRM to track unique contacts from UW/Underwriting
 7. Adding CRM metrics dashboard to track total records, records with emails, and phone numbers
+8. Creating 4s task pacing tracker for UW (2 tasks per month, based on hire dates)
 
 ## Implementation Discussions
 

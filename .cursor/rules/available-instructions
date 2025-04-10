@@ -3,6 +3,10 @@
     "description": "The AITable API is a RESTful API that allows you to interact with AITable data programmatically. It supports operations on records, fields, views, datasheets, attachments, spaces, and contacts.",
     "globs": ["**/aitable/**", "**/api/aitable/**", "**/aitable-*.{ts,js}", "**/aitable*.{ts,js}", "**/lib/api/aitable.ts"]
   },
+  "chargebee-rules": {
+    "description": "Chargebee API integration guidelines and usage patterns for subscription management and billing.",
+    "globs": ["**/chargebee/**", "**/api/chargebee/**", "**/chargebee-*.{ts,js}", "**/chargebee*.{ts,js}", "**/lib/api/chargebee.ts"]
+  },
   "gemini-rules": {
     "description": "Google Gemini AI integration guidelines and usage patterns",
     "globs": ["**/lib/api/gemini.ts", "**/app/api/gemini/**/*", "**/hooks/useGemini.ts"]

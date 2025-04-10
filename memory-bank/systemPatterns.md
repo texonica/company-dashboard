@@ -7,13 +7,14 @@ The system follows a modern web application architecture with:
 - Custom AITable.ai API client for data access with error handling
 - Custom ClickUp API client for task management
 - Custom Google Gemini API client for AI capabilities
+- Custom Chargebee API client for subscription management
 - Firebase for authentication (not yet implemented)
 - Environment variables for secure configuration of API keys and credentials
 
 This separation ensures private data is never directly accessed from the client, maintaining security while providing a responsive user experience. All external API interactions are proxied through backend routes to protect credentials and implement rate limiting.
 
 ## Design Patterns
-- **Repository Pattern**: Abstracted data access through custom API clients in src/lib/api/aitable.ts, src/lib/clickup/api.ts, and src/lib/api/gemini.ts
+- **Repository Pattern**: Abstracted data access through custom API clients in src/lib/api/aitable.ts, src/lib/clickup/api.ts, src/lib/api/gemini.ts, and src/lib/api/chargebee.ts
 - **API Route Pattern**: Secure backend endpoints that proxy API requests with error handling
 - **Component-Based Architecture**: Frontend organization with shadcn/ui, Radix, and Tailwind CSS
 - **Server Components**: Next.js server components for data fetching
@@ -28,6 +29,8 @@ This separation ensures private data is never directly accessed from the client,
 - **Status Management Pattern**: Implemented through StageDropdown and CRMStageDropdown components for project status management
 - **Field Editing Pattern**: Implemented through DatePickerInput, URLInput components for direct AITable field editing with loading state feedback
 - **External Link Pattern**: Implemented through AITableViewButton for direct record access in AITable
+- **Subscription Management Pattern**: Implemented through Chargebee API integration for handling subscription lifecycles
+- **Webhook Handler Pattern**: Implemented for processing Chargebee events for subscription updates
 
 ## Component Relationships
 - **Frontend Components**: Organized in src/components with UI primitives in src/components/ui
@@ -37,10 +40,12 @@ This separation ensures private data is never directly accessed from the client,
   - Gemini AI capabilities in src/app/api/gemini
   - Financial data in src/app/api/payments and src/app/api/subscriptions
   - Leadgen data in src/app/api/leadgen
+  - Chargebee data in src/app/api/chargebee
 - **API Clients**: 
   - AITable API client in src/lib/api/aitable.ts with comprehensive error handling
   - ClickUp API client in src/lib/clickup/api.ts for task management
   - Gemini API client in src/lib/api/gemini.ts for AI capabilities
+  - Chargebee API client in src/lib/api/chargebee.ts for subscription management
 - **Dashboard Layout**: DashboardContent component maintains the overall dashboard structure
 - **Navigation**: Navigation component provides access to different sections
 - **Active Projects Display**: ActiveProjects component for viewing current projects grouped by team
@@ -58,6 +63,7 @@ This separation ensures private data is never directly accessed from the client,
   - Payments API endpoints in src/app/api/payments
   - Subscriptions API endpoints in src/app/api/subscriptions
   - Operations section for financial management
+  - Chargebee integration for subscription management
 - **AI Capabilities**:
   - Gemini AI client in src/lib/api/gemini.ts
   - Proxy routes in src/app/api/gemini
@@ -101,13 +107,26 @@ For Gemini AI capabilities, the flow is:
 9. Results are returned to the frontend
 10. Frontend displays the AI-generated content to the user
 
+For Chargebee subscription management, the flow is:
+1. User interacts with subscription management feature
+2. Frontend sends a request to the backend API
+3. API route (/api/chargebee) receives the request
+4. API route authenticates the request (to be implemented)
+5. API route uses the Chargebee client to securely interact with Chargebee API
+6. Request includes idempotency key for critical operations
+7. API route handles rate limiting and error scenarios
+8. Response is processed and returned to the frontend
+9. Frontend displays the subscription information to the user
+10. For webhook events, Chargebee sends events to /api/chargebee/webhook endpoint
+11. Webhook handler processes events and updates internal state as needed
+
 For financial data management, the planned flow is:
 1. User uploads financial data via CSV import
 2. Backend processes and categorizes transactions
 3. System maps payments to projects (potentially many-to-many)
 4. Financial data is aggregated for reporting
 5. User can review and reconcile unmapped transactions
-6. Subscription data is tracked and managed
+6. Subscription data is tracked and managed through Chargebee integration
 
 ## API Route Implementation
 The system implements several API routes to securely interact with external services:
@@ -156,7 +175,22 @@ The system implements several API routes to securely interact with external serv
      - Processes multimodal inputs (text + image)
      - Returns analysis of image content with proper error handling
 
-4. **Financial Data Routes** (in development):
+4. **Chargebee API Routes**:
+   - **Subscription Management Route** (`/api/chargebee/subscription`):
+     - Creates, retrieves, updates subscriptions
+     - Handles customer-subscription relationships
+     - Processes subscription lifecycle events
+     - Returns subscription data with proper error handling
+   - **Customer Management Route** (`/api/chargebee/customer`):
+     - Creates, retrieves, updates customer information
+     - Returns customer data with proper error handling
+   - **Webhook Route** (`/api/chargebee/webhook`):
+     - Receives and processes Chargebee webhook events
+     - Handles subscription lifecycle events (creation, cancellation, etc.)
+     - Updates internal state based on webhook events
+     - Provides secure endpoint for Chargebee callbacks
+
+5. **Financial Data Routes** (in development):
    - **Payments Route** (`/api/payments`): 
      - Will handle financial transaction data
      - Support CSV imports for Xolo financial data
@@ -165,7 +199,7 @@ The system implements several API routes to securely interact with external serv
    - **Subscriptions Route** (`/api/subscriptions`):
      - Will manage recurring payment data
      - Track subscription status and renewal information
-     - Integrate with Chargebee (planned)
+     - Integrate with Chargebee
      - Associate subscriptions with clients and projects
 
 ## Monitoring and Telemetry System
@@ -312,6 +346,46 @@ The AITable integration components follow these patterns:
    - Configurable with view and datasheet IDs
    - Consistent styling with other action buttons
 
+## Chargebee Integration Components
+The Chargebee integration follows these patterns:
+
+1. **API Client Implementation**:
+   - Secure backend client in src/lib/api/chargebee.ts
+   - Environment variable management for site and API keys
+   - Core subscription management functions
+   - Customer data retrieval and management
+   - Webhook event processing
+   - Comprehensive error handling
+
+2. **Subscription Management**:
+   - Creation of new subscriptions with customer/plan association
+   - Retrieval of subscription information with pagination
+   - Status tracking for subscription lifecycle (active, cancelled, etc.)
+   - Customer-subscription relationship management
+
+3. **Webhook Event Handling**:
+   - Endpoint for receiving Chargebee events
+   - Event type classification and processing
+   - Subscription lifecycle event handling
+   - Error handling and logging for webhook processing
+
+4. **Error Handling**:
+   - Standardized error codes and messages
+   - API error classification and handling
+   - Client response sanitization
+   - Logging for debugging and monitoring
+
+5. **Security Measures**:
+   - Backend-only API credential access
+   - All requests proxied through API routes
+   - Environment variable storage for sensitive data
+   - Request validation and sanitization
+
+6. **Idempotent Operations**:
+   - Idempotency key generation for critical operations
+   - Replay detection for duplicate requests
+   - Consistent state management across retries
+
 ## Gemini AI Integration
 The Gemini AI integration follows these patterns:
 
@@ -359,7 +433,7 @@ The system implements a comprehensive rate limiting strategy across all external
    - Queue-based system to manage API request flow
    - Configurable concurrency limits for different endpoints
    - Priority system for critical vs. background operations
-   - Implementation across all external APIs (AITable, ClickUp, Gemini)
+   - Implementation across all external APIs (AITable, ClickUp, Gemini, Chargebee)
 
 2. **Retry Logic with Exponential Backoff**:
    - Detection of rate limit responses (429 errors)
@@ -419,10 +493,11 @@ The financial tracking components will follow these patterns:
    - Audit trail of payment allocations
 
 4. **Subscription Management**:
-   - Chargebee connector for subscription data
+   - Chargebee integration for subscription data
    - Renewal tracking and alerting
    - Client and project association
    - Subscription lifecycle visualization
+   - Webhook event processing for status updates
 
 5. **Financial Reconciliation**:
    - Review interface for unmapped transactions
@@ -438,6 +513,7 @@ The system implements comprehensive error handling:
    - Parsing of AITable API error responses
    - Handling of ClickUp API errors and rate limits
    - Processing of Gemini API errors and safety blocks
+   - Handling of Chargebee API errors with proper status codes
 2. **Client-Side Error Handling**: 
    - Dedicated error states in components
    - User-friendly error messages
@@ -460,9 +536,14 @@ The system implements comprehensive error handling:
    - Queue management for failed requests
    - Priority-based retry strategy
    - User feedback during delays
+7. **Webhook Error Handling**:
+   - Event validation and verification
+   - Error logging for failed webhook processing
+   - Graceful handling of unexpected event types
+   - Retry logic for failed event processing
 
 ## Key Technical Decisions
-- Next.js API routes act as a secure proxy for all external APIs (AITable, ClickUp, Gemini)
+- Next.js API routes act as a secure proxy for all external APIs (AITable, ClickUp, Gemini, Chargebee)
 - Environment variables (.env.local) for all sensitive configuration
 - Custom API clients with robust error handling for all external services
 - Comprehensive rate limiting strategy across all external API interactions
@@ -478,4 +559,6 @@ The system implements comprehensive error handling:
 - Popover interfaces for form inputs to maximize space efficiency
 - Financial data management with CSV import and AI-powered categorization
 - Planned SWR implementation for efficient data fetching and caching
-- Comprehensive error handling with specific error types and messages 
+- Comprehensive error handling with specific error types and messages
+- Chargebee integration for subscription management with webhook handling
+- Idempotent requests for critical operations using unique keys 

@@ -93,6 +93,7 @@ export const AITABLE_CONFIG = {
   MEMBERS_TABLE_ID: process.env.AITABLE_MEMBERS_TABLE_ID,
   SUBSCRIPTIONS_TABLE_ID: process.env.AITABLE_SUBSCRIPTIONS_TABLE_ID,
   PAYMENTS_TABLE_ID: process.env.AITABLE_PAYMENTS_TABLE_ID,
+  CLIENT_MAPPINGS_TABLE_ID: process.env.AITABLE_CLIENT_MAPPINGS_TABLE_ID,
 }; 
 
 // Function to validate configuration
@@ -396,9 +397,39 @@ export async function fetchMembersByIds(memberIds: string[]): Promise<Record<str
 }
 
 /**
- * Update a record by ID
+ * Updates a record in an AITable table
  */
-export async function updateRecord(tableId: string, recordId: string, data: { fields: Record<string, any> }): Promise<AITableRecord> {
+export async function updateRecord(tableId: string, recordId: string, data: any) {
+  try {
+    const response = await fetch(
+      `${AITABLE_CONFIG.BASE_URL}/tables/${tableId}/records/${recordId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.AITABLE_API_TOKEN}`
+        },
+        body: JSON.stringify(data)
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`AITable API error (${response.status}): ${errorData.error?.message || JSON.stringify(errorData)}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error: any) {
+    console.error(`Error updating record ${recordId} in table ${tableId}:`, error);
+    throw new Error(`Failed to update record: ${error.message}`);
+  }
+}
+
+/**
+ * Create a new record in a table
+ */
+export async function createRecord(tableId: string, data: { fields: Record<string, any> }): Promise<AITableRecord> {
   // Validate configuration
   validateConfig();
   
@@ -407,17 +438,17 @@ export async function updateRecord(tableId: string, recordId: string, data: { fi
   // Ensure we're working with the fields object
   const fields = data.fields;
   
-  // Log the update for debugging
-  console.log(`AITable Update: tableId=${tableId}, recordId=${recordId}`);
-  console.log('Update fields:', fields);
+  // Log the creation for debugging
+  console.log(`AITable Create: tableId=${tableId}`);
+  console.log('Create fields:', fields);
   
-  // Use the correct URL format for updates according to documentation
+  // Use the correct URL format for record creation according to documentation
   const url = `${AITABLE_CONFIG.BASE_URL}/fusion/v1/datasheets/${tableId}/records`;
   
   console.log('Request URL:', url);
   
   const response = await fetch(url, {
-    method: 'PATCH',
+    method: 'POST',
     headers: {
       'Authorization': `Bearer ${API_TOKEN}`,
       'Content-Type': 'application/json'
@@ -425,7 +456,6 @@ export async function updateRecord(tableId: string, recordId: string, data: { fi
     body: JSON.stringify({
       records: [
         {
-          recordId: recordId,
           fields: fields
         }
       ]
@@ -451,6 +481,6 @@ export async function updateRecord(tableId: string, recordId: string, data: { fi
     throw new Error('Invalid response format from AITable API');
   }
   
-  // Access the first record in the records array since we're only updating one
+  // Access the first record in the records array since we're only creating one
   return result.data.records?.[0] || result.data as unknown as AITableRecord;
 } 

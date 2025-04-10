@@ -75,24 +75,55 @@
   - Created /api/leadgen/fvr for FVR-specific leadgen metrics
   - Added authentication bypass in development mode for testing
   - Implemented comprehensive error handling with proper status codes
+- Integrated Chargebee API for subscription management:
+  - Created custom Chargebee API client in src/lib/api/chargebee.ts
+  - Implemented secure backend client with proper error handling
+  - Added subscription management functions (create, retrieve, list)
+  - Created webhook endpoint for handling Chargebee events
+  - Implemented idempotent request handling for critical operations
+  - Added pagination support for list operations
+  - Created comprehensive cursor rules documentation for Chargebee integration
+  - Set up environment variables for Chargebee site and API keys
 
 ## Current Status
-The project is in the active implementation phase with multiple parallel development streams. We have established the core architecture and implemented the main dashboard for Texonica.com displaying active projects. The backend API infrastructure is in place with secure integrations to AITable.ai, ClickUp, and Google Gemini API, all properly configured with comprehensive error handling.
+The project is in the active implementation phase with multiple parallel development streams. We have established the core architecture and implemented the main dashboard for Texonica.com displaying active projects. The backend API infrastructure is in place with secure integrations to AITable.ai, ClickUp, Google Gemini API, and Chargebee, all properly configured with comprehensive error handling.
 
 The ActiveProjects component has been enhanced with team-based grouping, sorting by start date, and proper client/media buyer resolution. Project management capabilities have been implemented through the StageDropdown and CRMStageDropdown components. Data visualization is handled through UWLeadgenMetricsChart and FVRLeadgenMetricsChart components with flexible display options, interactive filtering, and optimized performance.
 
-We've implemented direct interaction with AITable records through DatePickerInput, URLInput, and AITableViewButton components. ClickUp API integration enables task management capabilities with proper rate limit handling. Google Gemini API integration provides AI capabilities for planned features like transaction categorization and insights generation.
+We've implemented direct interaction with AITable records through DatePickerInput, URLInput, and AITableViewButton components. ClickUp API integration enables task management capabilities with proper rate limit handling. Google Gemini API integration provides AI capabilities for planned features like transaction categorization and insights generation. Chargebee integration provides subscription management capabilities with webhook handling for subscription lifecycle events.
 
 We've designed a comprehensive rate limiting strategy to optimize API usage across all external services. We've also implemented a telemetry system for API usage tracking and LLM cost monitoring. We're now working on financial tracking features with API endpoints for payments and subscriptions, CSV import functionality for Xolo financial data, and AI-powered transaction categorization using the Gemini API.
 
 Recent logs show active development and usage of the leadgen API routes, particularly for the crm/future and uw endpoints, with successful telemetry tracking of API requests. The authentication bypass for development mode is working as expected, facilitating testing of these endpoints.
+
+## Features in Development
+
+### CSV Payment Import & Reconciliation System
+**Status**: Planned
+
+We've created a comprehensive plan to enhance the CSV import functionality for financial data. This system will:
+
+1. Track payment directions (incoming/outgoing) and sources (Stripe, Wire, PayPal)
+2. Preserve original sender information while mapping to AITable clients
+3. Implement source-specific processing logic for each payment type
+4. Provide intelligent client matching with confidence indicators
+5. Create a persistent mapping system for sender-to-client relationships
+6. Enhance the reconciliation dashboard with source-specific analytics
+
+The plan is organized into four phases:
+- Phase 1: Core CSV Import Foundation (schema updates, parser enhancements, client mapping)
+- Phase 2: Source-Specific Processing (Stripe/Chargebee, Wire Transfer, PayPal handlers)
+- Phase 3: User Interface & Reconciliation (UI improvements, dashboard enhancements)
+- Phase 4: Data Quality & Automation (mapping system, reporting & analytics)
+
+Next steps include implementing the schema updates and parser enhancements in Phase 1.
 
 ## What Works
 - Documentation structure established with comprehensive Memory Bank
 - High-level architecture defined and implemented
 - Key requirements identified and documented
 - Integration strategy outlined and implemented for external APIs
-- Environment configuration for all external APIs (AITable, ClickUp, Gemini)
+- Environment configuration for all external APIs (AITable, ClickUp, Gemini, Chargebee)
 - Secure backend API routes for accessing external services
 - Project and client data retrieval from AITable
 - Team-based grouping of projects with proper sorting
@@ -144,11 +175,19 @@ Recent logs show active development and usage of the leadgen API routes, particu
   - FVR leadgen metrics endpoint
   - Authentication bypass in development mode
   - Error handling with proper status codes
+- Chargebee integration for subscription management:
+  - Secure backend client with proper error handling
+  - Subscription management functions (create, retrieve, list)
+  - Customer data retrieval and management
+  - Webhook endpoint for Chargebee events
+  - Idempotent request handling for critical operations
+  - Pagination support for list operations
+  - Comprehensive documentation in cursor rules
 
 ## What's Left
-- Complete payments and subscriptions API implementation
+- Complete payments and subscriptions API integration with Chargebee
 - Implement CSV import functionality for Xolo financial data
-- Create the financial reporting panels with:
+- Create financial reporting panels with:
   - Gross margin calculation at project, team, and company levels
   - Project count visualization per team
   - PnL reporting with multi-level analysis
@@ -175,6 +214,8 @@ Recent logs show active development and usage of the leadgen API routes, particu
 - Implement additional sorting and filtering options
 - Enhance leadgen metrics visualizations with export functionality
 - Expand chart capabilities with additional analytics
+- Create subscription management interface using Chargebee integration
+- Implement subscription analytics and visualization
 - Set up Firebase authentication with role-based access control
 - Optimize data fetching with SWR caching
 - Implement testing infrastructure
@@ -193,9 +234,11 @@ Recent logs show active development and usage of the leadgen API routes, particu
   - Alerts and notifications
   - Mobile optimization
 - Optimize leadgen data retrieval performance for different time-based views
+- Implement synchronization between Chargebee subscription data and AITable records
+- Create subscription lifecycle visualization and management UI
 
 ## Known Issues
-- Need to implement proper caching to prevent API rate limiting (AITable, ClickUp, Gemini)
+- Need to implement proper caching to prevent API rate limiting (AITable, ClickUp, Gemini, Chargebee)
 - Some AITable relation fields need better handling (Client, Mediabuyer)
 - Authentication with role-based access not yet implemented
 - Months active calculation needs to be added
@@ -217,4 +260,6 @@ Recent logs show active development and usage of the leadgen API routes, particu
 - No centralized dashboard for monitoring API operations
 - Need to optimize LLM usage for cost efficiency
 - Leadgen API route performance needs optimization for large datasets
-- Relation field resolution (client and media buyer) needs performance improvement 
+- Relation field resolution (client and media buyer) needs performance improvement
+- Need to develop UI for subscription management and visualization
+- Synchronization between Chargebee subscription data and AITable records not yet implemented 

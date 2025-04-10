@@ -172,6 +172,15 @@ export function Navigation() {
                             )}
                         </div>
                         <Link
+                            href="/finances"
+                            className={cn(
+                                "text-sm font-medium transition-colors hover:text-foreground/80",
+                                pathname === "/finances" ? "text-foreground" : "text-foreground/60"
+                            )}
+                        >
+                            Financial Dashboard
+                        </Link>
+                        <Link
                             href="/terms"
                             className={cn(
                                 "text-sm font-medium transition-colors hover:text-foreground/80",

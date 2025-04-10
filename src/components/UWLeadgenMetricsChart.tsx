@@ -30,6 +30,7 @@ interface UWLeadgenRecord {
     'Cost Per Proposal'?: number
     'Profile Views'?: number
     Date?: number
+    'Interviewed -> Calls'?: number
   }
 }
 
@@ -46,6 +47,7 @@ type MetricKey =
   | 'Cost Per Proposal' 
   | 'Sent -> Viewed'
   | 'Viewed -> Interview'
+  | 'Interviewed -> Calls'
 
 interface MetricConfig {
   key: MetricKey
@@ -126,6 +128,14 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
       color: '#0f766e', // Deeper teal
       format: (value) => `${(value * 100).toFixed(0)}%`,
       checked: false,
+      aggregation: 'average'
+    },
+    { 
+      key: 'Interviewed -> Calls', 
+      label: 'Call Rate', 
+      color: '#c2410c', // Deeper orange
+      format: (value) => `${(value * 100).toFixed(0)}%`,
+      checked: true,
       aggregation: 'average'
     }
   ]);
@@ -220,8 +230,18 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
       
       metrics.forEach(metric => {
         // Ensure all values are converted to numbers
-        let value = fields[metric.key];
-        dataPoint[metric.key] = typeof value === 'number' ? value : Number(value || 0);
+        let value: number;
+        
+        // Calculate the Interviewed -> Calls conversion rate if needed
+        if (metric.key === 'Interviewed -> Calls') {
+          const interviewed = fields['Interviewed'] || 0;
+          const calls = fields['Calls'] || 0;
+          value = interviewed > 0 ? calls / interviewed : 0;
+        } else {
+          value = Number(fields[metric.key as keyof typeof fields] || 0);
+        }
+        
+        dataPoint[metric.key] = value;
       });
 
       return dataPoint;
@@ -465,7 +485,7 @@ export function UWLeadgenMetricsChart({ records }: UWLeadgenMetricsChartProps) {
           <div className="border rounded-md p-3">
             <h3 className="text-sm font-medium mb-2 text-gray-700">Conversion Rates</h3>
             <div className="flex flex-wrap gap-2">
-              {metrics.filter(m => ['Sent -> Viewed', 'Viewed -> Interview'].includes(m.key)).map((metric, i) => {
+              {metrics.filter(m => ['Sent -> Viewed', 'Viewed -> Interview', 'Interviewed -> Calls'].includes(m.key)).map((metric, i) => {
                 const index = metrics.findIndex(m => m.key === metric.key);
                 const aggregatedValue = aggregatedValues[index];
                 

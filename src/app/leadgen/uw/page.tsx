@@ -163,7 +163,7 @@ function UWLeadgenPage() {
                         {record.fields.Interviewed || 0} ({formatPercent(record.fields['Viewed -> Interview'] || 0)})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {record.fields.Calls || 0}
+                        {record.fields.Calls || 0} ({calculateCallRate(record.fields.Interviewed || 0, record.fields.Calls || 0)})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {record.fields.Hires || 0}
@@ -190,6 +190,11 @@ function UWLeadgenPage() {
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`
+}
+
+function calculateCallRate(interviewed: number, calls: number): string {
+  if (interviewed === 0) return '0%';
+  return `${Math.round((calls / interviewed) * 100)}%`;
 }
 
 export default function UWLeadgenPageWithProtection() {

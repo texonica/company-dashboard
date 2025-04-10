@@ -26,6 +26,8 @@ export async function GET(request: Request) {
     const paymentId = searchParams.get('id');
     const clientId = searchParams.get('clientId');
     const subscriptionId = searchParams.get('subscriptionId');
+    const unmatched = searchParams.get('unmatched') === 'true';
+    const paymentSource = searchParams.get('paymentSource');
 
     try {
       if (paymentId) {
@@ -45,12 +47,28 @@ export async function GET(request: Request) {
           fields: record.fields
         });
       } else {
-        // No specific payment requested, return all payments or filter by client/subscription
+        // No specific payment requested, return all payments or filter by client/subscription/unmatched
         let filter = '';
+        const filters = [];
+        
         if (clientId) {
-          filter = `FIND("${clientId}", Client)`;
-        } else if (subscriptionId) {
-          filter = `FIND("${subscriptionId}", Subscription)`;
+          filters.push(`FIND("${clientId}", Client)`);
+        }
+        
+        if (subscriptionId) {
+          filters.push(`FIND("${subscriptionId}", Subscription)`);
+        }
+        
+        if (unmatched) {
+          filters.push('Client = ""');
+        }
+        
+        if (paymentSource) {
+          filters.push(`{PaymentSource} = "${paymentSource}"`);
+        }
+        
+        if (filters.length > 0) {
+          filter = filters.join(' AND ');
         }
         
         const records = await fetchTableRecords(AITABLE_CONFIG.PAYMENTS_TABLE_ID as string, filter);
@@ -280,7 +298,10 @@ export async function GET(request: Request) {
           };
         });
         
-        return NextResponse.json(payments);
+        return NextResponse.json({
+          payments: payments,
+          total: payments.length
+        });
       }
     } catch (apiError) {
       // Handle specific API errors

@@ -1,0 +1,277 @@
+---
+description: @load-when path="**/chargebee/**" or path="**/api/chargebee/**" or path="**/chargebee-*.{ts,js}" or path="**/chargebee*.{ts,js}" or path="**/lib/api/chargebee.ts"
+globs: 
+alwaysApply: false
+---
+ ---
+description: @load-when path="**/chargebee/**" or path="**/api/chargebee/**" or path="**/chargebee-*.{ts,js}" or path="**/chargebee*.{ts,js}" or path="**/lib/api/chargebee.ts"  Chargebee API integration guidelines and usage patterns for subscription management and billing.
+globs: ["**/chargebee/**", "**/api/chargebee/**", "**/chargebee-*.{ts,js}", "**/chargebee*.{ts,js}", "**/lib/api/chargebee.ts"]
+alwaysApply: false
+---
+# Chargebee API Integration
+@load-when path="**/chargebee/**" or path="**/api/chargebee/**" or path="**/chargebee-*.{ts,js}" or path="**/chargebee*.{ts,js}" or path="**/lib/api/chargebee.ts"
+
+The Chargebee API is used for subscription management, billing, and payments. This rule provides guidelines for working with Chargebee in the Texonica Business Dashboard.
+
+## Base Setup
+
+The Chargebee client is initialized in `src/lib/api/chargebee.ts` with site and API key from environment variables:
+
+```typescript
+import Chargebee from 'chargebee';
+
+// Initialize Chargebee client
+const chargebee = new Chargebee({
+  site: process.env.CHARGEBEE_SITE_NAME,
+  apiKey: process.env.CHARGEBEE_API_KEY,
+});
+
+export default chargebee;
+```
+
+## Security Requirements
+
+Per project requirements, all Chargebee API calls MUST be proxied through the backend to protect API credentials:
+
+- NEVER make direct API calls from the frontend
+- All calls must go through Next.js API routes 
+- API keys must only be stored in environment variables
+- Implement proper error handling and rate limiting
+
+## Core API Functions
+
+Our implementation provides these core functions for subscription management:
+
+### 1. Creating a Subscription
+
+```typescript
+// Example: Create a new subscription
+export async function createSubscription(
+  customerId: string, 
+  planId: string,
+  additionalData?: any
+) {
+  try {
+    const response = await chargebee.subscription.create({
+      planId,
+      customerId,
+      ...additionalData
+    });
+    return response.subscription;
+  } catch (error) {
+    console.error("Error creating subscription:", error);
+    throw error;
+  }
+}
+```
+
+API Route Example:
+```typescript
+// pages/api/chargebee/create-subscription.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { createSubscription } from '@/lib/api/chargebee';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { customerId, planId, additionalData } = req.body;
+    const subscription = await createSubscription(customerId, planId, additionalData);
+    return res.status(200).json({ subscription });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+```
+
+### 2. Retrieving Customer Data
+
+```typescript
+// Example: Get customer information
+export async function getCustomer(customerId: string) {
+  try {
+    const response = await chargebee.customer.retrieve(customerId);
+    return response.customer;
+  } catch (error) {
+    console.error("Error retrieving customer:", error);
+    throw error;
+  }
+}
+```
+
+### 3. Listing Subscriptions
+
+```typescript
+// Example: List all subscriptions for a customer
+export async function listCustomerSubscriptions(customerId: string) {
+  try {
+    const response = await chargebee.subscription.list({
+      limit: 100,
+      "customerId[is]": customerId
+    });
+    
+    return response.list.map(item => item.subscription);
+  } catch (error) {
+    console.error("Error listing subscriptions:", error);
+    throw error;
+  }
+}
+```
+
+### 4. Processing Webhooks
+
+```typescript
+// Example: Process Chargebee webhooks
+export async function processWebhook(payload: any) {
+  try {
+    // Verify webhook signature if needed
+    
+    const { event_type, content } = payload;
+    
+    switch (event_type) {
+      case 'subscription_created':
+        // Handle subscription creation
+        break;
+      case 'subscription_cancelled':
+        // Handle subscription cancellation
+        break;
+      // Handle other event types
+      default:
+        console.log(`Unhandled event type: ${event_type}`);
+    }
+    
+    return { processed: true };
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    throw error;
+  }
+}
+```
+
+Webhook Endpoint Example:
+```typescript
+// pages/api/chargebee/webhook.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { processWebhook } from '@/lib/api/chargebee';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    await processWebhook(req.body);
+    return res.status(200).json({ success: true });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+```
+
+## Common Patterns
+
+### Idempotent Requests
+
+Always use idempotency keys for critical operations:
+
+```typescript
+const response = await chargebee.subscription.create(
+  { 
+    planId: "business-quarterly",
+    customerId: "cust_12345"
+  },
+  {
+    "chargebee-idempotency-key": `sub_create_${customerId}_${Date.now()}`
+  }
+);
+```
+
+### Error Handling
+
+Implement standardized error handling with proper response codes:
+
+```typescript
+try {
+  // Chargebee API call
+} catch (error: any) {
+  if (error.api_error_code === 'resource_not_found') {
+    return res.status(404).json({ error: 'Resource not found' });
+  }
+  if (error.api_error_code === 'operation_not_allowed') {
+    return res.status(403).json({ error: 'Operation not allowed' });
+  }
+  console.error("Chargebee API error:", error);
+  return res.status(500).json({ error: 'An error occurred with the billing service' });
+}
+```
+
+### Pagination
+
+For list operations, use proper pagination:
+
+```typescript
+async function getAllSubscriptions() {
+  const allSubscriptions = [];
+  let offset: string | undefined = undefined;
+
+  do {
+    const response = await chargebee.subscription.list({
+      limit: 100,
+      offset
+    });
+    
+    const subscriptions = response.list.map(item => item.subscription);
+    allSubscriptions.push(...subscriptions);
+    
+    offset = response.next_offset;
+  } while (offset);
+
+  return allSubscriptions;
+}
+```
+
+## Data Models
+
+### Subscription Object
+
+Key properties in the subscription object:
+- `id`: Unique identifier
+- `customer_id`: ID of the customer
+- `plan_id`: ID of the subscription plan
+- `status`: Current status (active, cancelled, etc.)
+- `current_term_start`: Start date of current term
+- `current_term_end`: End date of current term
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
+
+### Customer Object
+
+Key properties in the customer object:
+- `id`: Unique identifier
+- `first_name`: Customer's first name
+- `last_name`: Customer's last name
+- `email`: Customer's email address
+- `company`: Customer's company name
+- `billing_address`: Billing address information
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
+
+## Testing
+
+For testing Chargebee integration, use test API credentials and the test site:
+
+```typescript
+// For testing
+const chargebeeTest = new Chargebee({
+  site: process.env.CHARGEBEE_TEST_SITE_NAME,
+  apiKey: process.env.CHARGEBEE_TEST_API_KEY,
+});
+```
+
+## Resources
+
+- [Chargebee API Documentation](mdc:https:/apidocs.chargebee.com/docs/api)
+- [Chargebee Node.js Client](mdc:https:/github.com/chargebee/chargebee-node)
+- [Webhook Implementation Guide](mdc:https:/www.chargebee.com/docs/2.0/webhook-settings.html)
