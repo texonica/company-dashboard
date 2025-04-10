@@ -1,9 +1,4 @@
 ---
-description: @load-when path="**/chargebee/**" or path="**/api/chargebee/**" or path="**/chargebee-*.{ts,js}" or path="**/chargebee*.{ts,js}" or path="**/lib/api/chargebee.ts"
-globs: 
-alwaysApply: false
----
- ---
 description: @load-when path="**/chargebee/**" or path="**/api/chargebee/**" or path="**/chargebee-*.{ts,js}" or path="**/chargebee*.{ts,js}" or path="**/lib/api/chargebee.ts"  Chargebee API integration guidelines and usage patterns for subscription management and billing.
 globs: ["**/chargebee/**", "**/api/chargebee/**", "**/chargebee-*.{ts,js}", "**/chargebee*.{ts,js}", "**/lib/api/chargebee.ts"]
 alwaysApply: false
@@ -272,6 +267,6 @@ const chargebeeTest = new Chargebee({
 
 ## Resources
 
-- [Chargebee API Documentation](mdc:https:/apidocs.chargebee.com/docs/api)
-- [Chargebee Node.js Client](mdc:https:/github.com/chargebee/chargebee-node)
-- [Webhook Implementation Guide](mdc:https:/www.chargebee.com/docs/2.0/webhook-settings.html)
+- [Chargebee API Documentation](https://apidocs.chargebee.com/docs/api)
+- [Chargebee Node.js Client](https://github.com/chargebee/chargebee-node)
+- [Webhook Implementation Guide](https://www.chargebee.com/docs/2.0/webhook-settings.html) 
