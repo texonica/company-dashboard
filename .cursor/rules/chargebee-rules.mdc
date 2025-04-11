@@ -267,6 +267,6 @@ const chargebeeTest = new Chargebee({
 
 ## Resources
 
-- [Chargebee API Documentation](https://apidocs.chargebee.com/docs/api)
-- [Chargebee Node.js Client](https://github.com/chargebee/chargebee-node)
-- [Webhook Implementation Guide](https://www.chargebee.com/docs/2.0/webhook-settings.html) 
+- [Chargebee API Documentation](mdc:https:/apidocs.chargebee.com/docs/api)
+- [Chargebee Node.js Client](mdc:https:/github.com/chargebee/chargebee-node)
+- [Webhook Implementation Guide](mdc:https:/www.chargebee.com/docs/2.0/webhook-settings.html) 
