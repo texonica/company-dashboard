@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "success",
+  "data": {
+    "records": [
+      {
+        "recordId": "rec01",
+        "fields": {
+          "recordId": "rec01",
+          "name": "Website Redesign",
+          "status": "active",
+          "startDate": "2025-01-01",
+          "endDate": "2025-03-31",
+          "client": "Acme Corp",
+          "progress": 60,
+          "createdAt": "2024-12-20T10:00:00Z",
+          "updatedAt": "2025-02-15T14:30:00Z"
+        },
+        "createdAt": "2024-12-20T10:00:00Z",
+        "updatedAt": "2025-02-15T14:30:00Z"
+      },
+      {
+        "recordId": "rec02",
+        "fields": {
+          "recordId": "rec02",
+          "name": "Mobile App Development",
+          "status": "on-hold",
+          "startDate": "2025-02-01",
+          "endDate": "2025-06-30",
+          "client": "TechStart Inc",
+          "progress": 25,
+          "createdAt": "2025-01-15T09:00:00Z",
+          "updatedAt": "2025-02-10T11:20:00Z"
+        },
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-02-10T11:20:00Z"
+      },
+      {
+        "recordId": "rec03",
+        "fields": {
+          "recordId": "rec03",
+          "name": "SEO Optimization",
+          "status": "completed",
+          "startDate": "2025-01-15",
+          "endDate": "2025-02-15",
+          "client": "Digital Solutions",
+          "progress": 100,
+          "createdAt": "2025-01-10T08:30:00Z",
+          "updatedAt": "2025-02-15T16:45:00Z"
+        },
+        "createdAt": "2025-01-10T08:30:00Z",
+        "updatedAt": "2025-02-15T16:45:00Z"
+      }
+    ],
+    "total": 3,
+    "pageNum": 1,
+    "pageSize": 100
+  }
+}

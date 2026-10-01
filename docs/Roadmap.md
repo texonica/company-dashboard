@@ -24,4 +24,5 @@ The default date range should be current month with options to choose, past mont
 
 When working with aitable you will see we have two spaces only focus on the texonica one, you got the id.
 
+make sure to add a lot of logs that are easy for you to read in the console so we don't have to waste our time clicking around in the web interface.
 

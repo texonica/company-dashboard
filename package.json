@@ -1,13 +1,42 @@
 {
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "autoprefixer": "^10.4.20",
+    "module-alias": "^2.2.3",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "axios": "^1.8.1",
-    "dotenv": "^16.4.7"
+    "bcryptjs": "^3.0.2",
+    "chart.js": "^4.4.8",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "jose": "^6.0.8",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^15.2.0",
+    "rate-limiter-flexible": "^5.0.5",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0"
   },
   "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:aitable": "node src/scripts/test-aitable.js",
+    "test:direct": "node src/scripts/direct-test.js",
+    "test:api": "node src/scripts/test-api.js"
+  },
+  "_moduleAliases": {
+    "@": "./src"
   }
 }

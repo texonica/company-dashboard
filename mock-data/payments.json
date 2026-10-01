@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "success",
+  "data": {
+    "records": [
+      {
+        "recordId": "pay01",
+        "fields": {
+          "recordId": "pay01",
+          "amount": 5000,
+          "currency": "USD",
+          "status": "paid",
+          "client": "cli01",
+          "project": "rec01",
+          "date": "2025-01-15",
+          "createdAt": "2025-01-15T10:00:00Z",
+          "updatedAt": "2025-01-15T10:00:00Z"
+        },
+        "createdAt": "2025-01-15T10:00:00Z",
+        "updatedAt": "2025-01-15T10:00:00Z"
+      },
+      {
+        "recordId": "pay02",
+        "fields": {
+          "recordId": "pay02",
+          "amount": 2500,
+          "currency": "USD",
+          "status": "pending",
+          "client": "cli02",
+          "project": "rec02",
+          "date": "2025-02-01",
+          "createdAt": "2025-02-01T09:00:00Z",
+          "updatedAt": "2025-02-01T09:00:00Z"
+        },
+        "createdAt": "2025-02-01T09:00:00Z",
+        "updatedAt": "2025-02-01T09:00:00Z"
+      },
+      {
+        "recordId": "pay03",
+        "fields": {
+          "recordId": "pay03",
+          "amount": 1800,
+          "currency": "USD",
+          "status": "paid",
+          "client": "cli03",
+          "project": "rec03",
+          "date": "2025-02-15",
+          "createdAt": "2025-02-15T08:30:00Z",
+          "updatedAt": "2025-02-15T15:45:00Z"
+        },
+        "createdAt": "2025-02-15T08:30:00Z",
+        "updatedAt": "2025-02-15T15:45:00Z"
+      }
+    ],
+    "total": 3,
+    "pageNum": 1,
+    "pageSize": 100
+  }
+}

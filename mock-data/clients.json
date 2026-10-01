@@ -1,0 +1,51 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "success",
+  "data": {
+    "records": [
+      {
+        "recordId": "cli01",
+        "fields": {
+          "recordId": "cli01",
+          "name": "Acme Corp",
+          "email": "contact@acmecorp.com",
+          "phone": "+1234567890",
+          "createdAt": "2024-11-01T10:00:00Z",
+          "updatedAt": "2025-01-15T14:30:00Z"
+        },
+        "createdAt": "2024-11-01T10:00:00Z",
+        "updatedAt": "2025-01-15T14:30:00Z"
+      },
+      {
+        "recordId": "cli02",
+        "fields": {
+          "recordId": "cli02",
+          "name": "TechStart Inc",
+          "email": "info@techstart.com",
+          "phone": "+0987654321",
+          "createdAt": "2024-12-05T09:00:00Z",
+          "updatedAt": "2025-01-20T11:20:00Z"
+        },
+        "createdAt": "2024-12-05T09:00:00Z",
+        "updatedAt": "2025-01-20T11:20:00Z"
+      },
+      {
+        "recordId": "cli03",
+        "fields": {
+          "recordId": "cli03",
+          "name": "Digital Solutions",
+          "email": "hello@digitalsolutions.com",
+          "phone": "+1122334455",
+          "createdAt": "2025-01-10T08:30:00Z",
+          "updatedAt": "2025-02-01T16:45:00Z"
+        },
+        "createdAt": "2025-01-10T08:30:00Z",
+        "updatedAt": "2025-02-01T16:45:00Z"
+      }
+    ],
+    "total": 3,
+    "pageNum": 1,
+    "pageSize": 100
+  }
+}

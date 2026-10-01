@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "success",
+  "data": {
+    "records": [
+      {
+        "recordId": "sub01",
+        "fields": {
+          "recordId": "sub01",
+          "name": "Website Maintenance",
+          "client": "cli01",
+          "project": "rec01",
+          "amount": 500,
+          "currency": "USD",
+          "frequency": "monthly",
+          "status": "active",
+          "startDate": "2025-01-01",
+          "createdAt": "2024-12-20T10:00:00Z",
+          "updatedAt": "2025-01-01T14:30:00Z"
+        },
+        "createdAt": "2024-12-20T10:00:00Z",
+        "updatedAt": "2025-01-01T14:30:00Z"
+      },
+      {
+        "recordId": "sub02",
+        "fields": {
+          "recordId": "sub02",
+          "name": "App Hosting",
+          "client": "cli02",
+          "project": "rec02",
+          "amount": 300,
+          "currency": "USD",
+          "frequency": "monthly",
+          "status": "active",
+          "startDate": "2025-02-01",
+          "createdAt": "2025-01-15T09:00:00Z",
+          "updatedAt": "2025-02-01T11:20:00Z"
+        },
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-02-01T11:20:00Z"
+      }
+    ],
+    "total": 2,
+    "pageNum": 1,
+    "pageSize": 100
+  }
+}
